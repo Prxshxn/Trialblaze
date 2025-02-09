@@ -1,0 +1,50 @@
+# Flutter & Dart
+.dart_tool/
+.build/
+.melos/
+.pub-cache/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+
+# iOS
+ios/Flutter/Generated.xcconfig
+ios/Pods/
+ios/.symlinks/
+ios/Runner.xcworkspace/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+
+# Android
+android/.gradle/
+android/app/google-services.json
+android/key.properties
+
+# VS Code
+.vscode/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# macOS
+macos/Flutter/ephemeral/
+macos/.symlinks/
+macos/Pods/
+
+# Web
+web/.dart_tool/
+web/.build/
+
+# Linux
+linux/flutter/ephemeral/
+
+# Windows
+windows/flutter/ephemeral/
+
+# Misc
+*.log
+*.lock
+pubspec.lock
+
