@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('YOUR_BACKEND_URL/api/customers/login');
+    final url = Uri.parse('http://192.168.1.7:5005/api/v1/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -82,9 +82,11 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  validator: (value) => value!.isEmpty ? 'Please enter your email' : null,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Please enter your email' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -92,9 +94,11 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  validator: (value) => value!.isEmpty ? 'Please enter your password' : null,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Please enter your password' : null,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -102,7 +106,8 @@ class _LoginPageState extends State<LoginPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
