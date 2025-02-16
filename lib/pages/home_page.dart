@@ -1,35 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'navigation_page.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  MapboxMap? mapboxMapController;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: MapWidget(
-        onMapCreated: _onMapCreated,
+      appBar: AppBar(
+        title: const Text("Home"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NavigationPage(),
+                  ),
+                );
+              },
+              child: const Text("Go to Navigation"),
+            ),
+            ElevatedButton(
+              onPressed: () => _showWIPDialog(context, "Feature 2"),
+              child: const Text("Feature 2"),
+            ),
+            ElevatedButton(
+              onPressed: () => _showWIPDialog(context, "Feature 3"),
+              child: const Text("Feature 3"),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _onMapCreated(
-    MapboxMap controller,
-  ) {
-    setState(() {
-      mapboxMapController = controller;
-    });
-    mapboxMapController?.location.updateSettings(
-      LocationComponentSettings(
-        enabled: true,
-        pulsingEnabled: true,
+  void _showWIPDialog(BuildContext context, String featureName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("$featureName - WIP"),
+        content: const Text("This feature is currently under development."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
       ),
     );
   }
