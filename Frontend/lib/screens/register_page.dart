@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:trialblaze1/utils/toast_utils.dart';
+import 'package:trialblaze1/utils/validation_utils.dart';
 
 enum UserType { hiker, responder }
 
@@ -28,55 +30,66 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isLoading = false;
 
   Future<void> _register() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      ToastUtils.showErrorToast('Please fill all required fields correctly');
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ToastUtils.showErrorToast('Passwords do not match');
+      return;
+    }
 
     setState(() {
       _isLoading = true;
     });
 
-    final url = _userType == UserType.hiker
-        ? Uri.parse('http://192.168.1.7:5005/api/v1/register/hiker')
-        : Uri.parse('http://192.168.1.7:5005/api/v1/register/responder');
+    try {
+      final url = _userType == UserType.hiker
+          ? Uri.parse('http://192.168.1.7:5005/api/v1/register/hiker')
+          : Uri.parse('http://192.168.1.7:5005/api/v1/register/responder');
 
-    final Map<String, dynamic> body = _userType == UserType.hiker
-        ? {
-            'email': _emailController.text,
-            'username': _usernameController.text,
-            'password': _passwordController.text,
-            'hikingExperience': _hikingExperienceController.text,
-            'emergencyContact': _emergencyContactController.text,
-            'address': _addressController.text,
-            'gender': _genderController.text,
-            'age': int.parse(_ageController.text),
-          }
-        : {
-            'email': _emailController.text,
-            'username': _usernameController.text,
-            'password': _passwordController.text,
-            'responderType': _responderTypeController.text,
-            'emergencyContact': _emergencyContactController.text,
-            'location': _locationController.text,
-          };
+      final Map<String, dynamic> body = _userType == UserType.hiker
+          ? {
+              'email': _emailController.text,
+              'username': _usernameController.text,
+              'password': _passwordController.text,
+              'hikingExperience': _hikingExperienceController.text,
+              'emergencyContact': _emergencyContactController.text,
+              'address': _addressController.text,
+              'gender': _genderController.text,
+              'age': int.parse(_ageController.text),
+            }
+          : {
+              'email': _emailController.text,
+              'username': _usernameController.text,
+              'password': _passwordController.text,
+              'responderType': _responderTypeController.text,
+              'emergencyContact': _emergencyContactController.text,
+              'location': _locationController.text,
+            };
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (response.statusCode == 201) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration successful!')),
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
       );
-      Navigator.pushNamed(context, '/login');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration failed: ${response.body}')),
-      );
+
+      if (response.statusCode == 201) {
+        ToastUtils.showSuccessToast('Registration successful! Please login.');
+        Navigator.pushNamed(context, '/login');
+      } else {
+        final errorData = json.decode(response.body);
+        ToastUtils.showErrorToast(
+          errorData['message'] ?? 'Registration failed. Please try again.'
+        );
+      }
+    } catch (e) {
+      ToastUtils.showErrorToast('Network error: Please check your connection');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -108,51 +121,44 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextFormField(
                     controller: _usernameController,
                     decoration: const InputDecoration(labelText: 'Username'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
-                      }
-                      return null;
-                    },
+                    validator: ValidationUtils.validateUsername,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    textInputAction: TextInputAction.next,
+                    onEditingComplete: () => FocusScope.of(context).nextFocus(),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(labelText: 'Email'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an email';
-                      }
-                      return null;
-                    },
+                    validator: ValidationUtils.validateEmail,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    textInputAction: TextInputAction.next,
+                    onEditingComplete: () => FocusScope.of(context).nextFocus(),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _passwordController,
                     decoration: const InputDecoration(labelText: 'Password'),
                     obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a password';
-                      }
-                      return null;
-                    },
+                    validator: ValidationUtils.validatePassword,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    textInputAction: TextInputAction.next,
+                    onEditingComplete: () => FocusScope.of(context).nextFocus(),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _confirmPasswordController,
-                    decoration:
-                        const InputDecoration(labelText: 'Confirm Password'),
+                    decoration: const InputDecoration(labelText: 'Confirm Password'),
                     obscureText: true,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
                       if (value != _passwordController.text) {
                         return 'Passwords do not match';
                       }
                       return null;
                     },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    textInputAction: TextInputAction.next,
+                    onEditingComplete: () => FocusScope.of(context).nextFocus(),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<UserType>(
@@ -174,103 +180,87 @@ class _RegisterPageState extends State<RegisterPage> {
                   if (_userType == UserType.hiker) ...[
                     TextFormField(
                       controller: _hikingExperienceController,
-                      decoration:
-                          const InputDecoration(labelText: 'Hiking Experience'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your hiking experience';
-                        }
-                        return null;
-                      },
+                      decoration: const InputDecoration(labelText: 'Hiking Experience'),
+                      validator: ValidationUtils.validateHikingExperience,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      textInputAction: TextInputAction.next,
+                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emergencyContactController,
-                      decoration:
-                          const InputDecoration(labelText: 'Emergency Contact'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter an emergency contact';
-                        }
-                        return null;
-                      },
+                      decoration: const InputDecoration(labelText: 'Emergency Contact'),
+                      validator: ValidationUtils.validatePhoneNumber,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      keyboardType: TextInputType.phone,
+                      textInputAction: TextInputAction.next,
+                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _addressController,
                       decoration: const InputDecoration(labelText: 'Address'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your address';
-                        }
-                        return null;
-                      },
+                      validator: ValidationUtils.validateAddress,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      textInputAction: TextInputAction.next,
+                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _genderController,
                       decoration: const InputDecoration(labelText: 'Gender'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your gender';
-                        }
-                        return null;
-                      },
+                      validator: ValidationUtils.validateGender,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      textInputAction: TextInputAction.next,
+                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _ageController,
                       decoration: const InputDecoration(labelText: 'Age'),
                       keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your age';
-                        }
-                        return null;
-                      },
+                      validator: ValidationUtils.validateAge,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      textInputAction: TextInputAction.done,
                     ),
                   ] else if (_userType == UserType.responder) ...[
                     TextFormField(
                       controller: _responderTypeController,
-                      decoration:
-                          const InputDecoration(labelText: 'Responder Type'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your responder type';
-                        }
-                        return null;
-                      },
+                      decoration: const InputDecoration(labelText: 'Responder Type'),
+                      validator: ValidationUtils.validateResponderType,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      textInputAction: TextInputAction.next,
+                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emergencyContactController,
-                      decoration:
-                          const InputDecoration(labelText: 'Emergency Contact'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter an emergency contact';
-                        }
-                        return null;
-                      },
+                      decoration: const InputDecoration(labelText: 'Emergency Contact'),
+                      validator: ValidationUtils.validatePhoneNumber,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      keyboardType: TextInputType.phone,
+                      textInputAction: TextInputAction.next,
+                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _locationController,
                       decoration: const InputDecoration(labelText: 'Location'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your location';
-                        }
-                        return null;
-                      },
+                      validator: ValidationUtils.validateLocation,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      textInputAction: TextInputAction.done,
                     ),
                   ],
                   const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _register,
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Register'),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _register,
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text('Register'),
+                    ),
                   ),
                 ],
               ),
