@@ -1,20 +1,25 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
 
-class NavigationPage extends StatefulWidget {
-  const NavigationPage({super.key});
+class AnnotatePage extends StatefulWidget {
+  const AnnotatePage({super.key});
 
   @override
-  State<NavigationPage> createState() => _NavigationPageState();
+  State<AnnotatePage> createState() => _AnnotatePage();
 }
 
-class _NavigationPageState extends State<NavigationPage> {
+class _AnnotatePage extends State<AnnotatePage> {
   mp.MapboxMap? mapboxMapController;
   StreamSubscription? userPositionStream;
+  StreamSubscription? trackingStream;
   gl.Position? currentPosition;
   double currentZoom = 15.0;
+  bool isTracking = false;
+  List<gl.Position> trackedPositions = [];
 
   @override
   void initState() {
@@ -25,6 +30,7 @@ class _NavigationPageState extends State<NavigationPage> {
   @override
   void dispose() {
     userPositionStream?.cancel();
+    trackingStream?.cancel();
     super.dispose();
   }
 
@@ -86,6 +92,30 @@ class _NavigationPageState extends State<NavigationPage> {
               ),
             ),
           ),
+          Positioned(
+              bottom: 260,
+              right: 20,
+              child: Hero(
+                tag: 'startTracking',
+                child: FloatingActionButton(
+                  heroTag: null,
+                  backgroundColor: Colors.green,
+                  onPressed: _startTracking,
+                  child: const Icon(Icons.play_arrow),
+                ),
+              )),
+          Positioned(
+              bottom: 320,
+              right: 20,
+              child: Hero(
+                tag: 'stopTracking',
+                child: FloatingActionButton(
+                  heroTag: null,
+                  backgroundColor: Colors.red,
+                  onPressed: _stopTracking,
+                  child: const Icon(Icons.stop),
+                ),
+              )),
         ],
       ),
     );
@@ -124,7 +154,7 @@ class _NavigationPageState extends State<NavigationPage> {
 
     gl.LocationSettings locationSettings = const gl.LocationSettings(
       accuracy: gl.LocationAccuracy.high,
-      distanceFilter: 100,
+      distanceFilter: 10,
     );
 
     userPositionStream?.cancel();
@@ -135,15 +165,6 @@ class _NavigationPageState extends State<NavigationPage> {
         setState(() {
           currentPosition = position;
         });
-        mapboxMapController?.flyTo(
-          mp.CameraOptions(
-            zoom: currentZoom,
-            center: mp.Point(
-              coordinates: mp.Position(position.longitude, position.latitude),
-            ),
-          ),
-          mp.MapAnimationOptions(duration: 1000),
-        );
       }
     });
   }
@@ -185,5 +206,41 @@ class _NavigationPageState extends State<NavigationPage> {
       ),
       mp.MapAnimationOptions(duration: 1000),
     );
+  }
+
+  void _startTracking() {
+    if (!isTracking) {
+      setState(() {
+        isTracking = true;
+        trackedPositions.clear();
+      });
+      trackingStream = gl.Geolocator.getPositionStream().listen((position) {
+        setState(() {
+          trackedPositions.add(position);
+        });
+        print('Logged Position: ${position.latitude}, ${position.longitude}');
+      });
+    }
+  }
+
+  void _stopTracking() async {
+    if (isTracking) {
+      setState(() {
+        isTracking = false;
+      });
+      trackingStream?.cancel();
+      trackingStream = null;
+      await _saveToFile();
+    }
+  }
+
+  Future<void> _saveToFile() async {
+    final directory =
+        await getExternalStorageDirectory(); // Use external storage
+    final file = File('${directory?.path}/tracked_coordinates.txt');
+    String data =
+        trackedPositions.map((p) => '${p.latitude}, ${p.longitude}').join('\n');
+    await file.writeAsString(data);
+    print('File saved at: ${file.path}');
   }
 }

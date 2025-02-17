@@ -1,3 +1,4 @@
+import 'package:createtrial/pages/annotate_page.dart';
 import 'package:flutter/material.dart';
 import 'navigation_page.dart';
 
@@ -26,8 +27,15 @@ class HomePage extends StatelessWidget {
               child: const Text("Go to Navigation"),
             ),
             ElevatedButton(
-              onPressed: () => _showWIPDialog(context, "Feature 2"),
-              child: const Text("Feature 2"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AnnotatePage(),
+                  ),
+                );
+              },
+              child: const Text("Annotate Feature"),
             ),
             ElevatedButton(
               onPressed: () => _showWIPDialog(context, "Feature 3"),
