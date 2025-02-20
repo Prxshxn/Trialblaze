@@ -1,4 +1,5 @@
 import 'package:createtrial/pages/annotate_page.dart';
+import 'package:createtrial/pages/location_markers.dart';
 import 'package:flutter/material.dart';
 import 'navigation_page.dart';
 
@@ -38,8 +39,15 @@ class HomePage extends StatelessWidget {
               child: const Text("Annotate Feature"),
             ),
             ElevatedButton(
-              onPressed: () => _showWIPDialog(context, "Feature 3"),
-              child: const Text("Feature 3"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LocationMarkerPage(),
+                  ),
+                );
+              },
+              child: const Text("Location Marker Feature"),
             ),
           ],
         ),
@@ -47,19 +55,19 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _showWIPDialog(BuildContext context, String featureName) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("$featureName - WIP"),
-        content: const Text("This feature is currently under development."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
-          ),
-        ],
-      ),
-    );
-  }
+  // void _showWIPDialog(BuildContext context, String featureName) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: Text("$featureName - WIP"),
+  //       content: const Text("This feature is currently under development."),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           child: const Text("OK"),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }

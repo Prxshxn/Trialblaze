@@ -1,21 +1,19 @@
 import 'dart:async';
 import 'dart:io';
-//import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-//import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
-//import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
-class AnnotatePage extends StatefulWidget {
-  const AnnotatePage({super.key});
+class LocationMarkerPage extends StatefulWidget {
+  const LocationMarkerPage({super.key});
 
   @override
-  State<AnnotatePage> createState() => _AnnotatePage();
+  State<LocationMarkerPage> createState() => _AnnotatePage();
 }
 
-class _AnnotatePage extends State<AnnotatePage> {
+class _AnnotatePage extends State<LocationMarkerPage> {
   mp.MapboxMap? mapboxMapController;
   StreamSubscription? userPositionStream;
   StreamSubscription? trackingStream;
@@ -135,6 +133,23 @@ class _AnnotatePage extends State<AnnotatePage> {
         pulsingEnabled: true,
       ),
     );
+
+    final pointAnnotationManager =
+        await mapboxMapController?.annotations.createPointAnnotationManager();
+    final Uint8List imageData = await loadMarkerImage();
+    mp.PointAnnotationOptions pointAnnotationOptions =
+        mp.PointAnnotationOptions(
+      image: imageData,
+      iconSize: 0.3,
+      geometry: mp.Point(
+        coordinates: mp.Position(
+          79.909475,
+          7.102291,
+        ),
+      ),
+    );
+
+    pointAnnotationManager?.create(pointAnnotationOptions);
   }
 
   Future<void> _setupPositionTracking() async {
@@ -246,5 +261,12 @@ class _AnnotatePage extends State<AnnotatePage> {
         trackedPositions.map((p) => '${p.latitude}, ${p.longitude}').join('\n');
     await file.writeAsString(data);
     print('File saved at: ${file.path}');
+  }
+
+  Future<Uint8List> loadMarkerImage() async {
+    var byteData = await rootBundle.load(
+      "assets/icons/location_mark.png",
+    );
+    return byteData.buffer.asUint8List();
   }
 }
