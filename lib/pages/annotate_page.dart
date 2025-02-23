@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-//import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-//import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
-//import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class AnnotatePage extends StatefulWidget {
   const AnnotatePage({super.key});
@@ -135,6 +133,47 @@ class _AnnotatePage extends State<AnnotatePage> {
         pulsingEnabled: true,
       ),
     );
+
+    final pointAnnotationManager =
+        await mapboxMapController?.annotations.createPointAnnotationManager();
+    final Uint8List imageData = await loadMarkerImage();
+    mp.PointAnnotationOptions pointAnnotationOptions =
+        mp.PointAnnotationOptions(
+      image: imageData,
+      iconSize: 0.3,
+      geometry: mp.Point(
+        coordinates: mp.Position(
+          79.909475,
+          7.102291,
+        ),
+      ),
+    );
+
+    pointAnnotationManager?.create(pointAnnotationOptions);
+
+    // Create a polyline annotation manager
+    final polylineAnnotationManager = await mapboxMapController?.annotations
+        .createPolylineAnnotationManager();
+
+    // Example polyline coordinates (replace with your tracked positions)
+    List<mp.Position> polylineCoordinates = [
+      mp.Position(79.909475, 7.102291),
+      mp.Position(79.910475, 7.102291),
+      mp.Position(79.911475, 7.102291),
+    ];
+
+    // Create polyline annotation options
+    mp.PolylineAnnotationOptions polylineAnnotationOptions =
+        mp.PolylineAnnotationOptions(
+      geometry: mp.LineString(
+        coordinates: polylineCoordinates,
+      ),
+      lineColor: Colors.blue.value,
+      lineWidth: 5.0,
+    );
+
+    // Add the polyline annotation to the map
+    polylineAnnotationManager?.create(polylineAnnotationOptions);
   }
 
   Future<void> _setupPositionTracking() async {
@@ -222,9 +261,34 @@ class _AnnotatePage extends State<AnnotatePage> {
         setState(() {
           trackedPositions.add(position);
         });
+        _updatePolyline();
         print('Logged Position: ${position.latitude}, ${position.longitude}');
       });
     }
+  }
+
+  void _updatePolyline() async {
+    final polylineAnnotationManager = await mapboxMapController?.annotations
+        .createPolylineAnnotationManager();
+
+    List<mp.Position> polylineCoordinates = trackedPositions
+        .map((position) => mp.Position(position.longitude, position.latitude))
+        .toList();
+
+    mp.PolylineAnnotationOptions polylineAnnotationOptions =
+        mp.PolylineAnnotationOptions(
+      geometry: mp.LineString(
+        coordinates: polylineCoordinates,
+      ),
+      lineColor: Colors.blue.value,
+      lineWidth: 5.0,
+    );
+
+    // Clear existing polyline annotations
+    polylineAnnotationManager?.deleteAll();
+
+    // Add the updated polyline annotation to the map
+    polylineAnnotationManager?.create(polylineAnnotationOptions);
   }
 
   void _stopTracking() async {
@@ -246,5 +310,12 @@ class _AnnotatePage extends State<AnnotatePage> {
         trackedPositions.map((p) => '${p.latitude}, ${p.longitude}').join('\n');
     await file.writeAsString(data);
     print('File saved at: ${file.path}');
+  }
+
+  Future<Uint8List> loadMarkerImage() async {
+    var byteData = await rootBundle.load(
+      "assets/icons/location_mark.png",
+    );
+    return byteData.buffer.asUint8List();
   }
 }

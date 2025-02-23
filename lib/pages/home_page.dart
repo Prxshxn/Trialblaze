@@ -1,5 +1,5 @@
+import 'package:createtrial/pages/location_marker.dart';
 import 'package:createtrial/pages/annotate_page.dart';
-import 'package:createtrial/pages/location_markers.dart';
 import 'package:flutter/material.dart';
 import 'navigation_page.dart';
 
