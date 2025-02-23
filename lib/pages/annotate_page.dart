@@ -98,26 +98,26 @@ class _AnnotatePage extends State<AnnotatePage> {
               bottom: 260,
               right: 20,
               child: Hero(
-                tag: 'startTracking',
+                tag: 'togleTracking',
                 child: FloatingActionButton(
                   heroTag: null,
-                  backgroundColor: Colors.green,
-                  onPressed: _startTracking,
-                  child: const Icon(Icons.play_arrow),
+                  backgroundColor: isTracking ? Colors.red : Colors.green,
+                  onPressed: _toggleTracking,
+                  child: Icon(isTracking ? Icons.stop : Icons.play_arrow),
                 ),
               )),
-          Positioned(
-              bottom: 320,
-              right: 20,
-              child: Hero(
-                tag: 'stopTracking',
-                child: FloatingActionButton(
-                  heroTag: null,
-                  backgroundColor: Colors.red,
-                  onPressed: _stopTracking,
-                  child: const Icon(Icons.stop),
-                ),
-              )),
+          // Positioned(
+          //     bottom: 320,
+          //     right: 20,
+          //     child: Hero(
+          //       tag: 'stopTracking',
+          //       child: FloatingActionButton(
+          //         heroTag: null,
+          //         backgroundColor: Colors.red,
+          //         onPressed: _stopTracking,
+          //         child: const Icon(Icons.stop),
+          //       ),
+          //     )),
         ],
       ),
     );
@@ -249,6 +249,14 @@ class _AnnotatePage extends State<AnnotatePage> {
       ),
       mp.MapAnimationOptions(duration: 1000),
     );
+  }
+
+  void _toggleTracking() {
+    if (isTracking) {
+      _stopTracking();
+    } else {
+      _startTracking();
+    }
   }
 
   void _startTracking() {
