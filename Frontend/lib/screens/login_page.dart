@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://192.168.1.7:5005/api/v1/login');
+    final url = Uri.parse('http://192.168.1.69:5005/api/v1/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.green,
         textColor: Colors.white,
       );
-      Navigator.pushNamed(context, '/');
+      Navigator.pushReplacementNamed(context, '/home'); 
     } else {
       Fluttertoast.showToast(
         msg: "Login failed. Please check your credentials.",

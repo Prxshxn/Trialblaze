@@ -46,8 +46,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
     try {
       final url = _userType == UserType.hiker
-          ? Uri.parse('http://192.168.1.7:5005/api/v1/register/hiker')
-          : Uri.parse('http://192.168.1.7:5005/api/v1/register/responder');
+          ? Uri.parse('http://192.168.1.69:5005/api/v1/register/hiker')
+          : Uri.parse('http://192.168.1.69:5005/api/v1/register/responder');
 
       final Map<String, dynamic> body = _userType == UserType.hiker
           ? {
@@ -80,6 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
         Navigator.pushNamed(context, '/login');
       } else {
         final errorData = json.decode(response.body);
+        print('Error Response: ${response.body}');
         ToastUtils.showErrorToast(
           errorData['message'] ?? 'Registration failed. Please try again.'
         );
