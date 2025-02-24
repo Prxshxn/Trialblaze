@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
+import 'package:supabase_flutter/supabase_flutter.dart'; // Add Supabase import
 
 class NavigationPage extends StatefulWidget {
-  const NavigationPage({super.key});
+  final String trailId; // Add trailId as a parameter
+  const NavigationPage({super.key, required this.trailId});
 
   @override
   State<NavigationPage> createState() => _NavigationPageState();
@@ -91,7 +93,22 @@ class _NavigationPageState extends State<NavigationPage> {
     );
   }
 
-  void _onMapCreated(mp.MapboxMap controller) {
+  // Define the fetchCoordinates method
+  Future<List<Map<String, dynamic>>> fetchCoordinates(String trailId) async {
+    final supabase = Supabase.instance.client;
+    try {
+      final response = await supabase
+          .from('coordinates')
+          .select('latitude, longitude')
+          .eq('trail_id', trailId);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching coordinates: $e');
+      return [];
+    }
+  }
+
+  void _onMapCreated(mp.MapboxMap controller) async {
     setState(() {
       mapboxMapController = controller;
     });
@@ -101,6 +118,33 @@ class _NavigationPageState extends State<NavigationPage> {
         pulsingEnabled: true,
       ),
     );
+
+    // Fetch coordinates for the specific trail
+    final coordinates = await fetchCoordinates(widget.trailId);
+
+    // Convert coordinates to a list of `mp.Position`
+    List<mp.Position> polylineCoordinates = coordinates.map((coord) {
+      final latitude = coord['latitude'] as double;
+      final longitude = coord['longitude'] as double;
+      return mp.Position(longitude, latitude);
+    }).toList();
+
+    // Create a polyline annotation manager
+    final polylineAnnotationManager = await mapboxMapController?.annotations
+        .createPolylineAnnotationManager();
+
+    // Create polyline annotation options
+    mp.PolylineAnnotationOptions polylineAnnotationOptions =
+        mp.PolylineAnnotationOptions(
+      geometry: mp.LineString(
+        coordinates: polylineCoordinates,
+      ),
+      lineColor: Colors.blue.value,
+      lineWidth: 5.0,
+    );
+
+    // Add the polyline annotation to the map
+    polylineAnnotationManager?.create(polylineAnnotationOptions);
   }
 
   Future<void> _setupPositionTracking() async {

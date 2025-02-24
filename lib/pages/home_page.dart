@@ -2,9 +2,35 @@ import 'package:createtrial/pages/location_marker.dart';
 import 'package:createtrial/pages/annotate_page.dart';
 import 'package:flutter/material.dart';
 import 'navigation_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<Map<String, dynamic>> trails = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTrails();
+  }
+
+  Future<void> _fetchTrails() async {
+    final supabase = Supabase.instance.client;
+    try {
+      final response = await supabase.from('trails').select('*');
+      setState(() {
+        trails = List<Map<String, dynamic>>.from(response);
+      });
+    } catch (e) {
+      print('Error fetching trails: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,62 +38,78 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Home"),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NavigationPage(),
-                  ),
+      body: Column(
+        children: [
+          // List of Trails
+          Expanded(
+            child: ListView.builder(
+              itemCount: trails.length,
+              itemBuilder: (context, index) {
+                final trail = trails[index];
+                return ListTile(
+                  title: Text(trail['name']),
+                  subtitle: Text(trail['description']),
+                  onTap: () {
+                    // Navigate to NavigationPage with the selected trail's ID
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NavigationPage(
+                          trailId: trail['id'], // Pass the trail ID
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
-              child: const Text("Go to Navigation"),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AnnotatePage(),
-                  ),
-                );
-              },
-              child: const Text("Annotate Feature"),
+          ),
+
+          // Existing Buttons
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NavigationPage(
+                          trailId: 'f015dc6b-6440-4ad4-b1a4-1b442b4f5d36',
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text("Go to Navigation"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AnnotatePage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Annotate Feature"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LocationMarkerPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Location Marker Feature"),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LocationMarkerPage(),
-                  ),
-                );
-              },
-              child: const Text("Location Marker Feature"),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-
-  // void _showWIPDialog(BuildContext context, String featureName) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: Text("$featureName - WIP"),
-  //       content: const Text("This feature is currently under development."),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text("OK"),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }

@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:io';
+//import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
+//import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AnnotatePage extends StatefulWidget {
   const AnnotatePage({super.key});
@@ -17,10 +18,10 @@ class _AnnotatePage extends State<AnnotatePage> {
   mp.MapboxMap? mapboxMapController;
   StreamSubscription? userPositionStream;
   StreamSubscription? trackingStream;
-  //PolylineAnnotationManager? polylineAnnotationManager;
   gl.Position? currentPosition;
   double currentZoom = 15.0;
   bool isTracking = false;
+  bool isPaused = false;
   List<gl.Position> trackedPositions = [];
 
   @override
@@ -49,7 +50,7 @@ class _AnnotatePage extends State<AnnotatePage> {
             top: 40,
             left: 20,
             child: Hero(
-              tag: 'backButton', // Unique tag
+              tag: 'backButton',
               child: FloatingActionButton(
                 heroTag: null,
                 mini: true,
@@ -62,7 +63,7 @@ class _AnnotatePage extends State<AnnotatePage> {
             bottom: 80,
             right: 20,
             child: Hero(
-              tag: 'recenterButton', // Unique tag
+              tag: 'recenterButton',
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: _recenterCamera,
@@ -74,7 +75,7 @@ class _AnnotatePage extends State<AnnotatePage> {
             bottom: 140,
             right: 20,
             child: Hero(
-              tag: 'zoomInButton', // Unique tag
+              tag: 'zoomInButton',
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: _zoomIn,
@@ -86,7 +87,7 @@ class _AnnotatePage extends State<AnnotatePage> {
             bottom: 200,
             right: 20,
             child: Hero(
-              tag: 'zoomOutButton', // Unique tag
+              tag: 'zoomOutButton',
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: _zoomOut,
@@ -95,29 +96,31 @@ class _AnnotatePage extends State<AnnotatePage> {
             ),
           ),
           Positioned(
-              bottom: 260,
-              right: 20,
-              child: Hero(
-                tag: 'togleTracking',
-                child: FloatingActionButton(
-                  heroTag: null,
-                  backgroundColor: isTracking ? Colors.red : Colors.green,
-                  onPressed: _toggleTracking,
-                  child: Icon(isTracking ? Icons.stop : Icons.play_arrow),
-                ),
-              )),
-          // Positioned(
-          //     bottom: 320,
-          //     right: 20,
-          //     child: Hero(
-          //       tag: 'stopTracking',
-          //       child: FloatingActionButton(
-          //         heroTag: null,
-          //         backgroundColor: Colors.red,
-          //         onPressed: _stopTracking,
-          //         child: const Icon(Icons.stop),
-          //       ),
-          //     )),
+            bottom: 260,
+            right: 20,
+            child: Hero(
+              tag: 'toggleTracking',
+              child: FloatingActionButton(
+                heroTag: null,
+                backgroundColor: isTracking ? Colors.red : Colors.green,
+                onPressed: _toggleTracking,
+                child: Icon(isTracking ? Icons.pause : Icons.play_arrow),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 320,
+            right: 20,
+            child: Hero(
+              tag: 'saveButton',
+              child: FloatingActionButton(
+                heroTag: null,
+                backgroundColor: Colors.blue,
+                onPressed: _saveTrail,
+                child: const Icon(Icons.save),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -151,18 +154,15 @@ class _AnnotatePage extends State<AnnotatePage> {
 
     pointAnnotationManager?.create(pointAnnotationOptions);
 
-    // Create a polyline annotation manager
     final polylineAnnotationManager = await mapboxMapController?.annotations
         .createPolylineAnnotationManager();
 
-    // Example polyline coordinates (replace with your tracked positions)
     List<mp.Position> polylineCoordinates = [
       mp.Position(79.909475, 7.102291),
       mp.Position(79.910475, 7.102291),
       mp.Position(79.911475, 7.102291),
     ];
 
-    // Create polyline annotation options
     mp.PolylineAnnotationOptions polylineAnnotationOptions =
         mp.PolylineAnnotationOptions(
       geometry: mp.LineString(
@@ -172,7 +172,30 @@ class _AnnotatePage extends State<AnnotatePage> {
       lineWidth: 5.0,
     );
 
-    // Add the polyline annotation to the map
+    polylineAnnotationManager?.create(polylineAnnotationOptions);
+  }
+
+  void _updatePolyline() async {
+    final polylineAnnotationManager = await mapboxMapController?.annotations
+        .createPolylineAnnotationManager();
+
+    List<mp.Position> polylineCoordinates = trackedPositions
+        .map((position) => mp.Position(position.longitude, position.latitude))
+        .toList();
+
+    mp.PolylineAnnotationOptions polylineAnnotationOptions =
+        mp.PolylineAnnotationOptions(
+      geometry: mp.LineString(
+        coordinates: polylineCoordinates,
+      ),
+      lineColor: Colors.blue.value,
+      lineWidth: 5.0,
+    );
+
+    // Clear existing polyline annotations
+    polylineAnnotationManager?.deleteAll();
+
+    // Add the updated polyline annotation to the map
     polylineAnnotationManager?.create(polylineAnnotationOptions);
   }
 
@@ -253,7 +276,7 @@ class _AnnotatePage extends State<AnnotatePage> {
 
   void _toggleTracking() {
     if (isTracking) {
-      _stopTracking();
+      _pauseTracking();
     } else {
       _startTracking();
     }
@@ -263,7 +286,7 @@ class _AnnotatePage extends State<AnnotatePage> {
     if (!isTracking) {
       setState(() {
         isTracking = true;
-        trackedPositions.clear();
+        isPaused = false;
       });
       trackingStream = gl.Geolocator.getPositionStream().listen((position) {
         setState(() {
@@ -272,52 +295,76 @@ class _AnnotatePage extends State<AnnotatePage> {
         _updatePolyline();
         print('Logged Position: ${position.latitude}, ${position.longitude}');
       });
+    } else if (isPaused) {
+      setState(() {
+        isPaused = false;
+      });
+      trackingStream?.resume();
     }
   }
 
-  void _updatePolyline() async {
-    final polylineAnnotationManager = await mapboxMapController?.annotations
-        .createPolylineAnnotationManager();
-
-    List<mp.Position> polylineCoordinates = trackedPositions
-        .map((position) => mp.Position(position.longitude, position.latitude))
-        .toList();
-
-    mp.PolylineAnnotationOptions polylineAnnotationOptions =
-        mp.PolylineAnnotationOptions(
-      geometry: mp.LineString(
-        coordinates: polylineCoordinates,
-      ),
-      lineColor: Colors.blue.value,
-      lineWidth: 5.0,
-    );
-
-    // Clear existing polyline annotations
-    polylineAnnotationManager?.deleteAll();
-
-    // Add the updated polyline annotation to the map
-    polylineAnnotationManager?.create(polylineAnnotationOptions);
+  void _pauseTracking() {
+    if (isTracking) {
+      setState(() {
+        isPaused = true;
+      });
+      trackingStream?.pause();
+    }
   }
 
-  void _stopTracking() async {
+  Future<void> _saveTrail() async {
+    if (trackedPositions.isEmpty) {
+      print('No coordinates to save');
+      return;
+    }
+
+    final trailId = await saveTrail('My Trail', 'Description of my trail');
+    if (trailId != null) {
+      await _saveToSupabase(trailId);
+      print('Trail and coordinates saved to Supabase');
+    }
+
     if (isTracking) {
       setState(() {
         isTracking = false;
+        isPaused = false;
+        trackedPositions.clear();
       });
       trackingStream?.cancel();
       trackingStream = null;
-      await _saveToFile();
     }
   }
 
-  Future<void> _saveToFile() async {
-    final directory =
-        await getExternalStorageDirectory(); // Use external storage
-    final file = File('${directory?.path}/tracked_coordinates.txt');
-    String data =
-        trackedPositions.map((p) => '${p.latitude}, ${p.longitude}').join('\n');
-    await file.writeAsString(data);
-    print('File saved at: ${file.path}');
+  Future<String?> saveTrail(String name, String description) async {
+    final supabase = Supabase.instance.client;
+    try {
+      final response = await supabase
+          .from('trails')
+          .insert({'name': name, 'description': description})
+          .select('id')
+          .single();
+      return response['id'] as String?;
+    } catch (e) {
+      print('Error saving trail: $e');
+      return null;
+    }
+  }
+
+  Future<void> _saveToSupabase(String trailId) async {
+    final supabase = Supabase.instance.client;
+
+    try {
+      for (var position in trackedPositions) {
+        await supabase.from('coordinates').insert({
+          'trail_id': trailId,
+          'latitude': position.latitude,
+          'longitude': position.longitude,
+        });
+      }
+      print('All coordinates saved to Supabase for trail $trailId');
+    } catch (e) {
+      print('Error saving coordinates: $e');
+    }
   }
 
   Future<Uint8List> loadMarkerImage() async {
