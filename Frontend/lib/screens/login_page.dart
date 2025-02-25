@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://192.168.1.69:5005/api/v1/login');
+    final url = Uri.parse('http://10.31.27.247:5005/api/v1/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
