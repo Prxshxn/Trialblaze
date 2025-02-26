@@ -1,7 +1,4 @@
 import 'dart:async';
-//import 'dart:io';
-import 'package:flutter/services.dart';
-//import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
@@ -140,23 +137,6 @@ class _AnnotatePage extends State<AnnotatePage> {
         pulsingEnabled: true,
       ),
     );
-
-    final pointAnnotationManager =
-        await mapboxMapController?.annotations.createPointAnnotationManager();
-    final Uint8List imageData = await loadMarkerImage();
-    mp.PointAnnotationOptions pointAnnotationOptions =
-        mp.PointAnnotationOptions(
-      image: imageData,
-      iconSize: 0.003,
-      geometry: mp.Point(
-        coordinates: mp.Position(
-          79.909475,
-          7.102291,
-        ),
-      ),
-    );
-
-    pointAnnotationManager?.create(pointAnnotationOptions);
 
     final polylineAnnotationManager = await mapboxMapController?.annotations
         .createPolylineAnnotationManager();
@@ -374,12 +354,5 @@ class _AnnotatePage extends State<AnnotatePage> {
     } catch (e) {
       print('Error saving coordinates: $e');
     }
-  }
-
-  Future<Uint8List> loadMarkerImage() async {
-    var byteData = await rootBundle.load(
-      "assets/icons/location_mark.png",
-    );
-    return byteData.buffer.asUint8List();
   }
 }

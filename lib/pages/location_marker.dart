@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
-//import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class LocationMarkerPage extends StatefulWidget {
   const LocationMarkerPage({super.key});
@@ -18,7 +17,6 @@ class _LocationMarkerPage extends State<LocationMarkerPage> {
   mp.MapboxMap? mapboxMapController;
   StreamSubscription? userPositionStream;
   StreamSubscription? trackingStream;
-  //PolylineAnnotationManager? polylineAnnotationManager;
   gl.Position? currentPosition;
   double currentZoom = 15.0;
   bool isTracking = false;
