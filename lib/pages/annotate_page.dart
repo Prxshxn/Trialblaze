@@ -102,9 +102,13 @@ class _AnnotatePage extends State<AnnotatePage> {
               tag: 'toggleTracking',
               child: FloatingActionButton(
                 heroTag: null,
-                backgroundColor: isTracking ? Colors.red : Colors.green,
+                backgroundColor: isTracking
+                    ? (isPaused ? Colors.orange : Colors.red)
+                    : Colors.green,
                 onPressed: _toggleTracking,
-                child: Icon(isTracking ? Icons.pause : Icons.play_arrow),
+                child: Icon(isTracking
+                    ? (isPaused ? Icons.play_arrow : Icons.pause)
+                    : Icons.play_arrow),
               ),
             ),
           ),
@@ -143,7 +147,7 @@ class _AnnotatePage extends State<AnnotatePage> {
     mp.PointAnnotationOptions pointAnnotationOptions =
         mp.PointAnnotationOptions(
       image: imageData,
-      iconSize: 0.3,
+      iconSize: 0.003,
       geometry: mp.Point(
         coordinates: mp.Position(
           79.909475,
@@ -275,9 +279,14 @@ class _AnnotatePage extends State<AnnotatePage> {
   }
 
   void _toggleTracking() {
-    if (isTracking) {
+    if (!isTracking) {
+      // Start tracking if not already tracking
+      _startTracking();
+    } else if (isTracking && !isPaused) {
+      // Pause tracking if tracking is active and not paused
       _pauseTracking();
-    } else {
+    } else if (isTracking && isPaused) {
+      // Resume tracking if tracking is active and paused
       _startTracking();
     }
   }
