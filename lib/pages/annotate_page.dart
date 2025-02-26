@@ -137,26 +137,6 @@ class _AnnotatePage extends State<AnnotatePage> {
         pulsingEnabled: true,
       ),
     );
-
-    final polylineAnnotationManager = await mapboxMapController?.annotations
-        .createPolylineAnnotationManager();
-
-    List<mp.Position> polylineCoordinates = [
-      mp.Position(79.909475, 7.102291),
-      mp.Position(79.910475, 7.102291),
-      mp.Position(79.911475, 7.102291),
-    ];
-
-    mp.PolylineAnnotationOptions polylineAnnotationOptions =
-        mp.PolylineAnnotationOptions(
-      geometry: mp.LineString(
-        coordinates: polylineCoordinates,
-      ),
-      lineColor: Colors.blue.value,
-      lineWidth: 5.0,
-    );
-
-    polylineAnnotationManager?.create(polylineAnnotationOptions);
   }
 
   void _updatePolyline() async {
