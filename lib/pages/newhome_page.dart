@@ -1,7 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class NewHomePage extends StatelessWidget {
+class NewHomePage extends StatefulWidget {
   const NewHomePage({super.key});
+
+  @override
+  State<NewHomePage> createState() => _NewHomePageState();
+}
+
+class _NewHomePageState extends State<NewHomePage> {
+  List<Map<String, dynamic>> trails = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTrails();
+  }
+
+  Future<void> _fetchTrails() async {
+    final supabase = Supabase.instance.client;
+    try {
+      final response = await supabase.from('trails').select('*');
+      setState(() {
+        trails = List<Map<String, dynamic>>.from(response);
+      });
+    } catch (e) {
+      debugPrint('Error fetching trails: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,19 +45,17 @@ class NewHomePage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            const SectionTitle(title: 'Popular & Trending'),
+            const SectionTitle(title: 'Available Trails'),
             const SizedBox(height: 10),
             SectionScroll(
-              items: [
-                TrailCard(
-                    image: 'assets/images/trail1.jpg',
-                    title: 'Mountain Trail',
-                    subtitle: 'Scenic Route'),
-                TrailCard(
-                    image: 'assets/images/trail2.jpg',
-                    title: 'Forest Path',
-                    subtitle: 'Nature Walk'),
-              ],
+              items: trails
+                  .map((trail) => TrailCard(
+                        image: trail['image_url'] ?? 'assets/images/trail1.jpg',
+                        title: trail['name'] ?? 'Unnamed Trail',
+                        subtitle:
+                            trail['description'] ?? 'No description available',
+                      ))
+                  .toList(),
             ),
             const SizedBox(height: 24),
             const SectionTitle(title: 'Trails Nearby'),
