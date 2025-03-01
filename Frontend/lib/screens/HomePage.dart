@@ -53,17 +53,47 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Explore'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: 'Saved'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add your action here
+        },
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.black,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.home),
+                color: Colors.white,
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.search),
+                color: Colors.grey,
+                onPressed: () {},
+              ),
+              const SizedBox(width: 48), // Space for the FAB
+              IconButton(
+                icon: const Icon(Icons.favorite_border),
+                color: Colors.grey,
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.person_outline),
+                color: Colors.grey,
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
