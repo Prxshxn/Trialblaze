@@ -1,95 +1,74 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import '../services/review_service.dart';
+import '../models/review.dart';
 
-class ReviewScreen extends StatefulWidget {
-  const ReviewScreen({super.key});
+// ignore: must_be_immutable
+class ReviewScreen extends StatelessWidget {
+  final TextEditingController _commentController = TextEditingController();
+  double _rating = 5.0;
 
-  @override
-  // ignore: library_private_types_in_public_api
-  _ReviewScreenState createState() => _ReviewScreenState();
-}
-
-class _ReviewScreenState extends State<ReviewScreen> {
-  final TextEditingController reviewController = TextEditingController();
-  double rating = 3.0;
-  final ReviewService _reviewService = ReviewService();
+  ReviewScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final reviewService = Provider.of<ReviewService>(context);
+
     return Scaffold(
-      appBar: AppBar(title: Text("Reviews & Ratings")),
+      appBar: AppBar(title: Text('Reviews')),
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _reviewService.getReviews(),
+            child: StreamBuilder<List<Review>>(
+              stream: reviewService.getReviews(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Center(child: CircularProgressIndicator());
                 }
-
-                return ListView(
-                  children: snapshot.data!.docs.map((doc) {
+                final reviews = snapshot.data!;
+                return ListView.builder(
+                  itemCount: reviews.length,
+                  itemBuilder: (context, index) {
+                    final review = reviews[index];
                     return ListTile(
-                      title: Text(doc['review']),
-                      subtitle: Row(
-                        children: List.generate(5, (index) {
-                          return Icon(
-                            index < (doc['rating'] ?? 0)
-                                ? Icons.star
-                                : Icons.star_border,
-                            color: Colors.amber,
-                          );
-                        }),
-                      ),
+                      title: Text(review.comment),
+                      subtitle: Text('Rating: ${review.rating}'),
                     );
-                  }).toList(),
+                  },
                 );
               },
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(10),
             child: Column(
               children: [
                 TextField(
-                  controller: reviewController,
-                  decoration: InputDecoration(
-                    hintText: "Enter your review",
-                    border: OutlineInputBorder(),
-                  ),
+                  controller: _commentController,
+                  decoration: InputDecoration(labelText: 'Leave a review'),
                 ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(5, (index) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          rating = index + 1.0;
-                        });
-                      },
-                      child: Icon(
-                        index < rating ? Icons.star : Icons.star_border,
-                        color: Colors.amber,
-                        size: 32,
-                      ),
-                    );
-                  }),
+                Slider(
+                  value: _rating,
+                  min: 1,
+                  max: 5,
+                  divisions: 4,
+                  label: _rating.toString(),
+                  onChanged: (value) {
+                    _rating = value;
+                  },
                 ),
-                SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    if (reviewController.text.isNotEmpty) {
-                      _reviewService.addReview(reviewController.text, rating);
-                      reviewController.clear();
-                      setState(() {
-                        rating = 3.0;
-                      });
-                    }
+                    final newReview = Review(
+                      userId: 'user123',
+                      comment: _commentController.text,
+                      rating: _rating,
+                      timestamp: DateTime.now(),
+                    );
+                    reviewService.addReview(newReview);
+                    _commentController.clear();
                   },
-                  child: Text("Submit Review"),
+                  child: Text('Submit'),
                 ),
               ],
             ),

@@ -1,20 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:trailblaze_reviews/models/review.dart' as model;
 
-class ReviewService {
-  final CollectionReference reviews =
-      FirebaseFirestore.instance.collection('reviews');
+class ReviewService extends ChangeNotifier {
+  final List<model.Review> _reviews = [];
 
-  /// Add a new review to Firestore
-  Future<void> addReview(String review, double rating) async {
-    await reviews.add({
-      'review': review,
-      'rating': rating,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+  List<model.Review> get reviews => _reviews;
+
+  void addReview(model.Review review) {
+    _reviews.add(review);
+    notifyListeners(); // Notify UI to update
   }
 
-  /// Get all reviews as a stream
-  Stream<QuerySnapshot> getReviews() {
-    return reviews.orderBy('timestamp', descending: true).snapshots();
-  }
+  getReviews() {}
 }

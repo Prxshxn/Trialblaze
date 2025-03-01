@@ -1,16 +1,18 @@
-// ignore_for_file: unused_import
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'screens/review_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:trailblaze_reviews/services/review_service.dart';
+import 'screens/review_screen.dart'; // Import your ReviewScreen
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}
-
-class Firebase {
-  static initializeApp() {}
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (context) => ReviewService()), // Add your provider here
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,8 +21,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ReviewScreen(),
+      title: 'Trailblaze Reviews',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: ReviewScreen(), // Ensure this screen is within the Provider scope
     );
   }
 }
