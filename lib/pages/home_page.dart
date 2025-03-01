@@ -1,4 +1,4 @@
-import 'package:createtrial/pages/location_marker.dart';
+import 'package:createtrial/pages/newhome_page.dart';
 import 'package:createtrial/pages/annotate_page.dart';
 import 'package:flutter/material.dart';
 import 'navigation_page.dart';
@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LocationMarkerPage(),
+                        builder: (context) => const NewHomePage(),
                       ),
                     );
                   },
