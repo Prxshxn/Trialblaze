@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "34743427079",
+    "project_id": "trailblaze-c1488",
+    "storage_bucket": "trailblaze-c1488.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34743427079:android:caeae0516b481feb86caa2",
+        "android_client_info": {
+          "package_name": "com.example.trailblaze_reviews"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJGtjurX93n8rW1oKA4meswoYCQlmQveE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
