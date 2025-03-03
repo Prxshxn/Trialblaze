@@ -8,13 +8,14 @@ import User from "../models/user.js";
 export async function registerHiker(req, res) {
     // get required variables from request body
     // using es6 object destructing
-    const { username, email, password,hikingExperience, emergencyContact, address, gender, age} = req.body;
+    const { username, email, password, hikingExperience, emergencyContact, address, gender, age } = req.body;
     try {
         // create an instance of a user
         const newUser = new User({
             username,
             email,
             password,
+            role: 'hiker', // Set role for hiker
             hikingExperience,
             emergencyContact,
             address,
@@ -30,8 +31,8 @@ export async function registerHiker(req, res) {
                 message: "It seems you already have an account, please log in instead.",
             });
         const savedUser = await newUser.save(); // save new user into the database
-        const { role, ...user_data } = savedUser._doc;
-        res.status(200).json({
+        const { password: pwd, ...user_data } = savedUser._doc;
+        res.status(201).json({
             status: "success",
             data: [user_data],
             message:
@@ -43,10 +44,9 @@ export async function registerHiker(req, res) {
             status: "error",
             code: 500,
             data: [],
-            message: "Internal Server Error",
+            message: err.message || "Internal Server Error",
         });
     }
-    res.end();
 }
 
 /**
@@ -57,13 +57,14 @@ export async function registerHiker(req, res) {
 export async function registerResponder(req, res) {
     // get required variables from request body
     // using es6 object destructing
-    const { username, email, password, responderType, location} = req.body;
+    const { username, email, password, responderType, location } = req.body;
     try {
         // create an instance of a user
         const newUser = new User({
             username,
             email,
             password,
+            role: 'responder', // Set role for responder
             responderType,
             location
         });
@@ -76,8 +77,8 @@ export async function registerResponder(req, res) {
                 message: "It seems you already have an account, please log in instead.",
             });
         const savedUser = await newUser.save(); // save new user into the database
-        const { role, ...user_data } = savedUser._doc;
-        res.status(200).json({
+        const { password: pwd, ...user_data } = savedUser._doc;
+        res.status(201).json({
             status: "success",
             data: [user_data],
             message:
@@ -89,8 +90,7 @@ export async function registerResponder(req, res) {
             status: "error",
             code: 500,
             data: [],
-            message: "Internal Server Error",
+            message: err.message || "Internal Server Error",
         });
     }
-    res.end();
 }

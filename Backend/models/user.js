@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: true },
   password: { type: String, required: true},
   email: { type: String, required: true, unique: true },
-  //role:{type:String,enum: ["hiker","responder"],required: true, unique: true},
+  role: { type: String, enum: ["hiker", "responder"], required: true },
 
   //Fields for Hikers
   hikingExperience: { type: String, enum: ["Beginner", "Intermediate", "Expert"], default: "Beginner" },
@@ -20,8 +20,6 @@ const UserSchema = new mongoose.Schema({
   //Fields for responders
   responderType: { type: String, enum: ["Search & Rescue", "Medical", "Firefighter"] },
   location : { type: String },
-
-
 });
 
 UserSchema.pre("save", function (next) {
@@ -43,6 +41,7 @@ UserSchema.pre("save", function (next) {
 UserSchema.methods.generateAccessJWT = function () {
   let payload = {
     id: this._id,
+    role: this.role
   };
   return jwt.sign(payload, SECRET_ACCESS_TOKEN, {
     expiresIn: '20m',
@@ -52,7 +51,3 @@ UserSchema.methods.generateAccessJWT = function () {
 const User = mongoose.model("Sample", UserSchema);
 
 export default User;
-
-
-
-
