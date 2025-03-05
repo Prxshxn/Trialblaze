@@ -1,3 +1,4 @@
+import 'package:createtrial/pages/download_page.dart';
 import 'package:createtrial/pages/location_marker.dart';
 import 'package:createtrial/pages/annotate_page.dart';
 import 'package:flutter/material.dart';
@@ -104,6 +105,17 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                   child: const Text("Location Marker Feature"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DownloadMapPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Download maps"),
                 ),
               ],
             ),

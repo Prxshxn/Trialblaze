@@ -127,7 +127,7 @@ class _AnnotatePage extends State<AnnotatePage> {
             ),
           ),
           Positioned(
-            top: 100,
+            bottom: 80,
             left: 20,
             child: Container(
               padding: const EdgeInsets.all(12),
