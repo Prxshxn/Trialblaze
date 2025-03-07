@@ -116,21 +116,25 @@ class ProfileScreen extends StatelessWidget {
               length: 4,
               child: Column(
                 children: [
-                  TabBar(
-                    isScrollable: true,
-                    labelStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    width: double.infinity,
+                    color: Colors.black,
+                    child: TabBar(
+                      isScrollable: false,
+                      labelStyle: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      unselectedLabelStyle: const TextStyle(
+                        fontSize: 18,
+                      ),
+                      tabs: const [
+                        Tab(text: 'Feed'),
+                        Tab(text: 'Photos'),
+                        Tab(text: 'Reviews'),
+                        Tab(text: 'Activity'),
+                      ],
                     ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontSize: 18,
-                    ),
-                    tabs: const [
-                      Tab(text: 'Feed'),
-                      Tab(text: 'Photos'),
-                      Tab(text: 'Reviews'),
-                      Tab(text: 'Activities'),
-                    ],
                   ),
                   SizedBox(
                     height: 300,
