@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class DownloadMapPage extends StatefulWidget {
   final String trailId;
@@ -22,6 +24,8 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
   OfflineManager? _offlineManager;
   final String _tileRegionId = "my-tile-region";
   List<Map<String, dynamic>> trailCoordinates = [];
+  String trailName = '';
+  String trailDescription = '';
   bool _isMapDownloaded = false;
 
   @override
@@ -148,13 +152,17 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
     final supabase = Supabase.instance.client;
     try {
       final response = await supabase
-          .from('coordinates')
-          .select('latitude, longitude')
-          .eq('trail_id', widget.trailId);
+          .from('trails')
+          .select('name, description, coordinates(latitude, longitude)')
+          .eq('id', widget.trailId)
+          .single();
 
       if (response.isNotEmpty) {
         setState(() {
-          trailCoordinates = List<Map<String, dynamic>>.from(response);
+          trailName = response['name'];
+          trailDescription = response['description'];
+          trailCoordinates =
+              List<Map<String, dynamic>>.from(response['coordinates']);
         });
 
         // Calculate center point
@@ -193,6 +201,38 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
       }
     } catch (e) {
       print('Error fetching trail coordinates: $e');
+    }
+  }
+
+  Future<void> _saveTrailDetailsToFile() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/trail_${widget.trailId}.txt');
+
+      String trailData = 'Trail Name: $trailName\n'
+          'Description: $trailDescription\n'
+          'Coordinates:\n';
+
+      for (var coord in trailCoordinates) {
+        trailData += '${coord['latitude']}, ${coord['longitude']}\n';
+      }
+
+      await file.writeAsString(trailData);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Trail details saved to ${file.path}'),
+              backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Error saving trail details: ${e.toString()}'),
+              backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -266,6 +306,7 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
             onPressed: () async {
               await _downloadStylePack();
               await _downloadTileRegion();
+              await _saveTrailDetailsToFile();
               await OfflineSwitch.shared.setMapboxStackConnected(false);
               setState(() {
                 _isMapDownloaded = true;
