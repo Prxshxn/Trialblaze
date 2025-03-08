@@ -206,8 +206,8 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
 
   Future<void> _saveTrailDetailsToFile() async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/trail_${widget.trailId}.txt');
+      final directory = await getExternalStorageDirectory();
+      final file = File('${directory?.path}/trail_${widget.trailId}.txt');
 
       String trailData = 'Trail Name: $trailName\n'
           'Description: $trailDescription\n'
