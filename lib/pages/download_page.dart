@@ -1,23 +1,28 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DownloadMapPage extends StatefulWidget {
-  const DownloadMapPage({super.key});
+  final String trailId;
+  const DownloadMapPage({super.key, required this.trailId});
 
   @override
   State<DownloadMapPage> createState() => _DownloadMapPageState();
 }
 
 class _DownloadMapPageState extends State<DownloadMapPage> {
+  MapboxMap? mapboxMapController;
   final StreamController<double> _stylePackProgress =
       StreamController.broadcast();
   final StreamController<double> _tileRegionLoadProgress =
       StreamController.broadcast();
-
   TileStore? _tileStore;
   OfflineManager? _offlineManager;
-  final _tileRegionId = "my-tile-region";
+  final String _tileRegionId = "my-tile-region";
+  List<Map<String, dynamic>> trailCoordinates = [];
+  bool _isMapDownloaded = false;
 
   @override
   void initState() {
@@ -35,9 +40,8 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error cleaning up resources: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+              content: Text('Error cleaning up resources: ${e.toString()}'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -52,9 +56,8 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error removing offline map data: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+              content: Text('Error removing offline map data: ${e.toString()}'),
+              backgroundColor: Colors.red),
         );
       }
       rethrow;
@@ -63,37 +66,66 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
 
   Future<void> _downloadStylePack() async {
     final stylePackLoadOptions = StylePackLoadOptions(
-        glyphsRasterizationMode:
-            GlyphsRasterizationMode.IDEOGRAPHS_RASTERIZED_LOCALLY,
-        metadata: {"tag": "test"},
-        acceptExpired: false);
+      glyphsRasterizationMode:
+          GlyphsRasterizationMode.IDEOGRAPHS_RASTERIZED_LOCALLY,
+      metadata: {"tag": "test"},
+      acceptExpired: false,
+    );
 
     await _offlineManager?.loadStylePack(
-        MapboxStyles.OUTDOORS, stylePackLoadOptions, (progress) {
-      final percentage =
-          progress.completedResourceCount / progress.requiredResourceCount;
-      if (!_stylePackProgress.isClosed) {
-        _stylePackProgress.sink.add(percentage);
-      }
-    });
+      MapboxStyles.OUTDOORS,
+      stylePackLoadOptions,
+      (progress) {
+        final percentage =
+            progress.completedResourceCount / progress.requiredResourceCount;
+        if (!_stylePackProgress.isClosed) {
+          _stylePackProgress.sink.add(percentage);
+        }
+      },
+    );
   }
 
   Future<void> _downloadTileRegion() async {
-    final tileRegionLoadOptions = TileRegionLoadOptions(geometry: {
+    if (trailCoordinates.isEmpty)
+      throw Exception("No trail coordinates available.");
+
+    double minLat = trailCoordinates[0]['latitude'];
+    double maxLat = trailCoordinates[0]['latitude'];
+    double minLng = trailCoordinates[0]['longitude'];
+    double maxLng = trailCoordinates[0]['longitude'];
+
+    for (var coord in trailCoordinates) {
+      minLat = math.min(minLat, coord['latitude']);
+      maxLat = math.max(maxLat, coord['latitude']);
+      minLng = math.min(minLng, coord['longitude']);
+      maxLng = math.max(maxLng, coord['longitude']);
+    }
+
+    final latPadding = (maxLat - minLat) * 0.1;
+    final lngPadding = (maxLng - minLng) * 0.1;
+
+    final geometry = {
       "type": "Polygon",
       "coordinates": [
         [
-          [-122.5, 37.7],
-          [-122.4, 37.7],
-          [-122.4, 37.8],
-          [-122.5, 37.8],
-          [-122.5, 37.7]
+          [minLng - lngPadding, minLat - latPadding],
+          [maxLng + lngPadding, minLat - latPadding],
+          [maxLng + lngPadding, maxLat + latPadding],
+          [minLng - lngPadding, maxLat + latPadding],
+          [minLng - lngPadding, minLat - latPadding],
         ]
       ]
-    }, descriptorsOptions: [
-      TilesetDescriptorOptions(
-          styleURI: MapboxStyles.OUTDOORS, minZoom: 12, maxZoom: 16)
-    ], acceptExpired: true, networkRestriction: NetworkRestriction.NONE);
+    };
+
+    final tileRegionLoadOptions = TileRegionLoadOptions(
+      geometry: geometry,
+      descriptorsOptions: [
+        TilesetDescriptorOptions(
+            styleURI: MapboxStyles.OUTDOORS, minZoom: 12, maxZoom: 16)
+      ],
+      acceptExpired: true,
+      networkRestriction: NetworkRestriction.NONE,
+    );
 
     await _tileStore?.loadTileRegion(_tileRegionId, tileRegionLoadOptions,
         (progress) {
@@ -108,15 +140,66 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
   Future<void> _initOfflineMap() async {
     _offlineManager = await OfflineManager.create();
     _tileStore = await TileStore.createDefault();
-    _tileStore?.setDiskQuota(500 * 1024 * 1024); // 500MB quota
+    _tileStore?.setDiskQuota(500 * 1024 * 1024);
+    await _fetchTrailCoordinates();
+  }
+
+  Future<void> _fetchTrailCoordinates() async {
+    final supabase = Supabase.instance.client;
+    try {
+      final response = await supabase
+          .from('coordinates')
+          .select('latitude, longitude')
+          .eq('trail_id', widget.trailId);
+
+      if (response.isNotEmpty) {
+        setState(() {
+          trailCoordinates = List<Map<String, dynamic>>.from(response);
+        });
+
+        // Calculate center point
+        double avgLat = 0.0, avgLng = 0.0;
+        for (var coord in trailCoordinates) {
+          avgLat += coord['latitude'];
+          avgLng += coord['longitude'];
+        }
+        avgLat /= trailCoordinates.length;
+        avgLng /= trailCoordinates.length;
+
+        // Update map camera if controller is available
+        if (mapboxMapController != null) {
+          mapboxMapController?.flyTo(
+            CameraOptions(
+              center: Point(coordinates: Position(avgLng, avgLat)),
+              zoom: 12.0,
+            ),
+            MapAnimationOptions(duration: 1000),
+          );
+        }
+
+        // Set camera to the first coordinate
+        if (trailCoordinates.isNotEmpty) {
+          final firstCoord = trailCoordinates.first;
+          mapboxMapController?.flyTo(
+            CameraOptions(
+              center: Point(
+                  coordinates: Position(
+                      firstCoord['longitude'], firstCoord['latitude'])),
+              zoom: 12.0,
+            ),
+            MapAnimationOptions(duration: 1000),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error fetching trail coordinates: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Download Map'),
-      ),
+      appBar: AppBar(title: const Text('Download Map')),
       body: Column(
         children: [
           Expanded(
@@ -124,58 +207,71 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
               key: const ValueKey("mapWidget"),
               styleUri: MapboxStyles.OUTDOORS,
               cameraOptions: CameraOptions(
-                  center: Point(coordinates: Position(-122.45, 37.75)),
-                  zoom: 12.0),
-            ),
-          ),
-          SizedBox(
-            height: 100,
-            child: Card(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  StreamBuilder(
-                    stream: _stylePackProgress.stream,
-                    initialData: 0.0,
-                    builder: (context, snapshot) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                              "Style pack: ${(snapshot.data ?? 0.0).toStringAsFixed(2)}"),
-                          LinearProgressIndicator(value: snapshot.data ?? 0.0),
-                        ],
-                      );
-                    },
-                  ),
-                  StreamBuilder(
-                    stream: _tileRegionLoadProgress.stream,
-                    initialData: 0.0,
-                    builder: (context, snapshot) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                              "Tile region: ${(snapshot.data ?? 0.0).toStringAsFixed(2)}"),
-                          LinearProgressIndicator(value: snapshot.data ?? 0.0),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+                center: trailCoordinates.isNotEmpty
+                    ? Point(
+                        coordinates: Position(
+                            trailCoordinates.first['longitude'],
+                            trailCoordinates.first['latitude']))
+                    : Point(coordinates: Position(-122.45, 37.75)),
+                zoom: 12.0,
               ),
+              onMapCreated: (MapboxMap mapboxMap) async {
+                // First, try to render the map in offline mode
+                await OfflineSwitch.shared.setMapboxStackConnected(false);
+                setState(() {
+                  mapboxMapController = mapboxMap;
+                });
+
+                // If the map fails to load in offline mode, catch the error and switch to online mode
+                try {
+                  if (trailCoordinates.isNotEmpty) {
+                    final firstCoord = trailCoordinates.first;
+                    await mapboxMap.flyTo(
+                      CameraOptions(
+                        center: Point(
+                            coordinates: Position(firstCoord['longitude'],
+                                firstCoord['latitude'])),
+                        zoom: 12.0,
+                      ),
+                      MapAnimationOptions(duration: 1000),
+                    );
+                  }
+                } catch (e) {
+                  // If offline mode fails, switch to online mode
+                  await OfflineSwitch.shared.setMapboxStackConnected(true);
+                  if (trailCoordinates.isNotEmpty) {
+                    final firstCoord = trailCoordinates.first;
+                    await mapboxMap.flyTo(
+                      CameraOptions(
+                        center: Point(
+                            coordinates: Position(firstCoord['longitude'],
+                                firstCoord['latitude'])),
+                        zoom: 12.0,
+                      ),
+                      MapAnimationOptions(duration: 1000),
+                    );
+                  }
+                }
+              },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () async {
-                await _downloadStylePack();
-                await _downloadTileRegion();
-                await OfflineSwitch.shared.setMapboxStackConnected(false);
-              },
-              child: const Text('Download Map'),
-            ),
+          StreamBuilder(
+            stream: _stylePackProgress.stream,
+            initialData: 0.0,
+            builder: (context, snapshot) {
+              return LinearProgressIndicator(value: snapshot.data ?? 0.0);
+            },
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await _downloadStylePack();
+              await _downloadTileRegion();
+              await OfflineSwitch.shared.setMapboxStackConnected(false);
+              setState(() {
+                _isMapDownloaded = true;
+              });
+            },
+            child: const Text('Download Map'),
           ),
         ],
       ),
