@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
+import 'download_page.dart';
 
 class DownloadsViewPage extends StatefulWidget {
   const DownloadsViewPage({super.key});
@@ -43,7 +44,12 @@ class _DownloadsViewPageState extends State<DownloadsViewPage> {
             title: Text(trail['name']),
             subtitle: Text(trail['description']),
             onTap: () {
-              //redirect to the download page WIP
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DownloadMapPage(trailId: trail['id']),
+                ),
+              );
             },
           );
         },
