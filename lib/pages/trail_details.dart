@@ -9,6 +9,37 @@ class TrailDetails extends StatefulWidget {
 }
 
 class _TrailDetailsState extends State<TrailDetails> {
+  // List of districts in Sri Lanka
+  final List<String> districts = [
+    'Ampara',
+    'Anuradhapura',
+    'Badulla',
+    'Batticaloa',
+    'Colombo',
+    'Galle',
+    'Gampaha',
+    'Hambantota',
+    'Jaffna',
+    'Kalutara',
+    'Kandy',
+    'Kegalle',
+    'Kilinochchi',
+    'Kurunegala',
+    'Mannar',
+    'Matale',
+    'Matara',
+    'Monaragala',
+    'Mullaitivu',
+    'Nuwara Eliya',
+    'Polonnaruwa',
+    'Puttalam',
+    'Ratnapura',
+    'Trincomalee',
+    'Vavuniya',
+  ];
+
+  // Variable to store the selected district
+  String? selectedDistrict;
   //Variable to store the selected difficulty level
   String difficultyLevel = 'Easy';
 
@@ -65,6 +96,33 @@ class _TrailDetailsState extends State<TrailDetails> {
             ),
             const SizedBox(height: 16),
 
+            // District Dropdown
+            DropdownButtonFormField<String>(
+              value: selectedDistrict,
+              decoration: InputDecoration(
+                labelText: 'Location',
+                filled: true,
+                fillColor: Colors.grey[50],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              items: districts.map((String district) {
+                return DropdownMenuItem<String>(
+                  value: district,
+                  child: Text(district),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedDistrict = newValue;
+                });
+              },
+              hint: const Text('Select a district'),
+            ),
+            const SizedBox(height: 16),
+
             // Elevation Gain
             TextField(
               controller: _elevationController,
@@ -80,6 +138,7 @@ class _TrailDetailsState extends State<TrailDetails> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
 
             // Description
             TextField(
@@ -102,15 +161,17 @@ class _TrailDetailsState extends State<TrailDetails> {
               'Difficulty Level',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
+            const SizedBox(height: 8), 
             Row(
               children: [
                 _buildDifficultyButton('Easy'),
                 const SizedBox(width: 8),
                 _buildDifficultyButton('Moderate'),
                 const SizedBox(width: 8),
-                _buildDifficultyButton('Hard'),
+_buildDifficultyButton('Hard'),
               ],
             ),
+            const SizedBox(height: 24), 
 
             // Upload Pictures Button
             ElevatedButton(
@@ -125,6 +186,7 @@ class _TrailDetailsState extends State<TrailDetails> {
               ),
               child: const Text('Upload Pictures'),
             ),
+            const SizedBox(height: 16),
 
             //Start annotating Button
             ElevatedButton(
@@ -172,4 +234,4 @@ class _TrailDetailsState extends State<TrailDetails> {
       ),
     );
   }
-}
+}                
