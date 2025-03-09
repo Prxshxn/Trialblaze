@@ -196,10 +196,10 @@ _buildDifficultyButton('Hard'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 48), // Full width button
+                minimumSize: const Size(double.infinity, 55), // Full width button
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text('Start Tracking'),
+              child: const Text('Save'),
             ),
           ],
         ),
