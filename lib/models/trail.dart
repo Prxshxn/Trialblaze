@@ -6,6 +6,7 @@ class Trail {
   final String estimatedTime;
   final int elevationGain;
   final String imageUrl;
+  final String mapUrl;
   final List<Review> reviews;
 
   Trail({
@@ -16,6 +17,7 @@ class Trail {
     required this.estimatedTime,
     required this.elevationGain,
     required this.imageUrl,
+    required this.mapUrl,
     required this.reviews,
   });
 
@@ -31,6 +33,7 @@ class Trail {
         elevationGain: 1279,
         imageUrl:
             'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b',
+        mapUrl: 'https://example.com/adams_peak_trail_map.pdf',
         reviews: [
           Review(
             id: '1',
@@ -74,6 +77,7 @@ class Trail {
         elevationGain: 850,
         imageUrl:
             'https://images.unsplash.com/photo-1501555088652-021faa106b9b',
+        mapUrl: 'https://example.com/crystal_lake_trail_map.pdf',
         reviews: [],
       ),
       Trail(
@@ -85,6 +89,7 @@ class Trail {
         elevationGain: 500,
         imageUrl:
             'https://images.unsplash.com/photo-1519904981063-b0cf448d479e',
+        mapUrl: 'https://example.com/mountain_view_trail_map.pdf',
         reviews: [],
       ),
     ];
@@ -100,6 +105,7 @@ class Trail {
       estimatedTime: json['estimatedTime'],
       elevationGain: json['elevationGain'],
       imageUrl: json['imageUrl'],
+      mapUrl: json['mapUrl'],
       reviews: (json['reviews'] as List?)
               ?.map((review) => Review.fromJson(review))
               .toList() ??
