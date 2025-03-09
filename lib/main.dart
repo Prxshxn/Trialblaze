@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/trail_overview_screen.dart';
+import 'models/trail.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeScreen(),
+      home: TrailOverviewScreen(trail: Trail.getMockTrails()[0]), // This gets the Adam's Peak trail
     );
   }
 }
