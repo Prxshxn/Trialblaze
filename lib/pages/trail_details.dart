@@ -19,7 +19,6 @@ class _TrailDetailsState extends State<TrailDetails> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _timeController.dispose();
     _elevationController.dispose();
     super.dispose();
   }
@@ -50,25 +49,6 @@ class _TrailDetailsState extends State<TrailDetails> {
               decoration: InputDecoration(
                 labelText: 'Trail Name',
                 hintText: 'Name this trail',
-                filled: true,
-                fillColor: Colors.grey[50],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            
-
-            // Estimated Time
-            TextField(
-              controller: _timeController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Estimated Time (hours)',
-                hintText: 'Enter estimated time',
                 filled: true,
                 fillColor: Colors.grey[50],
                 border: OutlineInputBorder(
