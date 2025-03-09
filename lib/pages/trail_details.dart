@@ -74,7 +74,6 @@ class _TrailDetailsState extends State<TrailDetails> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
 
             // Description
             TextField(
@@ -91,14 +90,12 @@ class _TrailDetailsState extends State<TrailDetails> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
 
             // Difficulty Level Selection
             const Text(
               'Difficulty Level',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 8),
             Row(
               children: [
                 _buildDifficultyButton('Easy'),
@@ -108,7 +105,6 @@ class _TrailDetailsState extends State<TrailDetails> {
                 _buildDifficultyButton('Hard'),
               ],
             ),
-            const SizedBox(height: 24),
 
             // Upload Pictures Button
             ElevatedButton(
@@ -122,7 +118,6 @@ class _TrailDetailsState extends State<TrailDetails> {
               ),
               child: const Text('Upload Pictures'),
             ),
-            const SizedBox(height: 16),
 
 
                   ElevatedButton(
