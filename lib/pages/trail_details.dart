@@ -30,7 +30,7 @@ class _TrailDetailsState extends State<TrailDetails> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: const Color.fromARGB(255, 227, 228, 227),
