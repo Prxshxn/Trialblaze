@@ -60,17 +60,19 @@ class _TrailDetailsState extends State<TrailDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xff161616),
       //AppBar with a back button and title
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: const Color.fromARGB(255, 227, 228, 227),
-        shadowColor: const Color.fromARGB(255, 74, 77, 75),
+        iconTheme: IconThemeData(color: Colors.grey[400]),
+        backgroundColor: Colors.grey[900],
+        shadowColor: Colors.black,
         title: const Text(
           'Create a Trail',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
         ),
       ),
 
@@ -87,12 +89,15 @@ class _TrailDetailsState extends State<TrailDetails> {
                 labelText: 'Trail Name',
                 hintText: 'Name this trail',
                 filled: true,
-                fillColor: Colors.grey[50],
+                fillColor: Color(0xff373636),
+                labelStyle: TextStyle(color: Colors.white),
+                hintStyle: TextStyle(color: Colors.grey[400]),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
               ),
+              style: TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 16),
 
@@ -102,7 +107,8 @@ class _TrailDetailsState extends State<TrailDetails> {
               decoration: InputDecoration(
                 labelText: 'Location',
                 filled: true,
-                fillColor: Colors.grey[50],
+                fillColor: Color(0xff373636),
+                labelStyle: TextStyle(color: Colors.white),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
@@ -111,7 +117,8 @@ class _TrailDetailsState extends State<TrailDetails> {
               items: districts.map((String district) {
                 return DropdownMenuItem<String>(
                   value: district,
-                  child: Text(district),
+                  child: Text(district,
+                  style: TextStyle(color: Colors.white),),
                 );
               }).toList(),
               onChanged: (String? newValue) {
@@ -119,7 +126,10 @@ class _TrailDetailsState extends State<TrailDetails> {
                   selectedDistrict = newValue;
                 });
               },
-              hint: const Text('Select a district'),
+              hint: Text('Select a district',
+              style: TextStyle(color: Colors.grey[400]),
+              ),
+              dropdownColor: Colors.grey[800],
             ),
             const SizedBox(height: 16),
 
@@ -131,12 +141,15 @@ class _TrailDetailsState extends State<TrailDetails> {
                 labelText: 'Elevation Gain (m)',
                 hintText: 'Enter elevation gain',
                 filled: true,
-                fillColor: Colors.grey[50],
+                fillColor: Color(0xff373636),
+                labelStyle: TextStyle(color: Colors.white),
+                hintStyle:TextStyle(color: Colors.grey[400]),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
               ),
+              style: TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 16),
 
@@ -148,18 +161,22 @@ class _TrailDetailsState extends State<TrailDetails> {
                 labelText: 'Description',
                 hintText: 'Add a description',
                 filled: true,
-                fillColor: Colors.grey[50],
+                fillColor: Color(0xff373636),
+                labelStyle: TextStyle(color: Colors.white), 
+                hintStyle:
+                    TextStyle(color: Colors.grey[400]),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
               ),
+              style: TextStyle(color: Colors.white),
             ),
 
             // Difficulty Level Selection
             const Text(
               'Difficulty Level',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white),
             ),
             const SizedBox(height: 8), 
             Row(
@@ -168,7 +185,7 @@ class _TrailDetailsState extends State<TrailDetails> {
                 const SizedBox(width: 8),
                 _buildDifficultyButton('Moderate'),
                 const SizedBox(width: 8),
-_buildDifficultyButton('Hard'),
+                _buildDifficultyButton('Hard'),
               ],
             ),
             const SizedBox(height: 24), 
@@ -216,11 +233,14 @@ _buildDifficultyButton('Hard'),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.grey[50], // Change color if selected
+            color: isSelected
+                ? Colors.grey[900]
+                : Color(0xff373636), 
             borderRadius: BorderRadius.circular(8),
-            border: isSelected 
-              ? Border.all(color: Colors.grey[300]!) // Add border if selected
-              : null,
+            border: isSelected
+                ? Border.all(
+                    color: Colors.grey[500]!) 
+                : null,
           ),
           child: Text(
             level,
