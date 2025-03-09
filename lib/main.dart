@@ -4,14 +4,20 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures Flutter is initialized before Supabase
 
+  const supabaseUrl =
+      "https://your-supabase-url.supabase.co"; // Replace with your Supabase URL
+  const supabaseAnonKey =
+      "your-anon-key"; // Replace with your Supabase anon key
+
+  // Check if URL or anonKey is missing
+  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    debugPrint("ERROR: Supabase URL or Key is missing!");
+    return; // Exit early if URL or key is missing
+  }
+
   try {
     // Initialize Supabase with your project's URL and anonKey
-    await Supabase.initialize(
-      url:
-          "https://your-supabase-url.supabase.co", // Replace with your Supabase URL
-      anonKey:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZm5rdGNvcmhveHJ3b3d5bmxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NDI0MTcsImV4cCI6MjA1NzAxODQxN30.TUAFCq9q44omU11XyWK4jcmxO0opv63qYlxO1CAlwj0", // Replace with your Supabase anon key
-    );
+    await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
     runApp(
       const MyApp(),
