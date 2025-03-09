@@ -19,7 +19,6 @@ class _TrailDetailsState extends State<TrailDetails> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _lengthController.dispose();
     _timeController.dispose();
     _elevationController.dispose();
     super.dispose();
@@ -61,22 +60,7 @@ class _TrailDetailsState extends State<TrailDetails> {
             ),
             const SizedBox(height: 16),
 
-            // Trail Length
-            TextField(
-              controller: _lengthController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Trail Length (km)',
-                hintText: 'Enter trail length',
-                filled: true,
-                fillColor: Colors.grey[50],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
+            
 
             // Estimated Time
             TextField(
