@@ -124,25 +124,8 @@ class _TrailDetailsState extends State<TrailDetails> {
             ),
             const SizedBox(height: 16),
 
-            // Start Annotating and Start Tracking buttons in a row
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      //TODO: Implement annotation feature
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('Start Annotating'),
-                  ),
-                ),
-                const SizedBox(width: 16), // Space between buttons
-                Expanded(
-                  child: ElevatedButton(
+
+                  ElevatedButton(
                     onPressed: () {
                       // TODO: Implement tracking feature
                     },
@@ -153,13 +136,10 @@ class _TrailDetailsState extends State<TrailDetails> {
                     ),
                     child: const Text('Start Tracking'),
                   ),
-                ),
-              ],
-            ),
           ],
         ),
       ),
-    );
+    );       
   }
 
   Widget _buildDifficultyButton(String level) {
