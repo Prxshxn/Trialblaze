@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//Main widget for creating a trail details page
 class TrailDetails extends StatefulWidget {
   const TrailDetails({Key? key}) : super(key: key);
 
@@ -8,15 +9,17 @@ class TrailDetails extends StatefulWidget {
 }
 
 class _TrailDetailsState extends State<TrailDetails> {
+  //Variable to store the selected difficulty level
   String difficultyLevel = 'Easy';
+
+  //Controllers for handling text input fields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _lengthController = TextEditingController();
-  final TextEditingController _timeController = TextEditingController();
   final TextEditingController _elevationController = TextEditingController();
 
   @override
   void dispose() {
+    //Dispose controllers to free up resources 
     _nameController.dispose();
     _descriptionController.dispose();
     _elevationController.dispose();
@@ -26,6 +29,7 @@ class _TrailDetailsState extends State<TrailDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //AppBar with a back button and title
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
@@ -38,6 +42,8 @@ class _TrailDetailsState extends State<TrailDetails> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
+
+      //Body of the page with a SingleChildScrollView for scrollable content
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -112,51 +118,54 @@ class _TrailDetailsState extends State<TrailDetails> {
                 // TODO: Implement picture upload
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[200],
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 48), // Full width button
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: const Text('Upload Pictures'),
             ),
 
-
-                  ElevatedButton(
-                    onPressed: () {
-                      // TODO: Implement tracking feature
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('Start Tracking'),
-                  ),
+            //Start annotating Button
+            ElevatedButton(
+              onPressed: () {
+                // TODO: Implement tracking feature
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 48), // Full width button
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text('Start Tracking'),
+            ),
           ],
         ),
       ),
     );       
   }
 
+  //Helper method to build a difficulty level button
   Widget _buildDifficultyButton(String level) {
     bool isSelected = difficultyLevel == level;
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => difficultyLevel = level),
+        onTap: () => setState(() => difficultyLevel = level), // Update selected difficulty
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.grey[50],
+            color: isSelected ? Colors.white : Colors.grey[50], // Change color if selected
             borderRadius: BorderRadius.circular(8),
             border: isSelected 
-              ? Border.all(color: Colors.grey[300]!)
+              ? Border.all(color: Colors.grey[300]!) // Add border if selected
               : null,
           ),
           child: Text(
             level,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? Colors.green : Colors.grey[600],
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? Colors.green : Colors.grey[600],  // Change text color if selected
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, // Bold if selected
             ),
           ),
         ),
