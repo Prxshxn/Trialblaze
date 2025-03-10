@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase package
 import 'package:provider/provider.dart'; // Import Provider package
+import 'package:trailblaze_reviews/services/review_service.dart';
 import 'services/review_service.dart'; // Import ReviewService
 
 void main() async {
