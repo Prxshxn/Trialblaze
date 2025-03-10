@@ -8,7 +8,7 @@ class ReviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Fetch reviews when the screen is first loaded
-    Provider.of<ReviewService>(context, listen: false).fetchReviews();
+    _fetchReviews(context);
 
     return Scaffold(
       appBar: AppBar(title: Text('Trailblaze Reviews')),
@@ -16,7 +16,6 @@ class ReviewScreen extends StatelessWidget {
         children: [
           Expanded(
             child: Consumer<ReviewService>(
-              // Use Consumer to listen for changes
               builder: (context, reviewService, child) {
                 return ListView.builder(
                   itemCount: reviewService.reviews.length,
@@ -47,5 +46,10 @@ class ReviewScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Fetch reviews and update UI
+  void _fetchReviews(BuildContext context) {
+    Provider.of<ReviewService>(context, listen: false).fetchReviews();
   }
 }
