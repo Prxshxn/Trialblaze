@@ -4,8 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:trialblaze1/utils/loging_validation_utils.dart';
 
-
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -26,32 +24,63 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://10.31.27.247:5005/api/v1/login');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': _emailController.text,
-        'password': _passwordController.text,
-      }),
-    );
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (response.statusCode == 200) {
-      Fluttertoast.showToast(
-        msg: "Login successful!",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
+    final url = Uri.parse('http://192.168.1.69:5005/api/v1/login');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        }),
       );
-      Navigator.pushReplacementNamed(context, '/home'); 
-    } else {
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final role = responseData['data']['role'];
+        final username = responseData['data']['username'];
+
+        Fluttertoast.showToast(
+          msg: "Login successful!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+
+        // Route based on user role
+        if (role == 'responder') {
+          Navigator.pushReplacementNamed(
+            context, 
+            '/responder-home',
+            arguments: {'username': username}
+          );
+        } else {
+          Navigator.pushReplacementNamed(
+            context, 
+            '/hiker-home',
+            arguments: {'username': username}
+          );
+        }
+      } else {
+        Fluttertoast.showToast(
+          msg: "Login failed. Please check your credentials.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
       Fluttertoast.showToast(
-        msg: "Login failed. Please check your credentials.",
+        msg: "An error occurred. Please try again.",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
