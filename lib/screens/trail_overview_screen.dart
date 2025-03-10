@@ -209,7 +209,7 @@ class _TrailOverviewScreenState extends State<TrailOverviewScreen> {
                   return IconButton(
                     icon: Icon(
                       index < _userRating ? Icons.star : Icons.star_border,
-                      color: Colors.amber,
+                      color: const Color(0xFF4eae55),
                       size: 36,
                     ),
                     onPressed: () {
@@ -279,7 +279,7 @@ class _TrailOverviewScreenState extends State<TrailOverviewScreen> {
                   children: List.generate(5, (index) {
                     return Icon(
                       index < review.rating ? Icons.star : Icons.star_border,
-                      color: Colors.amber,
+                      color: const Color(0xFF4eae55),
                       size: 20,
                     );
                   }),
