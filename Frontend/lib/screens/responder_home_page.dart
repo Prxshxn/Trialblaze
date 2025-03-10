@@ -100,3 +100,61 @@ class _ResponderHomePageState extends State<ResponderHomePage> {
     );
   }
 }
+
+@override
+void initState() {
+  super.initState();
+  // Simulate fetching alerts from backend
+  _fetchEmergencyAlerts();
+}
+
+Future<void> _fetchEmergencyAlerts() async {
+  // Simulating API call with a delay
+  await Future.delayed(const Duration(seconds: 1));
+  
+  // Mock data - would be replaced with actual API call
+  setState(() {
+    emergencyAlerts = [
+      EmergencyAlert(
+        id: "EM-001",
+        hikerName: "John Smith",
+        trail: "Mountain Ridge Trail",
+        phone: "(555) 123-4567",
+        latitude: 37.865100,
+        longitude: -119.538300,
+        timestamp: DateTime.now().subtract(const Duration(minutes: 2)),
+        status: "Awaiting",
+      ),
+      EmergencyAlert(
+        id: "EM-002",
+        hikerName: "Maria Garcia",
+        trail: "Eagle Peak Trail",
+        phone: "(555) 987-6543",
+        latitude: 37.853200,
+        longitude: -119.522100,
+        timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
+        status: "Awaiting",
+      ),
+    ];
+    isLoading = false;
+  });
+}
+
+// Add refresh button to app bar
+actions: [
+  IconButton(
+    icon: const Icon(Icons.refresh),
+    onPressed: () {
+      setState(() {
+        isLoading = true;
+      });
+      _fetchEmergencyAlerts();
+    },
+  ),
+  IconButton(
+    icon: const Icon(Icons.logout),
+    onPressed: () {
+      Navigator.pushReplacementNamed(context, '/login');
+    },
+  ),
+],
