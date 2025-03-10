@@ -556,3 +556,39 @@ Widget _buildInfoRow(String label, String value, {bool isPhone = false}) {
 
 // Update phone row in build method
 _buildInfoRow('Phone:', alert.phone, isPhone: true),
+
+// Add documentation comments at the top of each class
+/// A model representing an emergency alert from a hiker
+/// Contains all relevant information about the emergency
+class EmergencyAlert {
+  // ...
+}
+
+/// Main dashboard for emergency responders
+/// Displays active emergencies and allows responders to accept them
+class ResponderHomePage extends StatefulWidget {
+  // ...
+}
+
+/// Widget to display individual emergency alerts
+/// Shows hiker information, location data, and provides action buttons
+class EmergencyAlertCard extends StatelessWidget {
+  // ...
+}
+
+// Add comments before key methods
+/// Fetches emergency alerts from the backend
+/// Will be replaced with actual API call implementation
+Future<void> _fetchEmergencyAlerts() async {
+  // ...
+}
+
+/// Called when a responder accepts an emergency
+/// Updates the status and sends acceptance to backend
+Future<void> _acceptEmergency(String alertId) async {
+  // ...
+}
+
+// Organize imports
+import 'package:flutter/material.dart';
+// Add any other imports that would be needed
