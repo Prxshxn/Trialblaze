@@ -7,7 +7,7 @@ void main() async {
   const supabaseUrl =
       "https://your-supabase-url.supabase.co"; // Replace with your Supabase URL
   const supabaseAnonKey =
-      "your-anon-key"; // Replace with your Supabase anon key
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZm5rdGNvcmhveHJ3b3d5bmxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NDI0MTcsImV4cCI6MjA1NzAxODQxN30.TUAFCq9q44omU11XyWK4jcmxO0opv63qYlxO1CAlwj0"; // Replace with your Supabase anon key
 
   // Check if URL or anonKey is missing
   if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
