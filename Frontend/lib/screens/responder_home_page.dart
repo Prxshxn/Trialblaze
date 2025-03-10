@@ -521,3 +521,38 @@ Container(
   ),
   // ...
 )
+// Update _buildInfoRow in EmergencyAlertCard to add phone integration
+Widget _buildInfoRow(String label, String value, {bool isPhone = false}) {
+  return Row(
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+      ),
+      const SizedBox(width: 8),
+      Text(
+        value,
+        style: TextStyle(
+          fontSize: 14,
+          color: isPhone ? Colors.blue : Colors.black87,
+          fontWeight: isPhone ? FontWeight.w500 : FontWeight.normal,
+        ),
+      ),
+      if (isPhone)
+        IconButton(
+          icon: const Icon(Icons.phone, size: 18, color: Colors.blue),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          onPressed: () {
+            // Phone call functionality would go here
+          },
+        ),
+    ],
+  );
+}
+
+// Update phone row in build method
+_buildInfoRow('Phone:', alert.phone, isPhone: true),
