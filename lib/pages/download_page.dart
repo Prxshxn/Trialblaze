@@ -257,7 +257,7 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
               ),
               onMapCreated: (MapboxMap mapboxMap) async {
                 // First, try to render the map in offline mode
-                await OfflineSwitch.shared.setMapboxStackConnected(false);
+                //await OfflineSwitch.shared.setMapboxStackConnected(false);
                 setState(() {
                   mapboxMapController = mapboxMap;
                 });
