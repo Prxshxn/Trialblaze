@@ -224,6 +224,15 @@ class _AnnotatePage extends State<AnnotatePage> {
         setState(() {
           currentPosition = position;
         });
+        mapboxMapController?.flyTo(
+          mp.CameraOptions(
+            zoom: currentZoom,
+            center: mp.Point(
+              coordinates: mp.Position(position.longitude, position.latitude),
+            ),
+          ),
+          mp.MapAnimationOptions(duration: 1000),
+        );
       }
     });
   }
