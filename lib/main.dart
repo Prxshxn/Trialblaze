@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase package
 import 'package:provider/provider.dart'; // Import Provider package
-import 'package:trailblaze_reviews/services/review_service.dart';
+import 'package:trailblaze_reviews/screens/review_screen.dart'; // Import ReviewScreen
 import 'services/review_service.dart'; // Import ReviewService
 
 void main() async {
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Trailblaze Reviews',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: Scaffold(body: Center(child: Text('Hello World!'))),
+      home: ReviewScreen(), // Set ReviewScreen as the home screen
     );
   }
 }
