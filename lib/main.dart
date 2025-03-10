@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase package
 import 'package:trailblaze_reviews/screens/review_screen.dart';
@@ -30,6 +31,24 @@ class MyApp extends StatelessWidget {
       title: 'Trailblaze Reviews',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: ReviewScreen(),
+=======
+
+void main() {
+  runApp(const MainApp());
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text('Hello World!'),
+        ),
+      ),
+>>>>>>> ae7d76d (Initial commit on review-rating branch)
     );
   }
 }

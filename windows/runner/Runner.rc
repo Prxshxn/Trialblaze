@@ -90,12 +90,21 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
+<<<<<<< HEAD
             VALUE "FileDescription", "trailblaze_reviews" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "trailblaze_reviews" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
             VALUE "OriginalFilename", "trailblaze_reviews.exe" "\0"
             VALUE "ProductName", "trailblaze_reviews" "\0"
+=======
+            VALUE "FileDescription", "review_ratings" "\0"
+            VALUE "FileVersion", VERSION_AS_STRING "\0"
+            VALUE "InternalName", "review_ratings" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
+            VALUE "OriginalFilename", "review_ratings.exe" "\0"
+            VALUE "ProductName", "review_ratings" "\0"
+>>>>>>> ae7d76d (Initial commit on review-rating branch)
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

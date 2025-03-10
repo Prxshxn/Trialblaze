@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
     "name": "trailblaze_reviews",
     "short_name": "trailblaze_reviews",
+=======
+    "name": "review_ratings",
+    "short_name": "review_ratings",
+>>>>>>> ae7d76d (Initial commit on review-rating branch)
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

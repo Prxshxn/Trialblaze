@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: trailblaze_reviews
 description: "A new Flutter project."
 publish_to: 'none'
@@ -6,13 +7,25 @@ version: 1.0.0+1
 
 environment:
   sdk: ^3.6.2
+=======
+name: review_ratings
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.0
+>>>>>>> ae7d76d (Initial commit on review-rating branch)
 
 dependencies:
   flutter:
     sdk: flutter
+<<<<<<< HEAD
   cupertino_icons: ^1.0.8
   supabase_flutter: ^0.2.0 # Added Supabase dependency
   provider: ^6.1.2
+=======
+>>>>>>> ae7d76d (Initial commit on review-rating branch)
 
 dev_dependencies:
   flutter_test:
