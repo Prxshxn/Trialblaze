@@ -1,6 +1,7 @@
 class Trail {
   final String id;
   final String name;
+  final String description;
   final String difficulty;
   final double length;
   final String estimatedTime;
@@ -12,6 +13,7 @@ class Trail {
   Trail({
     required this.id,
     required this.name,
+    required this.description,
     required this.difficulty,
     required this.length,
     required this.estimatedTime,
@@ -27,6 +29,7 @@ class Trail {
       Trail(
         id: '1',
         name: 'Adams Peak',
+        description: 'Adams Peak, also known as Sri Pada, is a prominent mountain in Sri Lanka. The trail offers breathtaking views and is considered a sacred pilgrimage site. The path is well-maintained with steps leading to the summit.',
         difficulty: 'Hard',
         length: 4.3,
         estimatedTime: '2 hours 45 minutes',
@@ -71,6 +74,7 @@ class Trail {
       Trail(
         id: '2',
         name: 'Crystal Lake Trail',
+        description: 'A scenic trail that leads to a pristine mountain lake. The path winds through dense forest and offers stunning views of the surrounding peaks.',
         difficulty: 'Moderate',
         length: 3.2,
         estimatedTime: '1 hour 30 minutes',
@@ -83,6 +87,7 @@ class Trail {
       Trail(
         id: '3',
         name: 'Mountain View Trail',
+        description: 'An easy trail perfect for beginners and families. Features panoramic views of the valley and is especially beautiful during sunrise and sunset.',
         difficulty: 'Easy',
         length: 2.5,
         estimatedTime: '1 hour',
@@ -100,6 +105,7 @@ class Trail {
     return Trail(
       id: json['_id'] ?? json['id'],
       name: json['name'],
+      description: json['description'],
       difficulty: json['difficulty'],
       length: json['length'].toDouble(),
       estimatedTime: json['estimatedTime'],
