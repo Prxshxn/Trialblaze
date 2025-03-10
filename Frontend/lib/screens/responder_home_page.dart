@@ -451,3 +451,32 @@ Row(
       ),
   ],
 ),
+
+// Add to EmergencyAlertCard, after the status row
+const SizedBox(height: 12),
+OutlinedButton.icon(
+  onPressed: () {
+    // This would navigate to a map view or external map app
+    // For now, just show a dialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Navigate to Hiker'),
+        content: Text(
+          'This would open navigation to coordinates:\n${alert.latitude}, ${alert.longitude}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  },
+  icon: const Icon(Icons.navigation),
+  label: const Text('Navigate to hiker'),
+  style: OutlinedButton.styleFrom(
+    minimumSize: const Size(double.infinity, 40),
+  ),
+),
