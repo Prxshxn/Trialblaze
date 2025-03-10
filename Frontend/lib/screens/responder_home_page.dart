@@ -480,3 +480,44 @@ OutlinedButton.icon(
     minimumSize: const Size(double.infinity, 40),
   ),
 ),
+// Update Card border radius and shadow
+Card(
+  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12),
+    side: BorderSide(
+      color: isAwaitingResponse ? Colors.red.shade200 : Colors.orange.shade200,
+      width: 1,
+    ),
+  ),
+  elevation: 2,
+  // ...
+)
+
+// Update fonts and colors for better contrast
+Text(
+  isAwaitingResponse ? 'SOS Emergency' : 'In Progress',
+  style: TextStyle(
+    fontWeight: FontWeight.bold,
+    color: isAwaitingResponse ? Colors.red : Colors.orange,
+    fontSize: 15,
+  ),
+),
+
+// Improve coordinate display layout
+Container(
+  padding: const EdgeInsets.all(12),
+  decoration: BoxDecoration(
+    color: Colors.blue.shade50,
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(color: Colors.blue.shade100),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.05),
+        blurRadius: 2,
+        offset: Offset(0, 1),
+      ),
+    ],
+  ),
+  // ...
+)
