@@ -313,3 +313,74 @@ Expanded(
           },
         ),
 ),
+// Add to EmergencyAlertCard widget's build method, inside the Column
+const SizedBox(height: 12),
+const Text(
+  "Hiker's Current Location:",
+  style: TextStyle(
+    fontWeight: FontWeight.w500,
+    fontSize: 14,
+  ),
+),
+const SizedBox(height: 8),
+Container(
+  padding: const EdgeInsets.all(12),
+  decoration: BoxDecoration(
+    color: Colors.blue.shade50,
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(color: Colors.blue.shade100),
+  ),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildCoordinateRow('Latitude:', alert.latitude.toString()),
+      const SizedBox(height: 4),
+      _buildCoordinateRow('Longitude:', alert.longitude.toString()),
+      const SizedBox(height: 4),
+      Row(
+        children: [
+          const Icon(Icons.update, size: 16, color: Colors.grey),
+          const SizedBox(width: 8),
+          Text(
+            'Last updated: ${_formatTime(alert.timestamp)}',
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    ],
+  ),
+),
+
+// Add these methods to EmergencyAlertCard class
+Widget _buildCoordinateRow(String label, String value) {
+  return Row(
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+      ),
+      const SizedBox(width: 8),
+      Text(
+        value,
+        style: const TextStyle(
+          fontSize: 14,
+          fontFamily: 'monospace',
+        ),
+      ),
+    ],
+  );
+}
+
+String _formatTime(DateTime time) {
+  final hours = time.hour.toString().padLeft(2, '0');
+  final minutes = time.minute.toString().padLeft(2, '0');
+  final seconds = time.second.toString().padLeft(2, '0');
+  return '$hours:$minutes:$seconds';
+}
+
