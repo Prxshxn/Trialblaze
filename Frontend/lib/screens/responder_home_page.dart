@@ -384,3 +384,70 @@ String _formatTime(DateTime time) {
   return '$hours:$minutes:$seconds';
 }
 
+// Add to ResponderHomePage class
+Future<void> _acceptEmergency(String alertId) async {
+  // Show loading indicator
+  setState(() {
+    isLoading = true;
+  });
+  
+  // Simulate API call to accept the emergency
+  await Future.delayed(const Duration(seconds: 1));
+  
+  // Update local state after successful API call
+  setState(() {
+    final index = emergencyAlerts.indexWhere((alert) => alert.id == alertId);
+    if (index != -1) {
+      final updatedAlerts = List<EmergencyAlert>.from(emergencyAlerts);
+      final currentAlert = updatedAlerts[index];
+      
+      // Create a new alert with updated status
+      updatedAlerts[index] = EmergencyAlert(
+        id: currentAlert.id,
+        hikerName: currentAlert.hikerName,
+        trail: currentAlert.trail,
+        phone: currentAlert.phone,
+        latitude: currentAlert.latitude,
+        longitude: currentAlert.longitude,
+        timestamp: currentAlert.timestamp,
+        status: "In Progress",
+      );
+      
+      emergencyAlerts = updatedAlerts;
+    }
+    isLoading = false;
+  });
+  
+  // Show confirmation
+  if (!mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Emergency accepted successfully'),
+      backgroundColor: Colors.green,
+    ),
+  );
+}
+
+// Add to EmergencyAlertCard, after location display
+const SizedBox(height: 16),
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Text(
+      'Status: ${alert.status}',
+      style: TextStyle(
+        fontWeight: FontWeight.w500,
+        color: isAwaitingResponse ? Colors.red : Colors.orange,
+      ),
+    ),
+    if (isAwaitingResponse)
+      ElevatedButton(
+        onPressed: onAccept,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white,
+        ),
+        child: const Text('Accept Emergency'),
+      ),
+  ],
+),
