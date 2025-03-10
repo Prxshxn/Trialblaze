@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase package
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: "https://fifnktcorhoxrwowynls.supabase.co", // Your Supabase URL
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZm5rdGNvcmhveHJ3b3d5bmxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NDI0MTcsImV4cCI6MjA1NzAxODQxN30.TUAFCq9q44omU11XyWK4jcmxO0opv63qYlxO1CAlwj0', // Your Supabase anon key
+  );
+
   runApp(MyApp());
 }
 
