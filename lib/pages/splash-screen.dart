@@ -1,3 +1,4 @@
+import 'package:createtrial/pages/trail_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -14,9 +15,13 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+
+    //Add a delay and navigate to the TrailDetails page
     Future.delayed(const Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MyHomePage(title: 'Home')),
+        MaterialPageRoute(
+          builder: (_) => const TrailDetails(),
+        ),  
       );
     });
   }
@@ -40,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/icons/logo.png', // Corrected path
+              'assets/icons/logo.png', 
               width: 200,
               height: 200,
             ),
@@ -52,21 +57,3 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// Define MyHomePage if it doesn't exist in another file
-class MyHomePage extends StatelessWidget {
-  final String title;
-
-  const MyHomePage({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Text('Welcome to the Home Page!'),
-      ),
-    );
-  }
-}
