@@ -1,25 +1,7 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase package
-import 'package:trailblaze_reviews/screens/review_screen.dart';
-import 'services/review_service.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(
-    url: "https://fifnktcorhoxrwowynls.supabase.co", // Your Supabase URL
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpZm5rdGNvcmhveHJ3b3d5bmxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NDI0MTcsImV4cCI6MjA1NzAxODQxN30.TUAFCq9q44omU11XyWK4jcmxO0opv63qYlxO1CAlwj0', // Your Supabase anon key
-  );
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => ReviewService()),
-      ],
-      child: MyApp(),
-    ),
-  );
+void main() {
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -30,25 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Trailblaze Reviews',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: ReviewScreen(),
-=======
-
-void main() {
-  runApp(const MainApp());
-}
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
->>>>>>> ae7d76d (Initial commit on review-rating branch)
+      home: Scaffold(body: Center(child: Text('Hello World!'))),
     );
   }
 }
