@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'navigation_page.dart';
 import 'saved_trails_page.dart';
+import 'package:createtrial/pages/annotate_page.dart';
 
 class NewHomePage extends StatefulWidget {
   const NewHomePage({super.key});
@@ -51,11 +52,24 @@ class _NewHomePageState extends State<NewHomePage> {
             const SizedBox(height: 10),
             SectionScroll(
               items: trails
-                  .map((trail) => TrailCard(
-                        image: trail['image_url'] ?? 'assets/images/trail1.jpg',
-                        title: trail['name'] ?? 'Unnamed Trail',
-                        subtitle:
-                            trail['description'] ?? 'No description available',
+                  .map((trail) => GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NavigationPage(
+                                trailId: trail['id'], // Pass the trail ID
+                              ),
+                            ),
+                          );
+                        },
+                        child: TrailCard(
+                          image:
+                              trail['image_url'] ?? 'assets/images/trail1.jpg',
+                          title: trail['name'] ?? 'Unnamed Trail',
+                          subtitle: trail['description'] ??
+                              'No description available',
+                        ),
                       ))
                   .toList(),
             ),
@@ -102,9 +116,7 @@ class _NewHomePageState extends State<NewHomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => NavigationPage(
-                trailId: 'f015dc6b-6440-4ad4-b1a4-1b442b4f5d36',
-              ),
+              builder: (context) => AnnotatePage(),
             ),
           );
         },
