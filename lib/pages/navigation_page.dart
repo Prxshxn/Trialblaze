@@ -122,6 +122,7 @@ class _NavigationPageState extends State<NavigationPage> {
     // Fetch coordinates for the specific trail
     final coordinates = await fetchCoordinates(widget.trailId);
 
+
     if (coordinates.isNotEmpty) {
       // Get the first coordinate
       final firstCoord = coordinates.first;
@@ -139,6 +140,7 @@ class _NavigationPageState extends State<NavigationPage> {
         mp.MapAnimationOptions(duration: 1000),
       );
     }
+
 
     // Convert coordinates to a list of `mp.Position`
     List<mp.Position> polylineCoordinates = coordinates.map((coord) {
@@ -197,15 +199,9 @@ class _NavigationPageState extends State<NavigationPage> {
         setState(() {
           currentPosition = position;
         });
-        // mapboxMapController?.flyTo(
-        //   mp.CameraOptions(
-        //     zoom: currentZoom,
-        //     center: mp.Point(
-        //       coordinates: mp.Position(position.longitude, position.latitude),
-        //     ),
-        //   ),
-        //   mp.MapAnimationOptions(duration: 1000),
-        // );
+
+
+
       }
     });
   }
