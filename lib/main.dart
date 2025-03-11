@@ -1,12 +1,16 @@
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'pages/home_page.dart'; // Import the HomePage widget
+import 'pages/splash-screen.dart';
+import 'pages/trail_details.dart';
 
 void main() async {
-  await setup(); // Ensure the setup is completed before running the app
-  WidgetsFlutterBinding.ensureInitialized(); // Initialize the widgets
+  await setup();
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Supabase.initialize(
     url: 'https://ajicktjizxgwtsoqiqbi.supabase.co',
     anonKey:
@@ -27,11 +31,14 @@ Future<void> setup() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+
       home: HomePage(), // Start from HomePage
+
     );
   }
 }

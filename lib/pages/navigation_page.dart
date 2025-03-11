@@ -123,6 +123,7 @@ class _NavigationPageState extends State<NavigationPage> {
     final coordinates = await fetchCoordinates(widget.trailId);
 
 
+
     if (coordinates.isNotEmpty) {
       // Get the first coordinate
       final firstCoord = coordinates.first;
@@ -140,6 +141,7 @@ class _NavigationPageState extends State<NavigationPage> {
         mp.MapAnimationOptions(duration: 1000),
       );
     }
+
 
 
     // Convert coordinates to a list of `mp.Position`
@@ -199,8 +201,6 @@ class _NavigationPageState extends State<NavigationPage> {
         setState(() {
           currentPosition = position;
         });
-
-
 
       }
     });
