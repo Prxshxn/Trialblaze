@@ -177,6 +177,21 @@ class _OfflineNavigationPageState extends State<OfflineNavigationPage> {
       // Add the polyline annotation to the map
       manager.create(polylineAnnotationOptions);
     });
+
+    // Set camera to the first coordinate
+    if (coordinates.isNotEmpty) {
+      final firstCoord = coordinates.first;
+      mapboxMapController?.flyTo(
+        mp.CameraOptions(
+          center: mp.Point(
+            coordinates:
+                mp.Position(firstCoord['longitude']!, firstCoord['latitude']!),
+          ),
+          zoom: currentZoom,
+        ),
+        mp.MapAnimationOptions(duration: 1000),
+      );
+    }
   }
 
   void _onMapCreated(mp.MapboxMap controller) async {
@@ -193,6 +208,19 @@ class _OfflineNavigationPageState extends State<OfflineNavigationPage> {
     // If coordinates are already loaded, update the map
     if (trailCoordinates.isNotEmpty) {
       _updateMapWithCoordinates(trailCoordinates);
+
+      // Set camera to the first coordinate
+      final firstCoord = trailCoordinates.first;
+      mapboxMapController?.flyTo(
+        mp.CameraOptions(
+          center: mp.Point(
+            coordinates:
+                mp.Position(firstCoord['longitude']!, firstCoord['latitude']!),
+          ),
+          zoom: currentZoom,
+        ),
+        mp.MapAnimationOptions(duration: 1000),
+      );
     }
   }
 
@@ -228,15 +256,6 @@ class _OfflineNavigationPageState extends State<OfflineNavigationPage> {
         setState(() {
           currentPosition = position;
         });
-        mapboxMapController?.flyTo(
-          mp.CameraOptions(
-            zoom: currentZoom,
-            center: mp.Point(
-              coordinates: mp.Position(position.longitude, position.latitude),
-            ),
-          ),
-          mp.MapAnimationOptions(duration: 1000),
-        );
       }
     });
   }
