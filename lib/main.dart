@@ -1,12 +1,12 @@
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'pages/home_page.dart'; // Import the HomePage widget
 
 void main() async {
-  await setup();
-  WidgetsFlutterBinding.ensureInitialized();
+  await setup(); // Ensure the setup is completed before running the app
+  WidgetsFlutterBinding.ensureInitialized(); // Initialize the widgets
   await Supabase.initialize(
     url: 'https://ajicktjizxgwtsoqiqbi.supabase.co',
     anonKey:
@@ -27,12 +27,11 @@ Future<void> setup() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.[]
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: HomePage(),
+      home: HomePage(), // Start from HomePage
     );
   }
 }
