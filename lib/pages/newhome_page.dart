@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'navigation_page.dart';
+import 'saved_trails_page.dart';
 
 class NewHomePage extends StatefulWidget {
   const NewHomePage({super.key});
@@ -134,7 +135,14 @@ class _NewHomePageState extends State<NewHomePage> {
               IconButton(
                 icon: const Icon(Icons.favorite_border),
                 color: Colors.grey,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SavedTrailsPage(),
+                    ),
+                  );
+                },
               ),
               IconButton(
                 icon: const Icon(Icons.person_outline),
