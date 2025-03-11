@@ -1,3 +1,4 @@
+
 buildscript {
     ext.kotlin_version = "1.9.22" // Update Kotlin version if needed
     repositories {
@@ -9,6 +10,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
@@ -17,6 +19,7 @@ plugins {
 }
 
 android {
+
     namespace = "com.example.createtrial"
     compileSdk = 34
     ndkVersion = flutter.ndkVersion
@@ -28,11 +31,16 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
+
     }
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+
+
+
         applicationId = "com.example.createtrial"
+
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

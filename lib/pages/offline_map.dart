@@ -2,26 +2,33 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
-import 'package:supabase_flutter/supabase_flutter.dart'; // Add Supabase import
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
-class NavigationPage extends StatefulWidget {
-  final String trailId; // Add trailId as a parameter
-  const NavigationPage({super.key, required this.trailId});
+class OfflineNavigationPage extends StatefulWidget {
+  final String trailId; // Trail ID to identify the saved file
+  const OfflineNavigationPage({super.key, required this.trailId});
 
   @override
-  State<NavigationPage> createState() => _NavigationPageState();
+  State<OfflineNavigationPage> createState() => _OfflineNavigationPageState();
 }
 
-class _NavigationPageState extends State<NavigationPage> {
+class _OfflineNavigationPageState extends State<OfflineNavigationPage> {
   mp.MapboxMap? mapboxMapController;
   StreamSubscription? userPositionStream;
   gl.Position? currentPosition;
   double currentZoom = 15.0;
+  List<Map<String, double>> trailCoordinates = []; // Store trail coordinates
 
   @override
   void initState() {
     super.initState();
     _setupPositionTracking();
+    _loadTrailCoordinatesFromFile().then((coordinates) {
+      setState(() {
+        trailCoordinates = coordinates;
+      });
+    });
   }
 
   @override
@@ -43,7 +50,7 @@ class _NavigationPageState extends State<NavigationPage> {
             top: 40,
             left: 20,
             child: Hero(
-              tag: 'backButton', // Unique tag
+              tag: 'backButton',
               child: FloatingActionButton(
                 heroTag: null,
                 mini: true,
@@ -56,7 +63,7 @@ class _NavigationPageState extends State<NavigationPage> {
             bottom: 80,
             right: 20,
             child: Hero(
-              tag: 'recenterButton', // Unique tag
+              tag: 'recenterButton',
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: _recenterCamera,
@@ -68,7 +75,7 @@ class _NavigationPageState extends State<NavigationPage> {
             bottom: 140,
             right: 20,
             child: Hero(
-              tag: 'zoomInButton', // Unique tag
+              tag: 'zoomInButton',
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: _zoomIn,
@@ -80,7 +87,7 @@ class _NavigationPageState extends State<NavigationPage> {
             bottom: 200,
             right: 20,
             child: Hero(
-              tag: 'zoomOutButton', // Unique tag
+              tag: 'zoomOutButton',
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: _zoomOut,
@@ -93,18 +100,97 @@ class _NavigationPageState extends State<NavigationPage> {
     );
   }
 
-  // Define the fetchCoordinates method
-  Future<List<Map<String, dynamic>>> fetchCoordinates(String trailId) async {
-    final supabase = Supabase.instance.client;
+  // Load trail coordinates from the saved file
+  Future<List<Map<String, double>>> _loadTrailCoordinatesFromFile() async {
+    List<Map<String, double>> coordinates = [];
     try {
-      final response = await supabase
-          .from('coordinates')
-          .select('latitude, longitude')
-          .eq('trail_id', trailId);
-      return List<Map<String, dynamic>>.from(response);
+      final directory = await getExternalStorageDirectory();
+      final file = File('${directory?.path}/trail_${widget.trailId}.txt');
+
+      if (await file.exists()) {
+        final content = await file.readAsString();
+        final lines = content.split('\n');
+
+        // Flag to indicate when we start parsing coordinates
+        bool isParsingCoordinates = false;
+
+        // Parse coordinates from the file
+        for (var line in lines) {
+          // Skip empty lines
+          if (line.trim().isEmpty) continue;
+
+          // Check if we've reached the "Coordinates:" line
+          if (line.startsWith('Coordinates:')) {
+            isParsingCoordinates = true;
+            continue; // Skip the "Coordinates:" line itself
+          }
+
+          // If we're parsing coordinates, process the line
+          if (isParsingCoordinates) {
+            final parts = line.split(',');
+            if (parts.length == 2) {
+              final latitude = double.tryParse(parts[0].trim());
+              final longitude = double.tryParse(parts[1].trim());
+              if (latitude != null && longitude != null) {
+                coordinates.add({
+                  'latitude': latitude,
+                  'longitude': longitude,
+                });
+              }
+            }
+          }
+        }
+
+        // Update the map with the loaded coordinates
+        if (coordinates.isNotEmpty && mapboxMapController != null) {
+          _updateMapWithCoordinates(coordinates);
+        }
+      }
     } catch (e) {
-      print('Error fetching coordinates: $e');
-      return [];
+      // Handle errors silently
+    }
+
+    return coordinates;
+  }
+
+  // Update the map with the loaded coordinates
+  void _updateMapWithCoordinates(List<Map<String, double>> coordinates) {
+    // Convert coordinates to a list of `mp.Position`
+    List<mp.Position> polylineCoordinates = coordinates.map((coord) {
+      return mp.Position(coord['longitude']!, coord['latitude']!);
+    }).toList();
+
+    // Create a polyline annotation manager
+    mapboxMapController?.annotations
+        .createPolylineAnnotationManager()
+        .then((manager) {
+      // Create polyline annotation options
+      mp.PolylineAnnotationOptions polylineAnnotationOptions =
+          mp.PolylineAnnotationOptions(
+        geometry: mp.LineString(
+          coordinates: polylineCoordinates,
+        ),
+        lineColor: Colors.blue.value,
+        lineWidth: 5.0,
+      );
+
+      // Add the polyline annotation to the map
+      manager.create(polylineAnnotationOptions);
+    });
+
+    // Set camera to the first coordinate
+    if (coordinates.isNotEmpty) {
+      final firstCoord = coordinates.first;
+      mapboxMapController?.flyTo(
+        mp.CameraOptions(
+          center: mp.Point(
+            coordinates:
+                mp.Position(firstCoord['longitude']!, firstCoord['latitude']!),
+          ),
+          zoom: currentZoom,
+        ),
+        mp.MapAnimationOptions(duration: 1000),
+      );
     }
   }
 
@@ -119,54 +205,23 @@ class _NavigationPageState extends State<NavigationPage> {
       ),
     );
 
-    // Fetch coordinates for the specific trail
-    final coordinates = await fetchCoordinates(widget.trailId);
+    // If coordinates are already loaded, update the map
+    if (trailCoordinates.isNotEmpty) {
+      _updateMapWithCoordinates(trailCoordinates);
 
-
-
-    if (coordinates.isNotEmpty) {
-      // Get the first coordinate
-      final firstCoord = coordinates.first;
-      final firstLatitude = firstCoord['latitude'] as double;
-      final firstLongitude = firstCoord['longitude'] as double;
-
-      // Set the camera position to the first coordinate
+      // Set camera to the first coordinate
+      final firstCoord = trailCoordinates.first;
       mapboxMapController?.flyTo(
         mp.CameraOptions(
           center: mp.Point(
-            coordinates: mp.Position(firstLongitude, firstLatitude),
+            coordinates:
+                mp.Position(firstCoord['longitude']!, firstCoord['latitude']!),
           ),
-          zoom: currentZoom, // Use the current zoom level
+          zoom: currentZoom,
         ),
         mp.MapAnimationOptions(duration: 1000),
       );
     }
-
-
-
-    // Convert coordinates to a list of `mp.Position`
-    List<mp.Position> polylineCoordinates = coordinates.map((coord) {
-      final latitude = coord['latitude'] as double;
-      final longitude = coord['longitude'] as double;
-      return mp.Position(longitude, latitude);
-    }).toList();
-
-    // Create a polyline annotation manager
-    final polylineAnnotationManager = await mapboxMapController?.annotations
-        .createPolylineAnnotationManager();
-
-    // Create polyline annotation options
-    mp.PolylineAnnotationOptions polylineAnnotationOptions =
-        mp.PolylineAnnotationOptions(
-      geometry: mp.LineString(
-        coordinates: polylineCoordinates,
-      ),
-      lineColor: Colors.blue.value,
-      lineWidth: 5.0,
-    );
-
-    // Add the polyline annotation to the map
-    polylineAnnotationManager?.create(polylineAnnotationOptions);
   }
 
   Future<void> _setupPositionTracking() async {
@@ -201,7 +256,6 @@ class _NavigationPageState extends State<NavigationPage> {
         setState(() {
           currentPosition = position;
         });
-
       }
     });
   }
