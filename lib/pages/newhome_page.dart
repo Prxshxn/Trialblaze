@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'navigation_page.dart';
 
 class NewHomePage extends StatefulWidget {
   const NewHomePage({super.key});
@@ -97,7 +98,14 @@ class _NewHomePageState extends State<NewHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Add your action here
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NavigationPage(
+                trailId: 'f015dc6b-6440-4ad4-b1a4-1b442b4f5d36',
+              ),
+            ),
+          );
         },
         backgroundColor: Colors.green,
         child: const Icon(Icons.add),

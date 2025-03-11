@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   },
-                  child: const Text("Location Marker Feature"),
+                  child: const Text("Home Page"),
                 ),
               ],
             ),
