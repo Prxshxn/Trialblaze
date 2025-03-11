@@ -1,22 +1,26 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
-import 'package:supabase_flutter/supabase_flutter.dart'; // Add Supabase import
 
-class NavigationPage extends StatefulWidget {
-  final String trailId; // Add trailId as a parameter
-  const NavigationPage({super.key, required this.trailId});
+class LocationMarkerPage extends StatefulWidget {
+  const LocationMarkerPage({super.key});
 
   @override
-  State<NavigationPage> createState() => _NavigationPageState();
+  State<LocationMarkerPage> createState() => _LocationMarkerPage();
 }
 
-class _NavigationPageState extends State<NavigationPage> {
+class _LocationMarkerPage extends State<LocationMarkerPage> {
   mp.MapboxMap? mapboxMapController;
   StreamSubscription? userPositionStream;
+  StreamSubscription? trackingStream;
   gl.Position? currentPosition;
   double currentZoom = 15.0;
+  bool isTracking = false;
+  List<gl.Position> trackedPositions = [];
 
   @override
   void initState() {
@@ -27,6 +31,7 @@ class _NavigationPageState extends State<NavigationPage> {
   @override
   void dispose() {
     userPositionStream?.cancel();
+    trackingStream?.cancel();
     super.dispose();
   }
 
@@ -88,24 +93,33 @@ class _NavigationPageState extends State<NavigationPage> {
               ),
             ),
           ),
+          Positioned(
+              bottom: 260,
+              right: 20,
+              child: Hero(
+                tag: 'startTracking',
+                child: FloatingActionButton(
+                  heroTag: null,
+                  backgroundColor: Colors.green,
+                  onPressed: _startTracking,
+                  child: const Icon(Icons.play_arrow),
+                ),
+              )),
+          Positioned(
+              bottom: 320,
+              right: 20,
+              child: Hero(
+                tag: 'stopTracking',
+                child: FloatingActionButton(
+                  heroTag: null,
+                  backgroundColor: Colors.red,
+                  onPressed: _stopTracking,
+                  child: const Icon(Icons.stop),
+                ),
+              )),
         ],
       ),
     );
-  }
-
-  // Define the fetchCoordinates method
-  Future<List<Map<String, dynamic>>> fetchCoordinates(String trailId) async {
-    final supabase = Supabase.instance.client;
-    try {
-      final response = await supabase
-          .from('coordinates')
-          .select('latitude, longitude')
-          .eq('trail_id', trailId);
-      return List<Map<String, dynamic>>.from(response);
-    } catch (e) {
-      print('Error fetching coordinates: $e');
-      return [];
-    }
   }
 
   void _onMapCreated(mp.MapboxMap controller) async {
@@ -119,52 +133,22 @@ class _NavigationPageState extends State<NavigationPage> {
       ),
     );
 
-    // Fetch coordinates for the specific trail
-    final coordinates = await fetchCoordinates(widget.trailId);
-
-
-    if (coordinates.isNotEmpty) {
-      // Get the first coordinate
-      final firstCoord = coordinates.first;
-      final firstLatitude = firstCoord['latitude'] as double;
-      final firstLongitude = firstCoord['longitude'] as double;
-
-      // Set the camera position to the first coordinate
-      mapboxMapController?.flyTo(
-        mp.CameraOptions(
-          center: mp.Point(
-            coordinates: mp.Position(firstLongitude, firstLatitude),
-          ),
-          zoom: currentZoom, // Use the current zoom level
+    final pointAnnotationManager =
+        await mapboxMapController?.annotations.createPointAnnotationManager();
+    final Uint8List imageData = await loadMarkerImage();
+    mp.PointAnnotationOptions pointAnnotationOptions =
+        mp.PointAnnotationOptions(
+      image: imageData,
+      iconSize: 0.3,
+      geometry: mp.Point(
+        coordinates: mp.Position(
+          79.909475,
+          7.102291,
         ),
-        mp.MapAnimationOptions(duration: 1000),
-      );
-    }
-
-
-    // Convert coordinates to a list of `mp.Position`
-    List<mp.Position> polylineCoordinates = coordinates.map((coord) {
-      final latitude = coord['latitude'] as double;
-      final longitude = coord['longitude'] as double;
-      return mp.Position(longitude, latitude);
-    }).toList();
-
-    // Create a polyline annotation manager
-    final polylineAnnotationManager = await mapboxMapController?.annotations
-        .createPolylineAnnotationManager();
-
-    // Create polyline annotation options
-    mp.PolylineAnnotationOptions polylineAnnotationOptions =
-        mp.PolylineAnnotationOptions(
-      geometry: mp.LineString(
-        coordinates: polylineCoordinates,
       ),
-      lineColor: Colors.blue.value,
-      lineWidth: 5.0,
     );
 
-    // Add the polyline annotation to the map
-    polylineAnnotationManager?.create(polylineAnnotationOptions);
+    pointAnnotationManager?.create(pointAnnotationOptions);
   }
 
   Future<void> _setupPositionTracking() async {
@@ -188,7 +172,7 @@ class _NavigationPageState extends State<NavigationPage> {
 
     gl.LocationSettings locationSettings = const gl.LocationSettings(
       accuracy: gl.LocationAccuracy.high,
-      distanceFilter: 100,
+      distanceFilter: 10,
     );
 
     userPositionStream?.cancel();
@@ -199,9 +183,6 @@ class _NavigationPageState extends State<NavigationPage> {
         setState(() {
           currentPosition = position;
         });
-
-
-
       }
     });
   }
@@ -243,5 +224,48 @@ class _NavigationPageState extends State<NavigationPage> {
       ),
       mp.MapAnimationOptions(duration: 1000),
     );
+  }
+
+  void _startTracking() {
+    if (!isTracking) {
+      setState(() {
+        isTracking = true;
+        trackedPositions.clear();
+      });
+      trackingStream = gl.Geolocator.getPositionStream().listen((position) {
+        setState(() {
+          trackedPositions.add(position);
+        });
+        print('Logged Position: ${position.latitude}, ${position.longitude}');
+      });
+    }
+  }
+
+  void _stopTracking() async {
+    if (isTracking) {
+      setState(() {
+        isTracking = false;
+      });
+      trackingStream?.cancel();
+      trackingStream = null;
+      await _saveToFile();
+    }
+  }
+
+  Future<void> _saveToFile() async {
+    final directory =
+        await getExternalStorageDirectory(); // Use external storage
+    final file = File('${directory?.path}/tracked_coordinates.txt');
+    String data =
+        trackedPositions.map((p) => '${p.latitude}, ${p.longitude}').join('\n');
+    await file.writeAsString(data);
+    print('File saved at: ${file.path}');
+  }
+
+  Future<Uint8List> loadMarkerImage() async {
+    var byteData = await rootBundle.load(
+      "assets/icons/location_mark.png",
+    );
+    return byteData.buffer.asUint8List();
   }
 }

@@ -1,8 +1,13 @@
+
 import 'package:createtrial/pages/newhome_page.dart';
+import 'package:createtrial/pages/location_marker.dart';
 import 'package:createtrial/pages/annotate_page.dart';
 import 'package:flutter/material.dart';
 import 'navigation_page.dart';
+import 'downloadable_trails.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'saved_trails_page.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -104,6 +109,40 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                   child: const Text("Home Page"),
+                   ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LocationMarkerPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Location Marker Feature"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DownloadsViewPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Download maps"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SavedTrailsPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("View Saved Trails"),
+
                 ),
               ],
             ),
