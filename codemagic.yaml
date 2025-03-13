@@ -1,7 +1,7 @@
 workflows:
   flutter-workflow:
     name: Trialblaze Flutter Build
-    instance_type: windows_x2
+    instance_type: mac_mini_m2 # Use macOS for iOS builds
     environment:
       flutter: stable
     cache:
@@ -16,32 +16,36 @@ workflows:
         - pattern: 'dev'
           include: true
     scripts:
+      - name: Navigate to Trialblaze directory
+        script: |
+          cd "dev branch/Trialblaze"
+
       - name: Get Flutter packages
         script: |
           flutter pub get
-          
+
       - name: Flutter analyze
         script: |
           flutter analyze
-          
+
       - name: Flutter test
         script: |
           flutter test
-          
+
       - name: Build APK
         script: |
           flutter build apk --release
-          
+
       - name: Build iOS
         script: |
           flutter build ios --release --no-codesign
-          
+
     artifacts:
       - build/**/outputs/apk/**/*.apk
       - build/**/outputs/bundle/**/*.aab
       - build/**/outputs/**/mapping.txt
       - build/ios/ipa/*.ipa
-      
+
     publishing:
       email:
         recipients:
