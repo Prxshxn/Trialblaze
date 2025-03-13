@@ -1,0 +1,45 @@
+workflows:
+  trialblaze-workflow:
+    name: Trialblaze Build
+    instance_type: windows_x2
+    environment:
+      groups:
+        - keystore_credentials
+      vars:
+        JAVA_HOME: C:\Program Files\Java\jdk17
+    cache:
+      cache_paths:
+        - ~/.nuget/packages
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: 'dev'
+          include: true
+    scripts:
+      - name: Set up environment
+        script: |
+          echo "Setting up build environment..."
+          dotnet --version
+          
+      - name: Restore NuGet packages
+        script: |
+          dotnet restore
+          
+      - name: Build solution
+        script: |
+          dotnet build --configuration Release --no-restore
+          
+      - name: Run tests
+        script: |
+          dotnet test --no-restore --no-build --configuration Release
+          
+    artifacts:
+      - '**/*.nupkg'
+      - '**/*.dll'
+      
+    publishing:
+      email:
+        recipients:
+          - developers@trialblaze.com
