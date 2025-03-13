@@ -16,6 +16,15 @@ workflows:
         - pattern: 'dev'
           include: true
     scripts:
+      - name: Check for pubspec.yaml
+        script: |
+          if [ -f "pubspec.yaml" ]; then
+            echo "pubspec.yaml found in: $(pwd)"
+          else
+            echo "pubspec.yaml not found in: $(pwd)"
+            exit 1
+          fi
+
       - name: Get Flutter packages
         script: |
           flutter pub get
