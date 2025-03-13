@@ -1,15 +1,13 @@
 workflows:
-  trialblaze-workflow:
-    name: Trialblaze Build
+  flutter-workflow:
+    name: Trialblaze Flutter Build
     instance_type: windows_x2
     environment:
-      groups:
-        - keystore_credentials
-      vars:
-        JAVA_HOME: C:\Program Files\Java\jdk17
+      flutter: stable
     cache:
       cache_paths:
-        - ~/.nuget/packages
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.pub-cache
     triggering:
       events:
         - push
@@ -18,26 +16,31 @@ workflows:
         - pattern: 'dev'
           include: true
     scripts:
-      - name: Set up environment
+      - name: Get Flutter packages
         script: |
-          echo "Setting up build environment..."
-          dotnet --version
+          flutter pub get
           
-      - name: Restore NuGet packages
+      - name: Flutter analyze
         script: |
-          dotnet restore
+          flutter analyze
           
-      - name: Build solution
+      - name: Flutter test
         script: |
-          dotnet build --configuration Release --no-restore
+          flutter test
           
-      - name: Run tests
+      - name: Build APK
         script: |
-          dotnet test --no-restore --no-build --configuration Release
+          flutter build apk --release
+          
+      - name: Build iOS
+        script: |
+          flutter build ios --release --no-codesign
           
     artifacts:
-      - '**/*.nupkg'
-      - '**/*.dll'
+      - build/**/outputs/apk/**/*.apk
+      - build/**/outputs/bundle/**/*.aab
+      - build/**/outputs/**/mapping.txt
+      - build/ios/ipa/*.ipa
       
     publishing:
       email:
