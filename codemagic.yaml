@@ -16,10 +16,6 @@ workflows:
         - pattern: 'dev'
           include: true
     scripts:
-      - name: Navigate to Trialblaze directory
-        script: |
-          cd "dev branch/Trialblaze"
-
       - name: Get Flutter packages
         script: |
           flutter pub get
