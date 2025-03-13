@@ -1,7 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'navigation_page.dart';
+import 'saved_trails_page.dart';
+import 'package:createtrial/pages/annotate_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<Map<String, dynamic>> trails = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTrails();
+  }
+
+  Future<void> _fetchTrails() async {
+    final supabase = Supabase.instance.client;
+    try {
+      final response = await supabase.from('trails').select('*');
+      setState(() {
+        trails = List<Map<String, dynamic>>.from(response);
+      });
+    } catch (e) {
+      debugPrint('Error fetching trails: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,21 +48,44 @@ class HomePage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            const SectionTitle(title: 'Popular & Trending'),
+            const SectionTitle(title: 'Available Trails'),
             const SizedBox(height: 10),
             SectionScroll(
-              items: [
-                TrailCard(image: 'assets/images/trail1.jpg', title: 'Mountain Trail', subtitle: 'Scenic Route'),
-                TrailCard(image: 'assets/images/trail2.jpg', title: 'Forest Path', subtitle: 'Nature Walk'),
-              ],
+              items: trails
+                  .map((trail) => GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NavigationPage(
+                                trailId: trail['id'], // Pass the trail ID
+                              ),
+                            ),
+                          );
+                        },
+                        child: TrailCard(
+                          image:
+                              trail['image_url'] ?? 'assets/images/trail1.jpg',
+                          title: trail['name'] ?? 'Unnamed Trail',
+                          subtitle: trail['description'] ??
+                              'No description available',
+                        ),
+                      ))
+                  .toList(),
             ),
             const SizedBox(height: 24),
             const SectionTitle(title: 'Trails Nearby'),
             const SizedBox(height: 10),
             SectionScroll(
               items: [
-                TrailCard(image: 'assets/images/local1.jpg', title: 'Local Forest', subtitle: '2.5 miles away'),
-                TrailCard(image: 'assets/images/local2.jpg', title: 'City Trail', subtitle: '1.8 miles away'),
+                TrailCard(
+                    image: 'assets/images/local1.jpg',
+                    title: 'Local Forest',
+                    subtitle: '2.5 miles away'),
+                TrailCard(
+                    image: 'assets/images/local2.jpg',
+                    title: 'City Trail',
+                    subtitle: '1.8 miles away'),
               ],
             ),
             const SizedBox(height: 24),
@@ -45,8 +97,14 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 10),
             SectionScroll(
               items: [
-                BlogCard(image: 'assets/images/blog1.jpg', title: 'Best Spring Trails', author: 'Trail Guide'),
-                BlogCard(image: 'assets/images/blog2.jpg', title: 'Hiking Safety Tips', author: 'Expert Hiker'),
+                BlogCard(
+                    image: 'assets/images/blog1.jpg',
+                    title: 'Best Spring Trails',
+                    author: 'Trail Guide'),
+                BlogCard(
+                    image: 'assets/images/blog2.jpg',
+                    title: 'Hiking Safety Tips',
+                    author: 'Expert Hiker'),
               ],
             ),
             const SizedBox(height: 16),
@@ -55,7 +113,12 @@ class HomePage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Add your action here
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AnnotatePage(),
+            ),
+          );
         },
         backgroundColor: Colors.green,
         child: const Icon(Icons.add),
@@ -84,7 +147,14 @@ class HomePage extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.favorite_border),
                 color: Colors.grey,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SavedTrailsPage(),
+                    ),
+                  );
+                },
               ),
               IconButton(
                 icon: const Icon(Icons.person_outline),
