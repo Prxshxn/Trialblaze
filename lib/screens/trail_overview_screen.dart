@@ -6,9 +6,9 @@ class TrailOverviewScreen extends StatefulWidget {
   final Trail trail;
 
   const TrailOverviewScreen({
-    Key? key,
+    super.key,
     required this.trail,
-  }) : super(key: key);
+  });
 
   @override
   _TrailOverviewScreenState createState() => _TrailOverviewScreenState();

@@ -4,7 +4,6 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
 
 
-import 'package:geolocator/geolocator.dart' show distanceBetween;
 
 
 import 'package:supabase_flutter/supabase_flutter.dart';

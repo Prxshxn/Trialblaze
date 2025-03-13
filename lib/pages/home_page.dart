@@ -1,3 +1,4 @@
+import 'package:createtrial/pages/landing_page.dart';
 import 'package:createtrial/pages/newhome_page.dart';
 import 'package:createtrial/pages/location_marker.dart';
 import 'package:createtrial/pages/annotate_page.dart';
@@ -9,14 +10,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'saved_trails_page.dart';
 import 'package:createtrial/screens/trail_overview_screen.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class skHomePage extends StatefulWidget {
+  const skHomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<skHomePage> createState() => _skHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _skHomePageState extends State<skHomePage> {
   List<Map<String, dynamic>> trails = [];
 
   @override
@@ -104,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const NewHomePage(),
+                        builder: (context) => const HomePage(),
                       ),
                     );
                   },
@@ -155,6 +156,17 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: const Text("Trail Overview"),
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LandingPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("landing page"),
+                )
               ],
             ),
           ),

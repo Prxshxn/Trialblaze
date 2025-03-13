@@ -4,8 +4,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'pages/splash-screen.dart';
-import 'pages/trail_details.dart';
+
+// Import the screens from the first project
+import 'pages/landing_page.dart';
+import 'pages/login_page.dart';
+import 'pages/register_page.dart';
+import 'pages/newhome_page.dart';
+import 'pages/responder_home_page.dart';
 
 void main() async {
   await setup();
@@ -31,14 +36,23 @@ Future<void> setup() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-
-      home: HomePage(), // Start from HomePage
-
+      title: 'Trail Safety App',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        useMaterial3: true,
+      ),
+      home: skHomePage(), // Start with the map home page
+      routes: {
+        '/landing': (context) => const LandingPage(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/home': (context) => const HomePage(),
+        '/responder-home': (context) => const ResponderHomePage(),
+        '/hiker-home': (context) => const HomePage(),
+      },
     );
   }
 }

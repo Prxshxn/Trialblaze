@@ -90,8 +90,9 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
   }
 
   Future<void> _downloadTileRegion() async {
-    if (trailCoordinates.isEmpty)
+    if (trailCoordinates.isEmpty) {
       throw Exception("No trail coordinates available.");
+    }
 
     double minLat = trailCoordinates[0]['latitude'];
     double maxLat = trailCoordinates[0]['latitude'];

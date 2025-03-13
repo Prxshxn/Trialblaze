@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 //Main widget for creating a trail details page
 class TrailDetails extends StatefulWidget {
-  const TrailDetails({Key? key}) : super(key: key);
+  const TrailDetails({super.key});
 
   @override
   State<TrailDetails> createState() => _TrailDetailsState();
