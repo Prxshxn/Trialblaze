@@ -5,6 +5,7 @@ import { Login } from '../controllers/login.js';
 import { check } from 'express-validator';
 import { verifyToken } from "../middleware/verify.js";
 import { Logout } from '../controllers/logout.js';
+import { getTrailDetails } from '../controllers/trails.js';
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.post("/register/responder", Validate, registerResponder);
 router.post("/login", check("email").isEmail().normalizeEmail(), check("password").not().isEmpty(), Validate, Login);
 router.get("/verified", verifyToken, (req, res) => res.status(200).json({ message: "Welcome to Trailblaze!" }));
 router.post("/logout", Logout);
+router.get("/trails", getTrailDetails);
 
 export default (server) => server.use('/api/v1', router);
