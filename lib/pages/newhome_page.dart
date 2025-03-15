@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'navigation_page.dart';
 import 'saved_trails_page.dart';
 import 'package:createtrial/pages/annotate_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,12 +22,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchTrails() async {
-    final supabase = Supabase.instance.client;
     try {
-      final response = await supabase.from('trails').select('*');
-      setState(() {
-        trails = List<Map<String, dynamic>>.from(response);
-      });
+      final response = await http.get(Uri.parse('http://192.168.1.69:5000/api/v1/trails'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body)['data'];
+        setState(() {
+          trails = data.map((trail) => {
+            'name': trail['name'],
+            'description': trail['description'],
+            'image_url': trail['imageUrl'],
+          }).toList();
+        });
+      } else {
+        debugPrint('Failed to load trails: ${response.statusCode}');
+      }
     } catch (e) {
       debugPrint('Error fetching trails: $e');
     }
