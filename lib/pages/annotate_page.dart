@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
 import 'package:geolocator/geolocator.dart' show distanceBetween;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AnnotatePage extends StatefulWidget {
   const AnnotatePage({super.key});
@@ -340,6 +341,14 @@ class _AnnotatePage extends State<AnnotatePage> {
       return;
     }
 
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+
+    if (userId == null) {
+      print('User ID not found. Please log in again.');
+      return;
+    }
+
     // Calculate final duration
     final finalDuration = isPaused
         ? totalDuration
@@ -351,6 +360,7 @@ class _AnnotatePage extends State<AnnotatePage> {
       'Description of my trail',
       totalDistanceInMeters,
       finalDuration.inSeconds,
+      userId,
       trackedPositions,
     );
 
@@ -378,13 +388,15 @@ class _AnnotatePage extends State<AnnotatePage> {
       String description,
       double distance,
       int durationSeconds,
+      String userId,
       List<gl.Position> coordinates) async {
-    final url = Uri.parse('http://192.168.1.5:5000/api/v1/trail/save');
+    final url = Uri.parse('http://192.168.1.6:5000/api/v1/trail/save');
     final body = jsonEncode({
       'name': name,
       'description': description,
       'distance': distance,
       'duration': durationSeconds,
+      'user_id': userId,
       'coordinates': coordinates
           .map((pos) => {
                 'latitude': pos.latitude,
