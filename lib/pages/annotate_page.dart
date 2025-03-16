@@ -1,12 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
-
-
-
-
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:geolocator/geolocator.dart' show distanceBetween;
 
 class AnnotatePage extends StatefulWidget {
   const AnnotatePage({super.key});
@@ -24,12 +22,9 @@ class _AnnotatePage extends State<AnnotatePage> {
   bool isTracking = false;
   bool isPaused = false;
   List<gl.Position> trackedPositions = [];
-
-
   double totalDistanceInMeters = 0.0;
   Duration totalDuration = Duration.zero;
   DateTime? trackingStartTime;
-
 
   @override
   void initState() {
@@ -132,8 +127,6 @@ class _AnnotatePage extends State<AnnotatePage> {
               ),
             ),
           ),
-
-
           Positioned(
             bottom: 80,
             left: 20,
@@ -159,8 +152,6 @@ class _AnnotatePage extends State<AnnotatePage> {
               ),
             ),
           ),
-
-
         ],
       ),
     );
@@ -234,8 +225,6 @@ class _AnnotatePage extends State<AnnotatePage> {
         setState(() {
           currentPosition = position;
         });
-
-
         mapboxMapController?.flyTo(
           mp.CameraOptions(
             zoom: currentZoom,
@@ -245,7 +234,6 @@ class _AnnotatePage extends State<AnnotatePage> {
           ),
           mp.MapAnimationOptions(duration: 1000),
         );
-
       }
     });
   }
@@ -307,9 +295,6 @@ class _AnnotatePage extends State<AnnotatePage> {
       setState(() {
         isTracking = true;
         isPaused = false;
-
-
-
         trackingStartTime = DateTime.now();
       });
       trackingStream = gl.Geolocator.getPositionStream().listen((position) {
@@ -328,17 +313,11 @@ class _AnnotatePage extends State<AnnotatePage> {
           trackedPositions.add(position);
         });
         _updatePolyline();
-
       });
     } else if (isPaused) {
       setState(() {
         isPaused = false;
-
-
-
         trackingStartTime = DateTime.now();
-
-
       });
       trackingStream?.resume();
     }
@@ -348,10 +327,8 @@ class _AnnotatePage extends State<AnnotatePage> {
     if (isTracking) {
       setState(() {
         isPaused = true;
-
         totalDuration += DateTime.now().difference(trackingStartTime!);
         trackingStartTime = null;
-
       });
       trackingStream?.pause();
     }
@@ -363,27 +340,25 @@ class _AnnotatePage extends State<AnnotatePage> {
       return;
     }
 
-
-
     // Calculate final duration
     final finalDuration = isPaused
         ? totalDuration
         : totalDuration +
             DateTime.now().difference(trackingStartTime ?? DateTime.now());
 
-    final trailId = await saveTrail(
+    final response = await saveTrail(
       'My Trail',
       'Description of my trail',
       totalDistanceInMeters,
       finalDuration.inSeconds,
+      trackedPositions,
     );
 
-
-    if (trailId != null) {
-      await _saveToSupabase(trailId);
-      print('Trail and coordinates saved to Supabase');
+    if (response != null && response['trailId'] != null) {
+      print('Trail and coordinates saved successfully');
+    } else {
+      print('Failed to save trail and coordinates');
     }
-
 
     // Reset tracking state
     setState(() {
@@ -398,50 +373,47 @@ class _AnnotatePage extends State<AnnotatePage> {
     trackingStream = null;
   }
 
-  Future<String?> saveTrail(String name, String description, double distance,
-      int durationSeconds) async {
+  Future<Map<String, dynamic>?> saveTrail(
+      String name,
+      String description,
+      double distance,
+      int durationSeconds,
+      List<gl.Position> coordinates) async {
+    final url = Uri.parse('http://192.168.1.5:5000/api/v1/trail/save');
+    final body = jsonEncode({
+      'name': name,
+      'description': description,
+      'distance': distance,
+      'duration': durationSeconds,
+      'coordinates': coordinates
+          .map((pos) => {
+                'latitude': pos.latitude,
+                'longitude': pos.longitude,
+              })
+          .toList(),
+    });
 
-
-    final supabase = Supabase.instance.client;
     try {
-      final response = await supabase
-          .from('trails')
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type':
+              'application/json', // Only content type header is needed
+        },
+        body: body,
+      );
 
-
-          .insert({
-            'name': name,
-            'description': description,
-            'distance_meters': distance,
-            'duration_seconds': durationSeconds,
-          })
-
-          .select('id')
-          .single();
-      return response['id'] as String?;
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('Failed to save trail: ${response.body}');
+        return null;
+      }
     } catch (e) {
       print('Error saving trail: $e');
       return null;
     }
   }
-
-  Future<void> _saveToSupabase(String trailId) async {
-    final supabase = Supabase.instance.client;
-
-    try {
-      for (var position in trackedPositions) {
-        await supabase.from('coordinates').insert({
-          'trail_id': trailId,
-          'latitude': position.latitude,
-          'longitude': position.longitude,
-        });
-      }
-      print('All coordinates saved to Supabase for trail $trailId');
-    } catch (e) {
-      print('Error saving coordinates: $e');
-    }
-  }
-
-
 
   String get formattedDistance {
     if (totalDistanceInMeters < 1000) {
@@ -458,6 +430,4 @@ class _AnnotatePage extends State<AnnotatePage> {
         : totalDuration + DateTime.now().difference(trackingStartTime!);
     return '${duration.inHours}:${(duration.inMinutes % 60).toString().padLeft(2, '0')}';
   }
-
-
 }

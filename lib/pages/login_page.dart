@@ -24,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://192.168.1.69:5000/api/v1/login');
+    final url = Uri.parse('http://192.168.1.5:5000/api/v1/login');
     try {
       final response = await http.post(
         url,
@@ -54,17 +54,11 @@ class _LoginPageState extends State<LoginPage> {
 
         // Route based on user role
         if (role == 'responder') {
-          Navigator.pushReplacementNamed(
-            context, 
-            '/responder-home',
-            arguments: {'username': username}
-          );
+          Navigator.pushReplacementNamed(context, '/responder-home',
+              arguments: {'username': username});
         } else {
-          Navigator.pushReplacementNamed(
-            context, 
-            '/hiker-home',
-            arguments: {'username': username}
-          );
+          Navigator.pushReplacementNamed(context, '/hiker-home',
+              arguments: {'username': username});
         }
       } else {
         Fluttertoast.showToast(
