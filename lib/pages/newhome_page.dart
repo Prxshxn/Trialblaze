@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> {
         final List<dynamic> data = json.decode(response.body)['data'];
         setState(() {
           trails = data.map((trail) => {
+            'id': trail['id'],
             'name': trail['name'],
             'description': trail['description'],
             'image_url': trail['imageUrl'],
@@ -235,7 +236,7 @@ class TrailCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         image: DecorationImage(
-          image: AssetImage(image),
+          image: NetworkImage(image),
           fit: BoxFit.cover,
           onError: (exception, stackTrace) {
             debugPrint('Error loading image: $image');
