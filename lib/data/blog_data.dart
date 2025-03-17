@@ -34,4 +34,23 @@ final List<Blog> blogsList = [
     publishDate: DateTime(2025, 3, 12),
     authorName: "TrailBlaze",
   ),
+  Blog(
+    id: "3",
+    title: "How to Prepare for a Multi-Day Hike",
+    imageUrl: "assets/icons/hike.jpeg",
+    excerpt:
+        "A multi-day hike transforms a simple walk into an adventure but requires preparation.",
+    content:
+        "A multi-day hike transforms a simple walk into an adventure—but requires thoughtful preparation. Here's how to ensure your extended journey stays memorable for all the right reasons:\n\n"
+        "Plan meticulously: Study your route, identify water sources, camping spots, and potential exit points. Share your itinerary with someone not joining the hike.\n\n"
+        "Pack smart, not heavy: Every unnecessary ounce feels like a pound by day three. Prioritize the essentials: shelter, sleep system, water filtration, first aid, navigation tools, and appropriate clothing layers.\n\n"
+        "Break in your gear: Never take new boots on a long hike. Test all equipment beforehand, especially your backpack and sleeping system.\n\n"
+        "Train gradually: Build endurance by taking progressively longer day hikes with a loaded pack. Include some terrain similar to what you'll encounter.\n\n"
+        "Master cooking simply: Plan nutritious, calorie-dense meals that require minimal preparation. Pre-portion ingredients to reduce waste and weight.\n\n"
+        "Prepare mentally: Multi-day hiking tests your resolve as much as your body. Embrace discomfort as part of the journey and remember why you chose this adventure.\n\n"
+        "The trail teaches patience and resilience. With proper preparation, you'll be ready for whatever challenges—and wonders—await around the next bend.",
+    readTime: "5 min read",
+    publishDate: DateTime(2025, 3, 15),
+    authorName: "Alice Johnson",
+  ),
 ];
