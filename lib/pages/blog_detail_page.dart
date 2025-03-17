@@ -10,7 +10,7 @@ class BlogDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Light background
+      backgroundColor: Colors.grey[900], // Dark background
       body: SafeArea(
         child: Column(
           children: [
@@ -42,8 +42,8 @@ class BlogDetailPage extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.white.withOpacity(0.1),
-                        Colors.white.withOpacity(0.7),
+                        Colors.black.withOpacity(0.1),
+                        Colors.black.withOpacity(0.7),
                       ],
                     ),
                   ),
@@ -56,14 +56,14 @@ class BlogDetailPage extends StatelessWidget {
                     height: 36,
                     width: 36,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.5), // Light background
+                      color: Colors.grey[800]!.withOpacity(0.5), // Dark gray background
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: const Icon(
                         Icons.arrow_back_ios,
-                        color: Colors.black, // Black icon
+                        color: Colors.white, // White icon
                         size: 20,
                       ),
                       onPressed: () => Navigator.of(context).pop(),
@@ -78,14 +78,14 @@ class BlogDetailPage extends StatelessWidget {
                     height: 36,
                     width: 36,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.5), // Light background
+                      color: Colors.grey[800]!.withOpacity(0.5), // Dark gray background
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: const Icon(
                         Icons.bookmark_border,
-                        color: Colors.black, // Black icon
+                        color: Colors.white, // White icon
                         size: 20,
                       ),
                       onPressed: () {},
@@ -102,7 +102,7 @@ class BlogDetailPage extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black, // Black text
+                      color: Colors.white, // White text
                     ),
                   ),
                 ),
@@ -116,28 +116,28 @@ class BlogDetailPage extends StatelessWidget {
                 children: [
                   const Icon(
                     Icons.person,
-                    color: Colors.black54, // Dark gray icon
+                    color: Colors.white70, // Light gray icon
                     size: 16,
                   ),
                   const SizedBox(width: 4),
                   const Text(
                     'Trailblaze',
                     style: TextStyle(
-                      color: Colors.black, // Black text
+                      color: Colors.white, // White text
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(width: 16),
                   const Icon(
                     Icons.access_time,
-                    color: Colors.black54, // Dark gray icon
+                    color: Colors.white70, // Light gray icon
                     size: 16,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     blog.readTime,
                     style: const TextStyle(
-                      color: Colors.black87, // Dark gray text
+                      color: Colors.white70, // Light gray text
                     ),
                   ),
                 ],
@@ -150,14 +150,14 @@ class BlogDetailPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100], // Light gray background
+                  color: Colors.grey[800], // Dark gray background
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: SingleChildScrollView(
                   child: Text(
                     blog.content,
                     style: const TextStyle(
-                      color: Colors.black87, // Dark gray text
+                      color: Colors.white70, // Light gray text
                       height: 1.6,
                       fontSize: 16,
                     ),
