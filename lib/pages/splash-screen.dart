@@ -1,4 +1,5 @@
 import 'package:createtrial/pages/trail_details.dart';
+import 'package:createtrial/pages/newhome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -20,8 +21,8 @@ class _SplashScreenState extends State<SplashScreen>
     Future.delayed(const Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => const TrailDetails(),
-        ),  
+          builder: (_) => const HomePage(),
+        ),
       );
     });
   }
@@ -45,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/icons/logo.png', 
+              'assets/icons/logo.png',
               width: 200,
               height: 200,
             ),
@@ -56,4 +57,3 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 }
-

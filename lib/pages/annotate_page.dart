@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
-import 'package:geolocator/geolocator.dart' show distanceBetween;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:createtrial/pages/trail_details.dart';
 
 class AnnotatePage extends StatefulWidget {
   const AnnotatePage({super.key});
@@ -341,90 +338,34 @@ class _AnnotatePage extends State<AnnotatePage> {
       return;
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('user_id');
-
-    if (userId == null) {
-      print('User ID not found. Please log in again.');
-      return;
-    }
-
-    // Calculate final duration
-    final finalDuration = isPaused
-        ? totalDuration
-        : totalDuration +
-            DateTime.now().difference(trackingStartTime ?? DateTime.now());
-
-    final response = await saveTrail(
-      'My Trail',
-      'Description of my trail',
-      totalDistanceInMeters,
-      finalDuration.inSeconds,
-      userId,
-      trackedPositions,
+    // Navigate to TrailDetails page and pass the tracked data
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TrailDetails(
+          trackedPositions: trackedPositions,
+          totalDistanceInMeters: totalDistanceInMeters,
+          totalDuration: isPaused
+              ? totalDuration
+              : totalDuration +
+                  DateTime.now()
+                      .difference(trackingStartTime ?? DateTime.now()),
+          onTrailSaved: () {
+            // Reset tracking state
+            setState(() {
+              isTracking = false;
+              isPaused = false;
+              trackedPositions.clear();
+              totalDistanceInMeters = 0.0;
+              totalDuration = Duration.zero;
+              trackingStartTime = null;
+            });
+            trackingStream?.cancel();
+            trackingStream = null;
+          },
+        ),
+      ),
     );
-
-    if (response != null && response['trailId'] != null) {
-      print('Trail and coordinates saved successfully');
-    } else {
-      print('Failed to save trail and coordinates');
-    }
-
-    // Reset tracking state
-    setState(() {
-      isTracking = false;
-      isPaused = false;
-      trackedPositions.clear();
-      totalDistanceInMeters = 0.0;
-      totalDuration = Duration.zero;
-      trackingStartTime = null;
-    });
-    trackingStream?.cancel();
-    trackingStream = null;
-  }
-
-  Future<Map<String, dynamic>?> saveTrail(
-      String name,
-      String description,
-      double distance,
-      int durationSeconds,
-      String userId,
-      List<gl.Position> coordinates) async {
-    final url = Uri.parse('http://192.168.1.6:5000/api/v1/trail/save');
-    final body = jsonEncode({
-      'name': name,
-      'description': description,
-      'distance': distance,
-      'duration': durationSeconds,
-      'user_id': userId,
-      'coordinates': coordinates
-          .map((pos) => {
-                'latitude': pos.latitude,
-                'longitude': pos.longitude,
-              })
-          .toList(),
-    });
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type':
-              'application/json', // Only content type header is needed
-        },
-        body: body,
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        print('Failed to save trail: ${response.body}');
-        return null;
-      }
-    } catch (e) {
-      print('Error saving trail: $e');
-      return null;
-    }
   }
 
   String get formattedDistance {
