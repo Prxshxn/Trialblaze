@@ -3,8 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'pages/splash-screen.dart';
-import 'pages/trail_details.dart';
+
 
 void main() async {
   await setup();
