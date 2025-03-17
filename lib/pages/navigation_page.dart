@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
 import 'package:supabase_flutter/supabase_flutter.dart'; // Add Supabase import
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NavigationPage extends StatefulWidget {
   final String trailId; // Add trailId as a parameter
@@ -88,9 +89,97 @@ class _NavigationPageState extends State<NavigationPage> {
               ),
             ),
           ),
+          Positioned(
+            bottom: 260, // Adjust the position as needed
+            right: 20,
+            child: FloatingActionButton(
+              heroTag: 'sosButton', // Unique tag
+              backgroundColor: Colors.red, // Red color for SOS
+              onPressed: _sendSOS, // Call the _sendSOS method
+              child: const Icon(Icons.emergency),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _sendSOS() async {
+    // Get the user's current position
+    final position = await gl.Geolocator.getCurrentPosition();
+
+    // Get the user ID from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+
+    if (userId == null) {
+      print('User ID not found. Please log in again.');
+      return;
+    }
+
+    final supabase = Supabase.instance.client;
+
+    try {
+      // Fetch hiker's name and phone number from Supabase
+      final userResponse = await supabase
+          .from(
+              'users') // Replace with the actual table name where user data is stored
+          .select('username, emergency_contact')
+          .eq('id', userId)
+          .single();
+
+      if (userResponse == null) {
+        print('User details not found.');
+        return;
+      }
+      // Fetch trail name using trailId
+      final trailResponse = await supabase
+          .from('trails') // Replace with the actual trails table name
+          .select('name')
+          .eq('id', widget.trailId)
+          .single();
+
+      if (trailResponse == null) {
+        print('Trail details not found.');
+        return;
+      }
+      final trailName = trailResponse['name'] ?? 'Unknown Trail';
+      final hikerName = userResponse['name'] ?? 'Unknown';
+      final phone = userResponse['phone'] ?? 'N/A';
+
+      // Prepare the SOS data
+      final sosData = {
+        'hikername': hikerName,
+        'trail': trailName,
+        'phone': phone,
+        'latitude': position.latitude,
+        'longitude': position.longitude,
+        'timestamp': DateTime.now().toIso8601String(),
+        'status': "Awaiting",
+        'user_id': userId,
+      };
+
+      // Send the data to Supabase
+      final response = await supabase.from('sos_requests').insert([sosData]);
+
+      if (response != null) {
+        print('SOS data sent successfully');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('SOS sent successfully!')),
+        );
+      } else {
+        print('Failed to send SOS data');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Failed to send SOS. Please try again.')),
+        );
+      }
+    } catch (e) {
+      print('Error fetching user details or sending SOS: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error sending SOS. Please try again.')),
+      );
+    }
   }
 
   // Define the fetchCoordinates method
@@ -122,8 +211,6 @@ class _NavigationPageState extends State<NavigationPage> {
     // Fetch coordinates for the specific trail
     final coordinates = await fetchCoordinates(widget.trailId);
 
-
-
     if (coordinates.isNotEmpty) {
       // Get the first coordinate
       final firstCoord = coordinates.first;
@@ -141,8 +228,6 @@ class _NavigationPageState extends State<NavigationPage> {
         mp.MapAnimationOptions(duration: 1000),
       );
     }
-
-
 
     // Convert coordinates to a list of `mp.Position`
     List<mp.Position> polylineCoordinates = coordinates.map((coord) {
@@ -201,7 +286,6 @@ class _NavigationPageState extends State<NavigationPage> {
         setState(() {
           currentPosition = position;
         });
-
       }
     });
   }

@@ -46,8 +46,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
     try {
       final url = _userType == UserType.hiker
-          ? Uri.parse('http://192.168.1.69:5000/api/v1/register/hiker')
-          : Uri.parse('http://192.168.1.69:5000/api/v1/register/responder');
+          ? Uri.parse('http://192.168.1.6:5000/api/v1/register/hiker')
+          : Uri.parse('http://192.168.1.6:5000/api/v1/register/responder');
 
       final Map<String, dynamic> body = _userType == UserType.hiker
           ? {
@@ -82,8 +82,7 @@ class _RegisterPageState extends State<RegisterPage> {
         final errorData = json.decode(response.body);
         print('Error Response: ${response.body}');
         ToastUtils.showErrorToast(
-          errorData['message'] ?? 'Registration failed. Please try again.'
-        );
+            errorData['message'] ?? 'Registration failed. Please try again.');
       }
     } catch (e) {
       ToastUtils.showErrorToast('Network error: Please check your connection');
@@ -149,7 +148,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _confirmPasswordController,
-                    decoration: const InputDecoration(labelText: 'Confirm Password'),
+                    decoration:
+                        const InputDecoration(labelText: 'Confirm Password'),
                     obscureText: true,
                     validator: (value) {
                       if (value != _passwordController.text) {
@@ -181,21 +181,25 @@ class _RegisterPageState extends State<RegisterPage> {
                   if (_userType == UserType.hiker) ...[
                     TextFormField(
                       controller: _hikingExperienceController,
-                      decoration: const InputDecoration(labelText: 'Hiking Experience'),
+                      decoration:
+                          const InputDecoration(labelText: 'Hiking Experience'),
                       validator: ValidationUtils.validateHikingExperience,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       textInputAction: TextInputAction.next,
-                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
+                      onEditingComplete: () =>
+                          FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emergencyContactController,
-                      decoration: const InputDecoration(labelText: 'Emergency Contact'),
+                      decoration:
+                          const InputDecoration(labelText: 'Emergency Contact'),
                       validator: ValidationUtils.validatePhoneNumber,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
-                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
+                      onEditingComplete: () =>
+                          FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -204,7 +208,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       validator: ValidationUtils.validateAddress,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       textInputAction: TextInputAction.next,
-                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
+                      onEditingComplete: () =>
+                          FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -213,7 +218,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       validator: ValidationUtils.validateGender,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       textInputAction: TextInputAction.next,
-                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
+                      onEditingComplete: () =>
+                          FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -227,21 +233,25 @@ class _RegisterPageState extends State<RegisterPage> {
                   ] else if (_userType == UserType.responder) ...[
                     TextFormField(
                       controller: _responderTypeController,
-                      decoration: const InputDecoration(labelText: 'Responder Type'),
+                      decoration:
+                          const InputDecoration(labelText: 'Responder Type'),
                       validator: ValidationUtils.validateResponderType,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       textInputAction: TextInputAction.next,
-                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
+                      onEditingComplete: () =>
+                          FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emergencyContactController,
-                      decoration: const InputDecoration(labelText: 'Emergency Contact'),
+                      decoration:
+                          const InputDecoration(labelText: 'Emergency Contact'),
                       validator: ValidationUtils.validatePhoneNumber,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
-                      onEditingComplete: () => FocusScope.of(context).nextFocus(),
+                      onEditingComplete: () =>
+                          FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

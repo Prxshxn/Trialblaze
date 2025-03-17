@@ -23,7 +23,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _fetchTrails() async {
     try {
-      final response = await http.get(Uri.parse('http://192.168.1.69:5000/api/v1/trails'));
+      final response =
+          await http.get(Uri.parse('http://192.168.1.6:5000/api/v1/trails'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body)['data'];
         setState(() {

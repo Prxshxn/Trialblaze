@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:createtrial/utils/loging_validation_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -24,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://192.168.1.69:5000/api/v1/login');
+    final url = Uri.parse('http://192.168.1.6:5000/api/v1/login');
     try {
       final response = await http.post(
         url,
@@ -41,8 +42,13 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+
         final role = responseData['data']['role'];
         final username = responseData['data']['username'];
+        final userId = responseData['data']['id'].toString();
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_id', userId);
 
         Fluttertoast.showToast(
           msg: "Login successful!",
@@ -54,17 +60,11 @@ class _LoginPageState extends State<LoginPage> {
 
         // Route based on user role
         if (role == 'responder') {
-          Navigator.pushReplacementNamed(
-            context, 
-            '/responder-home',
-            arguments: {'username': username}
-          );
+          Navigator.pushReplacementNamed(context, '/responder-home',
+              arguments: {'username': username});
         } else {
-          Navigator.pushReplacementNamed(
-            context, 
-            '/hiker-home',
-            arguments: {'username': username}
-          );
+          Navigator.pushReplacementNamed(context, '/hiker-home',
+              arguments: {'username': username});
         }
       } else {
         Fluttertoast.showToast(
