@@ -34,7 +34,7 @@ class _BlogsListPageState extends State<BlogsListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Light background
+      backgroundColor: Colors.grey[900],
       body: SafeArea(
         child: Column(
           children: [
@@ -50,7 +50,7 @@ class _BlogsListPageState extends State<BlogsListPage> {
                     },
                     child: const Icon(
                       Icons.arrow_back_ios,
-                      color: Colors.black, // Black icon
+                      color: Colors.white, 
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -59,7 +59,7 @@ class _BlogsListPageState extends State<BlogsListPage> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black, // Black text
+                      color: Colors.white, 
                     ),
                   ),
                 ],
@@ -71,11 +71,11 @@ class _BlogsListPageState extends State<BlogsListPage> {
               padding: const EdgeInsets.all(16.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[100], // Light gray background
+                  color: Colors.grey[800], 
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.black.withOpacity(0.2),
                       spreadRadius: 1,
                       blurRadius: 4,
                       offset: const Offset(0, 1),
@@ -85,7 +85,7 @@ class _BlogsListPageState extends State<BlogsListPage> {
                 child: TextField(
                   controller: searchController,
                   onChanged: filterBlogs,
-                  style: const TextStyle(color: Colors.black), // Black text
+                  style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     hintText: 'Search',
                     hintStyle: TextStyle(color: Colors.grey), // Gray hint text
@@ -119,10 +119,10 @@ class _BlogsListPageState extends State<BlogsListPage> {
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: Colors.white, // White background
+                        color: Colors.grey[800],
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.15),
+                            color: Colors.black.withOpacity(0.2),
                             spreadRadius: 2,
                             blurRadius: 6,
                             offset: const Offset(0, 3),
@@ -151,7 +151,7 @@ class _BlogsListPageState extends State<BlogsListPage> {
                                 colors: [
                                   Colors.transparent,
                                   Colors.black
-                                      .withOpacity(0.3), // Lighter gradient
+                                      .withOpacity(0.6), 
                                 ],
                               ),
                             ),
@@ -169,7 +169,7 @@ class _BlogsListPageState extends State<BlogsListPage> {
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white, // White text
+                                    color: Colors.white,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -196,11 +196,11 @@ class _BlogsListPageState extends State<BlogsListPage> {
                             right: 16,
                             child: CircleAvatar(
                               radius: 14,
-                              backgroundColor: Colors.white,
+                              backgroundColor: Colors.grey[700],
                               child: Icon(
                                 Icons.person,
                                 size: 16,
-                                color: Colors.grey[800], // Dark gray icon
+                                color: Colors.white, // Dark gray icon
                               ),
                             ),
                           ),
@@ -225,15 +225,15 @@ class _BlogsListPageState extends State<BlogsListPage> {
 
   Widget _getSeasonIcon(String title) {
     if (title.toLowerCase().contains('summer')) {
-      return const Icon(Icons.wb_sunny, color: Colors.black); // Black icon
+      return const Icon(Icons.wb_sunny, color: Colors.white);
     } else if (title.toLowerCase().contains('winter')) {
-      return const Icon(Icons.ac_unit, color: Colors.black); // Black icon
+      return const Icon(Icons.ac_unit, color: Colors.white);
     } else if (title.toLowerCase().contains('spring')) {
-      return const Icon(Icons.local_florist, color: Colors.black); // Black icon
+      return const Icon(Icons.local_florist, color: Colors.white); 
     } else if (title.toLowerCase().contains('autumn') ||
         title.toLowerCase().contains('fall')) {
-      return const Icon(Icons.eco, color: Colors.black); // Black icon
+      return const Icon(Icons.eco, color: Colors.white);
     }
-    return const Icon(Icons.landscape, color: Colors.black); // Black icon
+    return const Icon(Icons.landscape, color: Colors.white); 
   }
 }
