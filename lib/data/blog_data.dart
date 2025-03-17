@@ -56,7 +56,7 @@ final List<Blog> blogsList = [
   Blog(
     id: "4",
     title: "How to Recover After a Long Hike: Tips for Sore Muscles",
-    imageUrl: "assets/images/warmbath.jpeg",
+    imageUrl: "assets/icons/warmbath.jpeg",
     excerpt: "How to Recover After a Long Hike: Tips for Sore Muscles",
     content: "How to Recover After a Long Hike: Tips for Sore Muscles\n\n"
         "After a long hike, your body deserves some TLC. Here are some tips to help you recover and soothe those sore muscles:\n\n"
@@ -70,6 +70,23 @@ final List<Blog> blogsList = [
         "Remember, recovery is just as important as the hike itself. Treat your body well, and you'll be ready for your next adventure!",
     readTime: "5 min read",
     publishDate: DateTime(2025, 2, 15),
+    authorName: "Trailblaze",
+  ),
+  Blog(
+    id: "5",
+    title: "Hiking During Festivals: A Unique Cultural Experience",
+    imageUrl: "assets/icons/AdamsPeak.jpeg",
+    excerpt: "Hiking During Festivals: A Unique Cultural Experience",
+    content: "Hiking During Festivals: A Unique Cultural Experience\n\n"
+        "Combining hiking with cultural festivals is a fantastic way to explore a destination's traditions and natural beauty. Here’s why you should try it:\n\n"
+        "1. Adam’s Peak Pilgrimage: Hike Adam’s Peak during the pilgrimage season (December to May) and join thousands of devotees climbing to the sacred summit. The atmosphere is electric, and the sunrise is breathtaking.\n\n"
+        "2. Kandy Esala Perahera: Plan a hike around Kandy during the Esala Perahera festival. After exploring trails like Udawatta Kele Sanctuary, witness the grand procession of dancers, drummers, and elephants.\n\n"
+        "3. Nallur Kandaswamy Festival: Hike in Jaffna and experience the vibrant Nallur Festival. The trails here offer a mix of coastal and cultural sights.\n\n"
+        "4. Vesak Festival: Hike to scenic spots like Ella or Sigiriya during Vesak, when the entire country is lit with lanterns and decorations.\n\n"
+        "5. Local Village Festivals: Many rural areas host small festivals. Combine a hike with a visit to a local village to experience authentic traditions.\n\n"
+        "Hiking during festivals adds a cultural dimension to your adventure. It’s a chance to connect with people, traditions, and the land in a meaningful way.",
+    readTime: "5 min read",
+    publishDate: DateTime(2025, 1, 18),
     authorName: "Trailblaze",
   ),
 ];
