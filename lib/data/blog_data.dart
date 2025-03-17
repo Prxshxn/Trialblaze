@@ -89,4 +89,26 @@ final List<Blog> blogsList = [
     publishDate: DateTime(2025, 1, 18),
     authorName: "Trailblaze",
   ),
+  Blog(
+    id: "6",
+    title: "Top 10 Essential hiking Tips for Beginners",
+    imageUrl: "assets/images/footware.jpeg",
+    excerpt: "Top 10 Essential Hiking Tips for Beginners",
+    content: "Top 10 Essential Hiking Tips for Beginners\n\n"
+        "Starting your hiking journey? Here are 10 tips to ensure a safe and enjoyable experience:\n\n"
+        "1. Start Small: Choose short, easy trails to build your stamina and confidence.\n\n"
+        "2. Wear Proper Footwear: Invest in sturdy, comfortable hiking boots with good grip.\n\n"
+        "3. Dress in Layers: Wear moisture-wicking clothes and layer up for changing weather.\n\n"
+        "4. Pack the Essentials: Bring water, snacks, a map, a first-aid kit, and a flashlight.\n\n"
+        "5. Check the Weather: Always check the forecast before heading out.\n\n"
+        "6. Stay Hydrated: Drink water regularly, even if you don’t feel thirsty.\n\n"
+        "7. Follow Trail Markers: Stick to marked trails to avoid getting lost.\n\n"
+        "8. Leave No Trace: Respect nature by packing out all trash and avoiding wildlife.\n\n"
+        "9. Hike with a Buddy: It’s safer and more fun to hike with a friend or group.\n\n"
+        "10. Listen to Your Body: Take breaks when needed and don’t push yourself too hard.\n\n"
+        "With these tips, you’ll be ready to hit the trails and enjoy the great outdoors!",
+    readTime: "5 min read",
+    publishDate: DateTime(2025, 3, 18),
+    authorName: "Trailblaze",
+  ),
 ];
