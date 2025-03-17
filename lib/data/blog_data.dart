@@ -4,7 +4,7 @@ final List<Blog> blogsList = [
   Blog(
     id: "1",
     title: "The Importance of Hydration and Nutrition on the Trail",
-    imageUrl: "assets/images/hydrate.jpeg",
+    imageUrl: "assets/icons/hydrate.jpeg",
     excerpt:
         "Proper hydration and nutrition are essential survival tools for any hiker.",
     content:
@@ -14,6 +14,24 @@ final List<Blog> blogsList = [
         "Remember: what you consume on the trail directly impacts your energy levels, decision-making ability, and overall safety. Plan your hydration and nutrition strategy as carefully as you plan your route!",
     readTime: "3 min read",
     publishDate: DateTime(2025, 3, 10),
-    authorName: "John Doe",
+    authorName: "Trailblaze",
+  ),
+   Blog(
+    id: "2",
+    title: "Top 5 Hiking Trails in Sri Lanka You Must Explore",
+    imageUrl: "assets/icons/SriLanka.jpeg",
+    excerpt:
+        "Sri Lanka's diverse landscapes offer some spectacular hiking experiences.",
+    content: "Top 5 Hiking Trails in Sri Lanka You Must Explore\n\n"
+        "Sri Lanka's diverse landscapes offer some of Asia's most spectacular hiking experiences. Here are five trails that showcase the island's natural beauty:\n\n"
+        "1. Horton Plains & World's End - This misty plateau leads to a stunning 880m drop at World's End. Start early to beat the clouds for breathtaking valley views and spot endemic wildlife along the way.\n\n"
+        "2. Adam's Peak (Sri Pada) - This sacred mountain attracts pilgrims and hikers alike. The nighttime ascent rewards early risers with one of the most magical sunrises you'll ever witness.\n\n"
+        "3. Knuckles Mountain Range - For the adventurous hiker, these rugged mountains offer cloud forests, hidden waterfalls, and traditional villages relatively untouched by tourism.\n\n"
+        "4. Ella Rock - A moderate hike through tea plantations and railway tracks leads to panoramic views of Ella Gap. Perfect for photographers and nature lovers.\n\n"
+        "5. Sinharaja Forest Reserve - Sri Lanka's last viable area of primary rainforest is a UNESCO site offering trails through incredible biodiversity—home to over 50% of the country's endemic species.\n\n"
+        "Each trail tells a different story of Sri Lanka's natural heritage. Which will you explore first?",
+    readTime: "4 min read",
+    publishDate: DateTime(2025, 3, 12),
+    authorName: "TrailBlaze",
   ),
 ];
