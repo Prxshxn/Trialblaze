@@ -51,6 +51,25 @@ final List<Blog> blogsList = [
         "The trail teaches patience and resilience. With proper preparation, you'll be ready for whatever challenges—and wonders—await around the next bend.",
     readTime: "5 min read",
     publishDate: DateTime(2025, 3, 15),
-    authorName: "Alice Johnson",
+    authorName: "Trailblaze",
+  ),
+  Blog(
+    id: "4",
+    title: "How to Recover After a Long Hike: Tips for Sore Muscles",
+    imageUrl: "assets/images/warmbath.jpeg",
+    excerpt: "How to Recover After a Long Hike: Tips for Sore Muscles",
+    content: "How to Recover After a Long Hike: Tips for Sore Muscles\n\n"
+        "After a long hike, your body deserves some TLC. Here are some tips to help you recover and soothe those sore muscles:\n\n"
+        "1. Stretch It Out: Gentle stretching after a hike can prevent stiffness and improve flexibility. Focus on your calves, hamstrings, quads, and hips.\n\n"
+        "2. Hydrate and Refuel: Drink plenty of water to rehydrate and eat a balanced meal with carbs, protein, and healthy fats to replenish energy.\n\n"
+        "3. Rest and Elevate: Give your body time to recover. Elevate your legs to reduce swelling and improve circulation.\n\n"
+        "4. Use a Foam Roller: Roll out tight muscles to release tension and improve blood flow.\n\n"
+        "5. Take a Warm Bath: Soak in Epsom salts to relax muscles and reduce soreness.\n\n"
+        "6. Massage Therapy: A gentle massage can help relieve muscle tension and improve recovery.\n\n"
+        "7. Stay Active: Light activities like walking or yoga can help your muscles recover faster.\n\n"
+        "Remember, recovery is just as important as the hike itself. Treat your body well, and you'll be ready for your next adventure!",
+    readTime: "5 min read",
+    publishDate: DateTime(2025, 2, 15),
+    authorName: "Trailblaze",
   ),
 ];
