@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as gl;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fluttertoast/fluttertoast.dart'; // Import fluttertoast
 
 class TrailDetails extends StatefulWidget {
   final List<gl.Position> trackedPositions;
@@ -222,14 +223,18 @@ class _TrailDetailsState extends State<TrailDetails> {
             ),
             const SizedBox(height: 16),
 
-            // Start annotating Button
+            // Save Trail Button
             ElevatedButton(
               onPressed: () async {
                 // Validate inputs
                 if (_nameController.text.isEmpty ||
                     _descriptionController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please fill in all fields')),
+                  Fluttertoast.showToast(
+                    msg: 'Please fill in all fields',
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
                   );
                   return;
                 }
@@ -239,10 +244,12 @@ class _TrailDetailsState extends State<TrailDetails> {
                 final userId = prefs.getString('user_id');
 
                 if (userId == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content:
-                            Text('User ID not found. Please log in again.')),
+                  Fluttertoast.showToast(
+                    msg: 'User ID not found. Please log in again.',
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
                   );
                   return;
                 }
@@ -265,8 +272,12 @@ class _TrailDetailsState extends State<TrailDetails> {
                 );
 
                 if (response != null && response['trailId'] != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Trail saved successfully!')),
+                  Fluttertoast.showToast(
+                    msg: 'Trail saved successfully!',
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.green,
+                    textColor: Colors.white,
                   );
 
                   // Call the callback if it exists
@@ -276,10 +287,12 @@ class _TrailDetailsState extends State<TrailDetails> {
 
                   Navigator.pop(context); // Go back to the previous page
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content:
-                            Text('Failed to save trail. Please try again.')),
+                  Fluttertoast.showToast(
+                    msg: 'Failed to save trail. Please try again.',
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
                   );
                 }
               },
