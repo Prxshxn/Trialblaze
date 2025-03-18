@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen>
 
       // Call the backend to verify the token
       final response = await http.get(
-        Uri.parse('http://192.168.1.6:5000/api/v1/verify'),
+        Uri.parse('http://13.53.173.93:5000/api/v1/verify'),
         headers: {
           'Cookie': 'SessionID=$token', // Pass the token as a cookie
         },
