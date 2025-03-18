@@ -92,7 +92,7 @@ final List<Blog> blogsList = [
   Blog(
     id: "6",
     title: "Top 10 Essential hiking Tips for Beginners",
-    imageUrl: "assets/images/footware.jpeg",
+    imageUrl: "assets/icons/footware.jpeg",
     excerpt: "Top 10 Essential Hiking Tips for Beginners",
     content: "Top 10 Essential Hiking Tips for Beginners\n\n"
         "Starting your hiking journey? Here are 10 tips to ensure a safe and enjoyable experience:\n\n"
