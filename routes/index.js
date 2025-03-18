@@ -21,6 +21,7 @@ router.get("/verified", verifyToken, (req, res) => res.status(200).json({ messag
 router.post("/logout", Logout);
 router.post("/trail/save", saveTrail);
 
-
+router.get('/trails', getAllTrails);
+router.get('/trails/:id', getTrailById);
 
 export default (server) => server.use('/api/v1', router);
