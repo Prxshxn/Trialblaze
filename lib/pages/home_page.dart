@@ -5,6 +5,7 @@ import 'navigation_page.dart';
 import 'downloadable_trails.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'saved_trails_page.dart';
+import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -128,6 +129,17 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                   child: const Text("View Saved Trails"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Login"),
                 ),
               ],
             ),

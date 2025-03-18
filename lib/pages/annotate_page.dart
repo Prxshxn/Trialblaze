@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
 import 'package:geolocator/geolocator.dart' show distanceBetween;
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AnnotatePage extends StatefulWidget {
   const AnnotatePage({super.key});
@@ -345,16 +346,18 @@ class _AnnotatePage extends State<AnnotatePage> {
         : totalDuration +
             DateTime.now().difference(trackingStartTime ?? DateTime.now());
 
-    final trailId = await saveTrail(
+    final response = await saveTrail(
       'My Trail',
       'Description of my trail',
       totalDistanceInMeters,
       finalDuration.inSeconds,
+      trackedPositions,
     );
 
-    if (trailId != null) {
-      await _saveToSupabase(trailId);
-      print('Trail and coordinates saved to Supabase');
+    if (response != null && response['trailId'] != null) {
+      print('Trail and coordinates saved successfully');
+    } else {
+      print('Failed to save trail and coordinates');
     }
 
     // Reset tracking state
@@ -370,41 +373,45 @@ class _AnnotatePage extends State<AnnotatePage> {
     trackingStream = null;
   }
 
-  Future<String?> saveTrail(String name, String description, double distance,
-      int durationSeconds) async {
-    final supabase = Supabase.instance.client;
+  Future<Map<String, dynamic>?> saveTrail(
+      String name,
+      String description,
+      double distance,
+      int durationSeconds,
+      List<gl.Position> coordinates) async {
+    final url = Uri.parse('http://192.168.1.5:5000/api/v1/trail/save');
+    final body = jsonEncode({
+      'name': name,
+      'description': description,
+      'distance': distance,
+      'duration': durationSeconds,
+      'coordinates': coordinates
+          .map((pos) => {
+                'latitude': pos.latitude,
+                'longitude': pos.longitude,
+              })
+          .toList(),
+    });
+
     try {
-      final response = await supabase
-          .from('trails')
-          .insert({
-            'name': name,
-            'description': description,
-            'distance_meters': distance,
-            'duration_seconds': durationSeconds,
-          })
-          .select('id')
-          .single();
-      return response['id'] as String?;
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type':
+              'application/json', // Only content type header is needed
+        },
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('Failed to save trail: ${response.body}');
+        return null;
+      }
     } catch (e) {
       print('Error saving trail: $e');
       return null;
-    }
-  }
-
-  Future<void> _saveToSupabase(String trailId) async {
-    final supabase = Supabase.instance.client;
-
-    try {
-      for (var position in trackedPositions) {
-        await supabase.from('coordinates').insert({
-          'trail_id': trailId,
-          'latitude': position.latitude,
-          'longitude': position.longitude,
-        });
-      }
-      print('All coordinates saved to Supabase for trail $trailId');
-    } catch (e) {
-      print('Error saving coordinates: $e');
     }
   }
 
