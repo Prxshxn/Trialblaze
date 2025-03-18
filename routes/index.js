@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 router.post("/register/hiker", Validate, registerHiker);
 router.post("/register/responder", Validate, registerResponder);
 router.post("/login", check("email").isEmail().normalizeEmail(), check("password").not().isEmpty(), Validate, Login);
-router.get("/verified", verifyToken, (req, res) => res.status(200).json({ message: "Welcome to Trailblaze!" }));
+router.get("/verify", verifyToken, (req, res) => { });
 router.post("/logout", Logout);
 
 router.get("/trails", getTrailDetails);
