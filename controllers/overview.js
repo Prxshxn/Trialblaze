@@ -2,9 +2,13 @@ import { supabase } from '../config/supabaseClient.js';
 
 // Function to fetch all trails
 export const getAllTrails = async (req, res) => {
-  const { data: trails } = await supabase
+  const { data: trails, error: trailsError } = await supabase
     .from('trails')
     .select('*');
+
+  if (trailsError) {
+    return res.status(500).json({ error: 'Failed to fetch trails' });
+  }
 
   const formattedTrails = trails.map(trail => ({
     id: trail.id,
@@ -25,11 +29,19 @@ export const getAllTrails = async (req, res) => {
 export const getTrailById = async (req, res) => {
   const { id } = req.params;
 
-  const { data: trail } = await supabase
+  const { data: trail, error: trailError } = await supabase
     .from('trails')
     .select('*')
     .eq('id', id)
     .single();
+
+  if (trailError) {
+    return res.status(500).json({ error: 'Failed to fetch trail' });
+  }
+
+  if (!trail) {
+    return res.status(404).json({ error: 'Trail not found' });
+  }
 
   const formattedTrail = {
     id: trail.id,
