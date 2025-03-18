@@ -4,7 +4,7 @@ final List<Blog> blogsList = [
   Blog(
     id: "1",
     title: "The Importance of Hydration and Nutrition on the Trail",
-    imageUrl: "assets/icons/hydrate.jpeg",
+    imageUrl: "assets/icons/hydrate.png",
     excerpt:
         "Proper hydration and nutrition are essential survival tools for any hiker.",
     content:
@@ -19,7 +19,7 @@ final List<Blog> blogsList = [
    Blog(
     id: "2",
     title: "Top 5 Hiking Trails in Sri Lanka You Must Explore",
-    imageUrl: "assets/icons/SriLanka.jpeg",
+    imageUrl: "assets/icons/SriLanka.png",
     excerpt:
         "Sri Lanka's diverse landscapes offer some spectacular hiking experiences.",
     content: "Top 5 Hiking Trails in Sri Lanka You Must Explore\n\n"
@@ -37,7 +37,7 @@ final List<Blog> blogsList = [
   Blog(
     id: "3",
     title: "How to Prepare for a Multi-Day Hike",
-    imageUrl: "assets/icons/hike.jpeg",
+    imageUrl: "assets/icons/hike.png",
     excerpt:
         "A multi-day hike transforms a simple walk into an adventure but requires preparation.",
     content:
@@ -56,7 +56,7 @@ final List<Blog> blogsList = [
   Blog(
     id: "4",
     title: "How to Recover After a Long Hike: Tips for Sore Muscles",
-    imageUrl: "assets/icons/warmbath.jpeg",
+    imageUrl: "assets/icons/warmbath.png",
     excerpt: "How to Recover After a Long Hike: Tips for Sore Muscles",
     content: "How to Recover After a Long Hike: Tips for Sore Muscles\n\n"
         "After a long hike, your body deserves some TLC. Here are some tips to help you recover and soothe those sore muscles:\n\n"
@@ -75,7 +75,7 @@ final List<Blog> blogsList = [
   Blog(
     id: "5",
     title: "Hiking During Festivals: A Unique Cultural Experience",
-    imageUrl: "assets/icons/AdamsPeak.jpeg",
+    imageUrl: "assets/icons/AdamsPeak.png",
     excerpt: "Hiking During Festivals: A Unique Cultural Experience",
     content: "Hiking During Festivals: A Unique Cultural Experience\n\n"
         "Combining hiking with cultural festivals is a fantastic way to explore a destination's traditions and natural beauty. Here’s why you should try it:\n\n"
@@ -92,7 +92,7 @@ final List<Blog> blogsList = [
   Blog(
     id: "6",
     title: "Top 10 Essential hiking Tips for Beginners",
-    imageUrl: "assets/icons/footware.jpeg",
+    imageUrl: "assets/icons/footware.png",
     excerpt: "Top 10 Essential Hiking Tips for Beginners",
     content: "Top 10 Essential Hiking Tips for Beginners\n\n"
         "Starting your hiking journey? Here are 10 tips to ensure a safe and enjoyable experience:\n\n"
