@@ -4,6 +4,9 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class OfflineNavigationPage extends StatefulWidget {
   final String trailId; // Trail ID to identify the saved file
@@ -95,9 +98,122 @@ class _OfflineNavigationPageState extends State<OfflineNavigationPage> {
               ),
             ),
           ),
+          Positioned(
+            bottom: 260, // Adjust the position as needed
+            right: 20,
+            child: FloatingActionButton(
+              heroTag: 'sosButton', // Unique tag
+              backgroundColor: Colors.red, // Red color for SOS
+              onPressed: _sendSOS, // Call the _sendSOS method
+              child: const Icon(Icons.emergency),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _sendSOS() async {
+    // Get the user's current position
+    final position = await gl.Geolocator.getCurrentPosition();
+
+    // Get the user ID from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+
+    if (userId == null) {
+      print('User ID not found. Please log in again.');
+      Fluttertoast.showToast(
+        msg: 'User ID not found. Please log in again.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return;
+    }
+
+    final supabase = Supabase.instance.client;
+
+    try {
+      // Fetch hiker's name and phone number from Supabase
+      final userResponse = await supabase
+          .from(
+              'users') // Replace with the actual table name where user data is stored
+          .select('username, emergency_contact')
+          .eq('id', userId)
+          .single();
+
+      if (userResponse == null) {
+        print('User details not found.');
+        Fluttertoast.showToast(
+          msg: 'User details not found.',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+        return;
+      }
+
+      // Fetch trail name using trailId
+      final trailResponse = await supabase
+          .from('trails') // Replace with the actual trails table name
+          .select('name')
+          .eq('id', widget.trailId)
+          .single();
+
+      if (trailResponse == null) {
+        print('Trail details not found.');
+        Fluttertoast.showToast(
+          msg: 'Trail details not found.',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+        return;
+      }
+
+      final trailName = trailResponse['name'] ?? 'Unknown Trail';
+      final hikerName = userResponse['username'] ?? 'Unknown';
+      final phone = userResponse['emergency_contact'] ?? 'N/A';
+
+      // Prepare the SOS data
+      final sosData = {
+        'hikername': hikerName,
+        'trail': trailName,
+        'phone': phone,
+        'latitude': position.latitude,
+        'longitude': position.longitude,
+        'timestamp': DateTime.now().toIso8601String(),
+        'status': "Awaiting",
+        'user_id': userId,
+      };
+
+      // Send the data to Supabase
+      final response = await supabase.from('sos_requests').insert([sosData]);
+
+      // If no exception is thrown, the operation is successful
+      print('SOS data sent successfully');
+      Fluttertoast.showToast(
+        msg: 'SOS sent successfully!',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    } catch (e) {
+      // Handle any exceptions
+      print('Error sending SOS: $e');
+      Fluttertoast.showToast(
+        msg: 'Failed to send SOS. Please try again.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
   }
 
   // Load trail coordinates from the saved file

@@ -46,9 +46,11 @@ class _LoginPageState extends State<LoginPage> {
         final role = responseData['data']['role'];
         final username = responseData['data']['username'];
         final userId = responseData['data']['id'].toString();
+        final token = responseData['data']['token'];
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_id', userId);
+        await prefs.setString('accessToken', token);
 
         Fluttertoast.showToast(
           msg: "Login successful!",

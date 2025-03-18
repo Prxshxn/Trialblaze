@@ -5,6 +5,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:fluttertoast/fluttertoast.dart'; // Import fluttertoast
 
 class DownloadMapPage extends StatefulWidget {
   final String trailId;
@@ -42,10 +43,12 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
       await _removeTileRegionAndStylePack();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Error cleaning up resources: ${e.toString()}'),
-              backgroundColor: Colors.red),
+        Fluttertoast.showToast(
+          msg: 'Error cleaning up resources: ${e.toString()}',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
     }
@@ -58,10 +61,12 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
       await _offlineManager?.removeStylePack(MapboxStyles.OUTDOORS);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Error removing offline map data: ${e.toString()}'),
-              backgroundColor: Colors.red),
+        Fluttertoast.showToast(
+          msg: 'Error removing offline map data: ${e.toString()}',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
       rethrow;
@@ -91,6 +96,13 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
 
   Future<void> _downloadTileRegion() async {
     if (trailCoordinates.isEmpty) {
+      Fluttertoast.showToast(
+        msg: 'No trail coordinates available.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
       throw Exception("No trail coordinates available.");
     }
 
@@ -201,7 +213,13 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
         }
       }
     } catch (e) {
-      print('Error fetching trail coordinates: $e');
+      Fluttertoast.showToast(
+        msg: 'Error fetching trail coordinates: $e',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
   }
 
@@ -219,21 +237,21 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
       }
 
       await file.writeAsString(trailData);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Trail details saved to ${file.path}'),
-              backgroundColor: Colors.green),
-        );
-      }
+      Fluttertoast.showToast(
+        msg: 'Trail details saved to ${file.path}',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Error saving trail details: ${e.toString()}'),
-              backgroundColor: Colors.red),
-        );
-      }
+      Fluttertoast.showToast(
+        msg: 'Error saving trail details: ${e.toString()}',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
   }
 
@@ -257,13 +275,10 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
                 zoom: 12.0,
               ),
               onMapCreated: (MapboxMap mapboxMap) async {
-                // First, try to render the map in offline mode
-                //await OfflineSwitch.shared.setMapboxStackConnected(false);
                 setState(() {
                   mapboxMapController = mapboxMap;
                 });
 
-                // If the map fails to load in offline mode, catch the error and switch to online mode
                 try {
                   if (trailCoordinates.isNotEmpty) {
                     final firstCoord = trailCoordinates.first;
@@ -278,7 +293,6 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
                     );
                   }
                 } catch (e) {
-                  // If offline mode fails, switch to online mode
                   await OfflineSwitch.shared.setMapboxStackConnected(true);
                   if (trailCoordinates.isNotEmpty) {
                     final firstCoord = trailCoordinates.first;
@@ -305,13 +319,30 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
           ),
           ElevatedButton(
             onPressed: () async {
-              await _downloadStylePack();
-              await _downloadTileRegion();
-              await _saveTrailDetailsToFile();
-              await OfflineSwitch.shared.setMapboxStackConnected(false);
-              setState(() {
-                _isMapDownloaded = true;
-              });
+              try {
+                await _downloadStylePack();
+                await _downloadTileRegion();
+                await _saveTrailDetailsToFile();
+                await OfflineSwitch.shared.setMapboxStackConnected(false);
+                setState(() {
+                  _isMapDownloaded = true;
+                });
+                Fluttertoast.showToast(
+                  msg: 'Map downloaded successfully!',
+                  toastLength: Toast.LENGTH_LONG,
+                  gravity: ToastGravity.BOTTOM,
+                  backgroundColor: Colors.green,
+                  textColor: Colors.white,
+                );
+              } catch (e) {
+                Fluttertoast.showToast(
+                  msg: 'Error downloading map: ${e.toString()}',
+                  toastLength: Toast.LENGTH_LONG,
+                  gravity: ToastGravity.BOTTOM,
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                );
+              }
             },
             child: const Text('Download Map'),
           ),

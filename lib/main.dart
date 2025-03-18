@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       home: skHomePage(), // Start with the map home page
       routes: {
         '/landing': (context) => const LandingPage(),
