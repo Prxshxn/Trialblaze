@@ -1,0 +1,23 @@
+# Node modules
+node_modules/
+
+
+# Logs
+logs/
+*.log
+
+# OS-specific files
+Thumbs.db
+
+# Editor/IDE settings
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+
+# Build files
+dist/
+build/
+
+# Optional: Package lock (if ignoring)
+#package-lock.json
