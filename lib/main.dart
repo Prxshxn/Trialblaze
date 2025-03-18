@@ -13,7 +13,7 @@ import 'pages/newhome_page.dart';
 import 'pages/responder_home_page.dart';
 
 void main() async {
-  await setup();
+  await setup();  
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(

@@ -1,4 +1,3 @@
-import 'package:createtrial/pages/trail_details.dart';
 import 'package:createtrial/pages/newhome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

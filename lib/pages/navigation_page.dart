@@ -127,22 +127,12 @@ class _NavigationPageState extends State<NavigationPage> {
           .select('username, emergency_contact')
           .eq('id', userId)
           .single();
-
-      if (userResponse == null) {
-        print('User details not found.');
-        return;
-      }
       // Fetch trail name using trailId
       final trailResponse = await supabase
           .from('trails') // Replace with the actual trails table name
           .select('name')
           .eq('id', widget.trailId)
           .single();
-
-      if (trailResponse == null) {
-        print('Trail details not found.');
-        return;
-      }
       final trailName = trailResponse['name'] ?? 'Unknown Trail';
       final hikerName = userResponse['name'] ?? 'Unknown';
       final phone = userResponse['phone'] ?? 'N/A';
