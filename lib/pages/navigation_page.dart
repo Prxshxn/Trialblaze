@@ -2,8 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:geolocator/geolocator.dart' as gl;
-import 'package:supabase_flutter/supabase_flutter.dart'; // Add Supabase import
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class NavigationPage extends StatefulWidget {
   final String trailId; // Add trailId as a parameter
@@ -114,6 +115,13 @@ class _NavigationPageState extends State<NavigationPage> {
 
     if (userId == null) {
       print('User ID not found. Please log in again.');
+      Fluttertoast.showToast(
+        msg: 'User ID not found. Please log in again.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
       return;
     }
 
@@ -130,8 +138,16 @@ class _NavigationPageState extends State<NavigationPage> {
 
       if (userResponse == null) {
         print('User details not found.');
+        Fluttertoast.showToast(
+          msg: 'User details not found.',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
         return;
       }
+
       // Fetch trail name using trailId
       final trailResponse = await supabase
           .from('trails') // Replace with the actual trails table name
@@ -141,11 +157,19 @@ class _NavigationPageState extends State<NavigationPage> {
 
       if (trailResponse == null) {
         print('Trail details not found.');
+        Fluttertoast.showToast(
+          msg: 'Trail details not found.',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
         return;
       }
+
       final trailName = trailResponse['name'] ?? 'Unknown Trail';
-      final hikerName = userResponse['name'] ?? 'Unknown';
-      final phone = userResponse['phone'] ?? 'N/A';
+      final hikerName = userResponse['username'] ?? 'Unknown';
+      final phone = userResponse['emergency_contact'] ?? 'N/A';
 
       // Prepare the SOS data
       final sosData = {
@@ -162,22 +186,24 @@ class _NavigationPageState extends State<NavigationPage> {
       // Send the data to Supabase
       final response = await supabase.from('sos_requests').insert([sosData]);
 
-      if (response != null) {
-        print('SOS data sent successfully');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('SOS sent successfully!')),
-        );
-      } else {
-        print('Failed to send SOS data');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Failed to send SOS. Please try again.')),
-        );
-      }
+      // If no exception is thrown, the operation is successful
+      print('SOS data sent successfully');
+      Fluttertoast.showToast(
+        msg: 'SOS sent successfully!',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
     } catch (e) {
-      print('Error fetching user details or sending SOS: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error sending SOS. Please try again.')),
+      // Handle any exceptions
+      print('Error sending SOS: $e');
+      Fluttertoast.showToast(
+        msg: 'Failed to send SOS. Please try again.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     }
   }
