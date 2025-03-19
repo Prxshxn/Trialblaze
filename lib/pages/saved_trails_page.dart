@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'offline_map.dart';
+import 'newhome_page.dart'; // Import the HomePage or other pages if needed
 
 class SavedTrailsPage extends StatefulWidget {
   const SavedTrailsPage({super.key});
@@ -56,29 +57,134 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Saved Trails'),
+        title: const Text(
+          'Saved Trails',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white), // White back arrow
       ),
+      backgroundColor: Colors.black,
       body: ListView.builder(
+        padding: const EdgeInsets.all(16.0),
         itemCount: savedTrails.length,
         itemBuilder: (context, index) {
           final trail = savedTrails[index];
-          return ListTile(
-            title: Text(trail['trailName'] ?? 'Unknown Trail'),
-            subtitle:
-                Text(trail['trailDescription'] ?? 'No description available'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => OfflineNavigationPage(
-                    trailId: trail['trailId']
-                        .toString(), // Ensure trailId is a String
+          return Card(
+            margin: const EdgeInsets.only(bottom: 16.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            color: Colors.grey[850],
+            child: InkWell(
+              borderRadius: BorderRadius.circular(15.0),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OfflineNavigationPage(
+                      trailId: trail['trailId']
+                          .toString(), // Ensure trailId is a String
+                    ),
                   ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            trail['trailName'] ?? 'Unknown Trail',
+                            style: const TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            trail['trailDescription'] ??
+                                'No description available',
+                            style: TextStyle(
+                              fontSize: 14.0,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.navigation, // Navigation arrow icon
+                      color: Colors.white,
+                      size: 30.0,
+                    ),
+                  ],
                 ),
-              );
-            },
+              ),
+            ),
           );
         },
+      ),
+      // Add the BottomAppBar here
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add functionality for the FAB if needed
+        },
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.black,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.home),
+                color: Colors.white,
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomePage(),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.search),
+                color: Colors.grey,
+                onPressed: () {
+                  // Add functionality for search
+                },
+              ),
+              const SizedBox(width: 48), // Space for the FAB
+              IconButton(
+                icon: const Icon(Icons.favorite_border),
+                color: Colors.grey,
+                onPressed: () {
+                  // Already on the SavedTrailsPage, no need to navigate
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.person_outline),
+                color: Colors.grey,
+                onPressed: () {
+                  // Add functionality for profile
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

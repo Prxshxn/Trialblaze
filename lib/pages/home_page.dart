@@ -3,12 +3,13 @@ import 'package:createtrial/pages/newhome_page.dart';
 import 'package:createtrial/pages/location_marker.dart';
 import 'package:createtrial/pages/annotate_page.dart';
 import 'package:flutter/material.dart';
-import 'navigation_page.dart';
+import 'navigatetotrail.dart';
 import 'package:createtrial/models/trail.dart';
 import 'downloadable_trails.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'saved_trails_page.dart';
 import 'package:createtrial/screens/trail_overview_screen.dart';
+import 'package:createtrial/pages/splash-screen.dart';
 
 class skHomePage extends StatefulWidget {
   const skHomePage({super.key});
@@ -60,8 +61,8 @@ class _skHomePageState extends State<skHomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TrailOverviewScreen(
-                          trailId: trail.id, // Pass the trail ID
+                        builder: (context) => NavigatetoTrailPage(
+                          trailId: trail['id'], // Pass the trail ID
                         ),
                       ),
                     );
@@ -76,19 +77,6 @@ class _skHomePageState extends State<skHomePage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NavigationPage(
-                          trailId: 'f015dc6b-6440-4ad4-b1a4-1b442b4f5d36',
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text("Go to Navigation"),
-                ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -149,7 +137,19 @@ class _skHomePageState extends State<skHomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LandingPage(),
+                        builder: (context) => TrailOverviewScreen(
+                            trail: Trail.getMockTrails()[0]),
+                      ),
+                    );
+                  },
+                  child: const Text("Trail Overview"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SplashScreen(),
                       ),
                     );
                   },

@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://localhost:5000/api/v1/login');
+    final url = Uri.parse('http://13.53.173.93:5000/api/v1/login');
     try {
       final response = await http.post(
         url,
@@ -46,9 +46,11 @@ class _LoginPageState extends State<LoginPage> {
         final role = responseData['data']['role'];
         final username = responseData['data']['username'];
         final userId = responseData['data']['id'].toString();
+        final token = responseData['data']['token'];
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_id', userId);
+        await prefs.setString('accessToken', token);
 
         Fluttertoast.showToast(
           msg: "Login successful!",

@@ -4,6 +4,7 @@ import 'saved_trails_page.dart';
 import 'package:createtrial/pages/annotate_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:createtrial/pages/search_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchTrails() async {
     try {
       final response =
-          await http.get(Uri.parse('http://192.168.1.2:5000/api/v1/trails'));
+          await http.get(Uri.parse('http://13.53.173.93:5000/api/v1/trails'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body)['data'];
         setState(() {
@@ -154,7 +155,14 @@ class _HomePageState extends State<HomePage> {
               IconButton(
                 icon: const Icon(Icons.search),
                 color: Colors.grey,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SearchPage(trails: trails),
+                    ),
+                  );
+                },
               ),
               const SizedBox(width: 48), // Space for the FAB
               IconButton(
