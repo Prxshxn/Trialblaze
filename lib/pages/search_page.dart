@@ -81,51 +81,56 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AnnotatePage(),
-            ),
-          );
-        },
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(top: 20.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AnnotatePage(),
+              ),
+            );
+          },
+          elevation: 0,
+          backgroundColor: Colors.green,
+          child: const Icon(Icons.add),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
+        height: 56,
+        padding: EdgeInsets.zero,
         color: Colors.black,
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
-        child: SizedBox(
-          height: 56,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.home),
-                color: Colors.white,
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.search),
-                color: Colors.grey,
-                onPressed: () {},
-              ),
-              const SizedBox(width: 48), // Space for the FAB
-              IconButton(
-                icon: const Icon(Icons.favorite_border),
-                color: Colors.grey,
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.person_outline),
-                color: Colors.grey,
-                onPressed: () {},
-              ),
-            ],
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.home),
+              color: Colors.grey,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.search),
+              color: Colors.white,
+              onPressed: () {},
+            ),
+            const SizedBox(width: 48), // Space for the FAB
+            IconButton(
+              icon: const Icon(Icons.favorite_border),
+              color: Colors.grey,
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.person_outline),
+              color: Colors.grey,
+              onPressed: () {},
+            ),
+          ],
         ),
       ),
     );
