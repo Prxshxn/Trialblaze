@@ -62,7 +62,7 @@ class _skHomePageState extends State<skHomePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => NavigatetoTrailPage(
-                          trailId: trail['id'], // Pass the trail ID
+                          trailId: trail.id, // Pass the trail ID
                         ),
                       ),
                     );
@@ -138,7 +138,9 @@ class _skHomePageState extends State<skHomePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => TrailOverviewScreen(
-                            trail: Trail.getMockTrails()[0]),
+                          trailId:
+                              '79804eee-df92-42f8-9d57-634c860b4966', // Use dynamic trail ID
+                        ),
                       ),
                     );
                   },
