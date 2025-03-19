@@ -33,8 +33,10 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Search Trails'),
+        backgroundColor: Colors.black,
+        title: const Text('Search Trails', style: TextStyle(color: Colors.white)),
       ),
       body: Column(
         children: [
@@ -42,24 +44,26 @@ class _SearchPageState extends State<SearchPage> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               onChanged: _filterTrails,
+              style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
                 labelText: 'Search Trails',
                 border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: Colors.white),
               ),
             ),
           ),
           Expanded(
             child: _filteredTrails.isEmpty
                 ? const Center(
-                    child: Text('No trails found.'),
+                    child: Text('No trails found.', style: TextStyle(color: Colors.white)),
                   )
                 : ListView.builder(
                     itemCount: _filteredTrails.length,
                     itemBuilder: (context, index) {
                       final trail = _filteredTrails[index];
                       return ListTile(
-                        title: Text(trail['name']),
-                        subtitle: Text(trail['description']),
+                        title: Text(trail['name'], style: const TextStyle(color: Colors.white)),
+                        subtitle: Text(trail['description'], style: const TextStyle(color: Colors.grey)),
                         onTap: () {
                           Navigator.push(
                             context,

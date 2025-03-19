@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.green,
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomAppBar(
         color: Colors.black,
         shape: const CircularNotchedRectangle(),
