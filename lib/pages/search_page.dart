@@ -37,7 +37,8 @@ class _SearchPageState extends State<SearchPage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Text('Search Trails', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Search Trails', style: TextStyle(color: Colors.white)),
       ),
       body: Column(
         children: [
@@ -56,15 +57,18 @@ class _SearchPageState extends State<SearchPage> {
           Expanded(
             child: _filteredTrails.isEmpty
                 ? const Center(
-                    child: Text('No trails found.', style: TextStyle(color: Colors.white)),
+                    child: Text('No trails found.',
+                        style: TextStyle(color: Colors.white)),
                   )
                 : ListView.builder(
                     itemCount: _filteredTrails.length,
                     itemBuilder: (context, index) {
                       final trail = _filteredTrails[index];
                       return ListTile(
-                        title: Text(trail['name'], style: const TextStyle(color: Colors.white)),
-                        subtitle: Text(trail['description'], style: const TextStyle(color: Colors.grey)),
+                        title: Text(trail['name'],
+                            style: const TextStyle(color: Colors.white)),
+                        subtitle: Text(trail['description'],
+                            style: const TextStyle(color: Colors.grey)),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -121,7 +125,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             const SizedBox(width: 48), // Space for the FAB
             IconButton(
-              icon: const Icon(Icons.favorite_border),
+              icon: const Icon(Icons.bookmark_border),
               color: Colors.grey,
               onPressed: () {},
             ),

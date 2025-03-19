@@ -1,4 +1,5 @@
 import 'package:createtrial/pages/blog_page.dart';
+import 'package:createtrial/screens/trail_overview_screen.dart';
 import 'package:flutter/material.dart';
 import 'navigation_page.dart';
 import 'saved_trails_page.dart';
@@ -72,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => NavigationPage(
+                              builder: (context) => TrailOverviewScreen(
                                 trailId: trail['id'], // Pass the trail ID
                               ),
                             ),
@@ -94,11 +95,13 @@ class _HomePageState extends State<HomePage> {
             SectionScroll(
               items: [
                 TrailCard(
-                    image: 'https://images.unsplash.com/photo-1501555088652-021faa106b9b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80',
+                    image:
+                        'https://images.unsplash.com/photo-1501555088652-021faa106b9b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80',
                     title: 'Local Forest',
                     subtitle: '2.5 miles away'),
                 TrailCard(
-                    image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+                    image:
+                        'https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
                     title: 'City Trail',
                     subtitle: '1.8 miles away'),
               ],
@@ -122,7 +125,8 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const SectionTitle(title: 'Trail Blog'),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         child: InkWell(
                           onTap: () {
                             Navigator.push(
@@ -243,7 +247,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(width: 48), // Space for the FAB
             IconButton(
-              icon: const Icon(Icons.favorite_border),
+              icon: const Icon(Icons.bookmark_border),
               color: Colors.grey,
               onPressed: () {
                 Navigator.push(
