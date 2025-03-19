@@ -3,7 +3,7 @@ import 'package:createtrial/pages/newhome_page.dart';
 import 'package:createtrial/pages/location_marker.dart';
 import 'package:createtrial/pages/annotate_page.dart';
 import 'package:flutter/material.dart';
-import 'navigation_page.dart';
+import 'navigatetotrail.dart';
 import 'package:createtrial/models/trail.dart';
 import 'downloadable_trails.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -61,7 +61,7 @@ class _skHomePageState extends State<skHomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NavigationPage(
+                        builder: (context) => NavigatetoTrailPage(
                           trailId: trail['id'], // Pass the trail ID
                         ),
                       ),
