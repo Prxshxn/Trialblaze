@@ -123,10 +123,6 @@ class _HomePageState extends State<HomePage> {
                       const SectionTitle(title: 'Trail Blog'),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
                         child: InkWell(
                           onTap: () {
                             Navigator.push(
@@ -137,10 +133,11 @@ class _HomePageState extends State<HomePage> {
                             );
                           },
                           child: const Text(
-                            'Read More Trail Blogs',
+                            'Read More',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.green,
                               fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
                           ),
                         ),
