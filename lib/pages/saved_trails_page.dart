@@ -57,13 +57,12 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: const Text(
           'Saved Trails',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.black,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white), // White back arrow
       ),
       backgroundColor: Colors.black,
       body: ListView.builder(
@@ -131,59 +130,62 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
         },
       ),
       // Add the BottomAppBar here
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add functionality for the FAB if needed
-        },
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(top: 20.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            // Add functionality for the FAB if needed
+          },
+          elevation: 0,
+          backgroundColor: Colors.green,
+          child: const Icon(Icons.add),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
+        height: 56,
+        padding: EdgeInsets.zero,
         color: Colors.black,
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
-        child: SizedBox(
-          height: 56,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.home),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomePage(),
-                    ),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.search),
-                color: Colors.grey,
-                onPressed: () {
-                  // Add functionality for search
-                },
-              ),
-              const SizedBox(width: 48), // Space for the FAB
-              IconButton(
-                icon: const Icon(Icons.favorite_border),
-                color: Colors.grey,
-                onPressed: () {
-                  // Already on the SavedTrailsPage, no need to navigate
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.person_outline),
-                color: Colors.grey,
-                onPressed: () {
-                  // Add functionality for profile
-                },
-              ),
-            ],
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.home),
+              color: Colors.grey,
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HomePage(),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.search),
+              color: Colors.grey,
+              onPressed: () {
+                // Add functionality for search
+              },
+            ),
+            const SizedBox(width: 48), // Space for the FAB
+            IconButton(
+              icon: const Icon(Icons.favorite_border),
+              color: Colors.white,
+              onPressed: () {
+                // Already on the SavedTrailsPage, no need to navigate
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.person_outline),
+              color: Colors.grey,
+              onPressed: () {
+                // Add functionality for profile
+              },
+            ),
+          ],
         ),
       ),
     );
