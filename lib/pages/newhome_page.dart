@@ -93,11 +93,11 @@ class _HomePageState extends State<HomePage> {
             SectionScroll(
               items: [
                 TrailCard(
-                    image: 'assets/images/local1.jpg',
+                    image: 'https://images.unsplash.com/photo-1501555088652-021faa106b9b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80',
                     title: 'Local Forest',
                     subtitle: '2.5 miles away'),
                 TrailCard(
-                    image: 'assets/images/local2.jpg',
+                    image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
                     title: 'City Trail',
                     subtitle: '1.8 miles away'),
               ],
@@ -107,18 +107,36 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 10),
             const WeatherConditionCard(),
             const SizedBox(height: 24),
-            const SectionTitle(title: 'Trail Blog'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SectionTitle(title: 'Trail Blog'),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BlogPage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Show More',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 10),
             SectionScroll(
               items: [
                 BlogCard(
-                    image: 'assets/images/blog1.jpg',
+                    image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
                     title: 'Best Spring Trails',
                     author: 'Trail Guide'),
-                BlogCard(
-                    image: 'assets/images/blog2.jpg',
-                    title: 'Hiking Safety Tips',
-                    author: 'Expert Hiker'),
               ],
             ),
             const SizedBox(height: 16),
@@ -325,7 +343,7 @@ class BlogCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.asset(
+            child: Image.network(
               image,
               height: 140,
               width: double.infinity,
