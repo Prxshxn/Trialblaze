@@ -16,7 +16,13 @@ export const getAllTrails = async (req, res) => {
     const formattedTrails = trails.map(trail => ({
       id: trail.id,
       name: trail.name,
-      
+      description: trail.description,
+      distanceMeters: trail.distance_meters,
+      durationSeconds: trail.duration_seconds,
+      district: trail.district,
+      difficultyLevel: trail.difficulty_level,
+      imageUrl: trail.image_url || '', // Optional field with default value
+      mapUrl: trail.map_url || '', // Optional field with default value
     }));
 
     res.json(formattedTrails);
