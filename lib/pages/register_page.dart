@@ -46,8 +46,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
     try {
       final url = _userType == UserType.hiker
-          ? Uri.parse('http://192.168.1.6:5000/api/v1/register/hiker')
-          : Uri.parse('http://192.168.1.6:5000/api/v1/register/responder');
+          ? Uri.parse('http://192.168.1.2:5000/api/v1/register/hiker')
+          : Uri.parse('http://192.168.1.2:5000/api/v1/register/responder');
 
       final Map<String, dynamic> body = _userType == UserType.hiker
           ? {

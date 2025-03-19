@@ -18,7 +18,7 @@ class skHomePage extends StatefulWidget {
 }
 
 class _skHomePageState extends State<skHomePage> {
-  List<Map<String, dynamic>> trails = [];
+  List<Trail> trails = []; // Use Trail model instead of Map
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class _skHomePageState extends State<skHomePage> {
     try {
       final response = await supabase.from('trails').select('*');
       setState(() {
-        trails = List<Map<String, dynamic>>.from(response);
+        trails = response.map((trail) => Trail.fromJson(trail)).toList();
       });
     } catch (e) {
       print('Error fetching trails: $e');
@@ -53,15 +53,15 @@ class _skHomePageState extends State<skHomePage> {
               itemBuilder: (context, index) {
                 final trail = trails[index];
                 return ListTile(
-                  title: Text(trail['name']),
-                  subtitle: Text(trail['description']),
+                  title: Text(trail.name),
+                  subtitle: Text(trail.description),
                   onTap: () {
-                    // Navigate to NavigationPage with the selected trail's ID
+                    // Navigate to TrailOverviewScreen with the selected trail
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NavigationPage(
-                          trailId: trail['id'], // Pass the trail ID
+                        builder: (context) => TrailOverviewScreen(
+                          trailId: trail.id, // Pass the trail ID
                         ),
                       ),
                     );
@@ -143,18 +143,6 @@ class _skHomePageState extends State<skHomePage> {
                     );
                   },
                   child: const Text("View Saved Trails"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TrailOverviewScreen(
-                            trail: Trail.getMockTrails()[0]),
-                      ),
-                    );
-                  },
-                  child: const Text("Trail Overview"),
                 ),
                 ElevatedButton(
                   onPressed: () {
