@@ -1,7 +1,7 @@
 import supabase from '../config/supabaseClient.js';
 
 export async function getTrailDetails(req, res) {
-    console.log ("working")
+
     try {
         // Fetch trail details from the trails table
         const { data, error } = await supabase

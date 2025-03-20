@@ -47,8 +47,11 @@ export async function Login(req, res) {
         return res.status(200).json({
             status: "success",
             message: "You have successfully logged in.",
-            data: { role: user.role, username: user.username }
+
+            data: { id: user.id,role: user.role, username: user.username , token:token }
+           
         });
+        
 
     } catch (err) {
         console.error("Error: ", err.message);
