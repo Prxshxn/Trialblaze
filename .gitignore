@@ -22,4 +22,6 @@ dist/
 build/
 
 # Optional: Package lock (if ignoring)
+
 #package-lock.json
+

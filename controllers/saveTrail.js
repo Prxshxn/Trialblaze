@@ -2,6 +2,7 @@ import supabase from "../config/supabaseClient.js";
 
 
 export const saveTrail = async (req, res) => {
+
   const { name, description, distance, duration,user_id, coordinates, district, difficulty_level, elevation_gain } = req.body;
   console.log('Request body:', req.body);
   try {
@@ -13,10 +14,12 @@ export const saveTrail = async (req, res) => {
         description,
         distance_meters: distance,
         duration_seconds: duration,
+
         user_id,
         district, // Add district
         difficulty_level, // Add difficulty level
         elevation_gain,
+
       })
       .select('id')
       .single();
