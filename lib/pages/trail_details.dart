@@ -353,7 +353,7 @@ class _TrailDetailsState extends State<TrailDetails> {
     String difficultyLevel,
     double elevationGain,
   ) async {
-    final url = Uri.parse('http://13.53.173.93/:5000/api/v1/trail/save');
+    final url = Uri.parse('http://13.53.173.93:5000/api/v1/trail/save');
     final body = jsonEncode({
       'name': name,
       'description': description,
