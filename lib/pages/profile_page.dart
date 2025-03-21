@@ -84,10 +84,8 @@ class _ProfilePageState extends State<ProfilePage>
             body: TabBarView(
               controller: _tabController,
               children: [
-                // Activity Tab - placeholder
-                Center(
-                    child: Text('Activity Tab',
-                        style: TextStyle(color: Colors.white))),
+                // Activity Tab
+                _buildActivityTab(),
                 // Reviews Tab - placeholder
                 Center(
                     child: Text('Reviews Tab',
@@ -253,5 +251,138 @@ class _ProfilePageState extends State<ProfilePage>
         ),
       ],
     );
+  }
+
+  Widget _buildActivityTab() {
+    return FutureBuilder(
+      // Replace with your actual data fetching function
+      // future: userActivityService.getUserActivities(userId),
+      future: Future.delayed(
+          Duration(milliseconds: 300), () => _getMockActivities()),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator(color: Colors.green));
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+              child: Text('Error loading activities',
+                  style: TextStyle(color: Colors.white)));
+        }
+
+        final activities = snapshot.data as List<Map<String, dynamic>>;
+
+        return ListView.builder(
+          padding: EdgeInsets.all(16),
+          itemCount: activities.length,
+          itemBuilder: (context, index) {
+            final activity = activities[index];
+            return Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: _buildActivityCard(
+                activity['trailName'],
+                activity['description'],
+                activity['time'],
+                activity['imageUrl'],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildActivityCard(
+      String trailName, String activity, String time, String imageUrl) {
+    return GestureDetector(
+      onTap: () {
+        // Navigate to trail details page
+        // Navigator.of(context).pushNamed('/trail-details', arguments: trailName);
+      },
+      child: Card(
+        elevation: 3,
+        color: Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+              child: Image.asset(
+                'assets/images/trails/$imageUrl', // Use your asset path format
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 180,
+                    color: Colors.grey[800],
+                    child: Center(
+                        child: Icon(Icons.landscape,
+                            size: 50, color: Colors.grey[600])),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    trailName,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    activity,
+                    style: TextStyle(fontSize: 16, color: Colors.grey[300]),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    time,
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Mock data methods - replace with your actual data services
+  List<Map<String, dynamic>> _getMockActivities() {
+    return [
+      {
+        'trailName': 'Mt. Sanitas Trail',
+        'description': 'Completed a 3.2 mile hike',
+        'time': '2 days ago',
+        'imageUrl': 'mt_sanitas.jpg',
+      },
+      {
+        'trailName': 'Flatirons Vista',
+        'description': 'Completed a 5.8 mile hike',
+        'time': '1 week ago',
+        'imageUrl': 'flatirons_vista.jpg',
+      },
+      {
+        'trailName': 'Royal Arch Trail',
+        'description': 'Completed a 3.5 mile hike',
+        'time': '2 weeks ago',
+        'imageUrl': 'royal_arch.jpg',
+      },
+    ];
   }
 }
