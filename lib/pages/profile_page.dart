@@ -128,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage>
     return Container(
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Color(0xFF121212), // Dark theme background
+        color: Colors.black, // Dark theme background
         border: Border(
           bottom: BorderSide(
             color: Colors.green.withOpacity(0.3),
@@ -189,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage>
           Container(
             padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Color(0xFF1E1E1E), // Dark card background
+              color: Colors.black, // Dark card background
               borderRadius: BorderRadius.circular(12),
               border:
                   Border.all(color: Colors.green.withOpacity(0.5), width: 1),
