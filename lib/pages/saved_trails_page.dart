@@ -172,7 +172,7 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
             ),
             const SizedBox(width: 48), // Space for the FAB
             IconButton(
-              icon: const Icon(Icons.favorite_border),
+              icon: const Icon(Icons.bookmark_border),
               color: Colors.white,
               onPressed: () {
                 // Already on the SavedTrailsPage, no need to navigate
