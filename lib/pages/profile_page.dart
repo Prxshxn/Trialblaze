@@ -51,6 +51,7 @@ class _ProfilePageState extends State<ProfilePage>
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text('Profile', style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.black,
         elevation: 0,
         actions: [
@@ -145,8 +146,7 @@ class _ProfilePageState extends State<ProfilePage>
               // Profile Picture - Made bigger
               CircleAvatar(
                 radius: 55, // Increased from 40
-                backgroundImage:
-                    AssetImage('assets/images/profile_default.jpg'),
+                backgroundImage: AssetImage('assets/images/kanye.jpg'),
                 // Use NetworkImage for remote images if user has set one
                 // backgroundImage: NetworkImage(user.profileUrl),
                 backgroundColor: Colors.green.withOpacity(0.2),
