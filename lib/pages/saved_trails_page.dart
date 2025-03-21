@@ -31,6 +31,7 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
     }
 
     final files = Directory(directory.path).listSync();
+    List<Map<String, String>> loadedTrails = [];
 
     for (var file in files) {
       if (file is File &&
@@ -44,16 +45,24 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
           final trailName = lines[0].replaceAll('Trail Name: ', '');
           final trailDescription = lines[1].replaceAll('Description: ', '');
 
-          setState(() {
-            savedTrails.add({
-              'trailId': trailId,
-              'trailName': trailName,
-              'trailDescription': trailDescription,
-            });
+          loadedTrails.add({
+            'trailId': trailId,
+            'trailName': trailName,
+            'trailDescription': trailDescription,
           });
         }
       }
     }
+
+    setState(() {
+      savedTrails = loadedTrails;
+      // Convert savedTrails to the format expected by SearchPage
+      trails = savedTrails.map((trail) => {
+        'id': trail['trailId'],
+        'name': trail['trailName'] ?? 'Unknown Trail',
+        'description': trail['trailDescription'] ?? 'No description available',
+      }).toList();
+    });
   }
 
   @override
