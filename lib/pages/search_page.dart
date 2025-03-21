@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'navigation_page.dart';
 import 'annotate_page.dart';
+import 'saved_trails_page.dart';
 
 class SearchPage extends StatefulWidget {
   final List<Map<String, dynamic>> trails;
@@ -127,7 +128,14 @@ class _SearchPageState extends State<SearchPage> {
             IconButton(
               icon: const Icon(Icons.bookmark_border),
               color: Colors.grey,
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SavedTrailsPage(),
+                  ),
+                );
+              },
             ),
             IconButton(
               icon: const Icon(Icons.person_outline),
