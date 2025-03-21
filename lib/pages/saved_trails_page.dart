@@ -4,6 +4,7 @@ import 'dart:io';
 import 'offline_map.dart';
 import 'newhome_page.dart'; // Import the HomePage or other pages if needed
 import 'search_page.dart';
+import 'annotate_page.dart';
 
 class SavedTrailsPage extends StatefulWidget {
   const SavedTrailsPage({super.key});
@@ -30,6 +31,7 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
     }
 
     final files = Directory(directory.path).listSync();
+    List<Map<String, String>> loadedTrails = [];
 
     for (var file in files) {
       if (file is File &&
@@ -43,16 +45,24 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
           final trailName = lines[0].replaceAll('Trail Name: ', '');
           final trailDescription = lines[1].replaceAll('Description: ', '');
 
-          setState(() {
-            savedTrails.add({
-              'trailId': trailId,
-              'trailName': trailName,
-              'trailDescription': trailDescription,
-            });
+          loadedTrails.add({
+            'trailId': trailId,
+            'trailName': trailName,
+            'trailDescription': trailDescription,
           });
         }
       }
     }
+
+    setState(() {
+      savedTrails = loadedTrails;
+      // Convert savedTrails to the format expected by SearchPage
+      trails = savedTrails.map((trail) => {
+        'id': trail['trailId'],
+        'name': trail['trailName'] ?? 'Unknown Trail',
+        'description': trail['trailDescription'] ?? 'No description available',
+      }).toList();
+    });
   }
 
   @override
@@ -136,7 +146,12 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
         padding: const EdgeInsets.only(top: 20.0),
         child: FloatingActionButton(
           onPressed: () {
-            // Add functionality for the FAB if needed
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AnnotatePage(),
+              ),
+            );
           },
           elevation: 0,
           backgroundColor: Colors.green,
@@ -157,12 +172,7 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
               icon: const Icon(Icons.home),
               color: Colors.grey,
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HomePage(),
-                  ),
-                );
+                Navigator.pop(context);
               },
             ),
             IconButton(
@@ -182,15 +192,13 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
               icon: const Icon(Icons.bookmark_border),
               color: Colors.white,
               onPressed: () {
-                // Already on the SavedTrailsPage, no need to navigate
+                // Already on SavedTrailsPage, no need to navigate
               },
             ),
             IconButton(
               icon: const Icon(Icons.person_outline),
               color: Colors.grey,
-              onPressed: () {
-                // Add functionality for profile
-              },
+              onPressed: () {},
             ),
           ],
         ),
