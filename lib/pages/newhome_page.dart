@@ -58,6 +58,7 @@ class _HomePageState extends State<HomePage> {
           'Welcome to Trailblaze',
           style: TextStyle(color: Colors.white),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
       body: SafeArea(

@@ -65,6 +65,7 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
           'Saved Trails',
           style: TextStyle(color: Colors.white),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
       backgroundColor: Colors.black,
