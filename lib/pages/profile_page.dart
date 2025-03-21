@@ -86,10 +86,8 @@ class _ProfilePageState extends State<ProfilePage>
               children: [
                 // Activity Tab
                 _buildActivityTab(),
-                // Reviews Tab - placeholder
-                Center(
-                    child: Text('Reviews Tab',
-                        style: TextStyle(color: Colors.white))),
+                // Reviews Tab
+                _buildReviewsTab(),
               ],
             ),
           ),
@@ -292,6 +290,45 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  Widget _buildReviewsTab() {
+    return FutureBuilder(
+      // Replace with your actual data fetching function
+      // future: reviewService.getUserReviews(userId),
+      future:
+          Future.delayed(Duration(milliseconds: 300), () => _getMockReviews()),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator(color: Colors.green));
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+              child: Text('Error loading reviews',
+                  style: TextStyle(color: Colors.white)));
+        }
+
+        final reviews = snapshot.data as List<Map<String, dynamic>>;
+
+        return ListView.builder(
+          padding: EdgeInsets.all(16),
+          itemCount: reviews.length,
+          itemBuilder: (context, index) {
+            final review = reviews[index];
+            return Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: _buildReviewCard(
+                review['trailName'],
+                review['rating'],
+                review['review'],
+                review['time'],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildActivityCard(
       String trailName, String activity, String time, String imageUrl) {
     return GestureDetector(
@@ -362,6 +399,83 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  Widget _buildReviewCard(
+      String trailName, double rating, String review, String time) {
+    return Card(
+      elevation: 3,
+      color: Color(0xFF1E1E1E),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    trailName,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    // Navigate to trail details page
+                    // Navigator.of(context).pushNamed('/trail-details', arguments: trailName);
+                  },
+                  child: Icon(Icons.arrow_forward, color: Colors.green),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                ...List.generate(5, (index) {
+                  return Icon(
+                    index < rating.floor()
+                        ? Icons.star
+                        : (index == rating.floor() && rating % 1 > 0)
+                            ? Icons.star_half
+                            : Icons.star_border,
+                    color: Colors.green,
+                    size: 20,
+                  );
+                }),
+                SizedBox(width: 8),
+                Text(
+                  rating.toString(),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Text(
+              review,
+              style: TextStyle(fontSize: 16, color: Colors.grey[300]),
+            ),
+            SizedBox(height: 8),
+            Text(
+              time,
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // Mock data methods - replace with your actual data services
   List<Map<String, dynamic>> _getMockActivities() {
     return [
@@ -382,6 +496,32 @@ class _ProfilePageState extends State<ProfilePage>
         'description': 'Completed a 3.5 mile hike',
         'time': '2 weeks ago',
         'imageUrl': 'royal_arch.jpg',
+      },
+    ];
+  }
+
+  List<Map<String, dynamic>> _getMockReviews() {
+    return [
+      {
+        'trailName': 'Mt. Sanitas Trail',
+        'rating': 4.5,
+        'review':
+            'Great views of Boulder! Pretty steep in some sections but worth it.',
+        'time': '2 days ago',
+      },
+      {
+        'trailName': 'Flatirons Vista',
+        'rating': 5.0,
+        'review':
+            'One of my favorite trails around Boulder. Beautiful meadows and mountain views.',
+        'time': '1 week ago',
+      },
+      {
+        'trailName': 'Royal Arch Trail',
+        'rating': 4.0,
+        'review':
+            'Challenging trail with a spectacular view at the top. Bring plenty of water.',
+        'time': '2 weeks ago',
       },
     ];
   }
