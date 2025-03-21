@@ -68,6 +68,7 @@ class _SearchPageState extends State<SearchPage> {
         backgroundColor: Colors.black,
         title:
             const Text('Search Trails', style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Column(
         children: [
