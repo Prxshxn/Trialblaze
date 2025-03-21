@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'offline_map.dart';
 import 'newhome_page.dart'; // Import the HomePage or other pages if needed
+import 'search_page.dart';
 
 class SavedTrailsPage extends StatefulWidget {
   const SavedTrailsPage({super.key});
@@ -13,6 +14,7 @@ class SavedTrailsPage extends StatefulWidget {
 
 class _SavedTrailsPageState extends State<SavedTrailsPage> {
   List<Map<String, String>> savedTrails = [];
+  List<Map<String, dynamic>> trails = [];
 
   @override
   void initState() {
@@ -167,7 +169,12 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
               icon: const Icon(Icons.search),
               color: Colors.grey,
               onPressed: () {
-                // Add functionality for search
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SearchPage(trails: trails),
+                  ),
+                );
               },
             ),
             const SizedBox(width: 48), // Space for the FAB
