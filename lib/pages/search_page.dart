@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'navigation_page.dart';
 import 'annotate_page.dart';
 import 'saved_trails_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'newhome_page.dart';
+import 'profile_page.dart';
 
 class SearchPage extends StatefulWidget {
-  final List<Map<String, dynamic>> trails;
-
-  const SearchPage({super.key, required this.trails});
+  const SearchPage({super.key});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -14,18 +16,44 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   String _searchQuery = '';
+  List<Map<String, dynamic>> _trails = [];
   List<Map<String, dynamic>> _filteredTrails = [];
 
   @override
   void initState() {
     super.initState();
-    _filteredTrails = widget.trails;
+    _fetchTrails();
+  }
+
+  Future<void> _fetchTrails() async {
+    try {
+      final response =
+          await http.get(Uri.parse('http://13.53.173.93:5000/api/v1/trails'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body)['data'];
+        setState(() {
+          _trails = data
+              .map((trail) => {
+                    'id': trail['id'],
+                    'name': trail['name'],
+                    'description': trail['description'],
+                    'image_url': trail['imageUrl'],
+                  })
+              .toList();
+          _filteredTrails = _trails;
+        });
+      } else {
+        debugPrint('Failed to load trails: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching trails: $e');
+    }
   }
 
   void _filterTrails(String query) {
     setState(() {
       _searchQuery = query;
-      _filteredTrails = widget.trails
+      _filteredTrails = _trails
           .where((trail) =>
               trail['name'].toLowerCase().contains(query.toLowerCase()))
           .toList();
@@ -116,7 +144,12 @@ class _SearchPageState extends State<SearchPage> {
               icon: const Icon(Icons.home),
               color: Colors.grey,
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ),
+                );
               },
             ),
             IconButton(
@@ -140,7 +173,14 @@ class _SearchPageState extends State<SearchPage> {
             IconButton(
               icon: const Icon(Icons.person_outline),
               color: Colors.grey,
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(),
+                  ),
+                );
+              },
             ),
           ],
         ),

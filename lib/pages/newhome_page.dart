@@ -1,7 +1,7 @@
 import 'package:createtrial/pages/blog_page.dart';
 import 'package:createtrial/screens/trail_overview_screen.dart';
 import 'package:flutter/material.dart';
-import 'navigation_page.dart';
+import 'profile_page.dart';
 import 'saved_trails_page.dart';
 import 'package:createtrial/pages/annotate_page.dart';
 import 'package:http/http.dart' as http;
@@ -240,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SearchPage(trails: trails),
+                    builder: (context) => SearchPage(),
                   ),
                 );
               },
@@ -261,7 +261,14 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               icon: const Icon(Icons.person_outline),
               color: Colors.grey,
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(),
+                  ),
+                );
+              },
             ),
           ],
         ),
