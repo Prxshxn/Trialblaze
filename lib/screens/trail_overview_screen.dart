@@ -3,6 +3,9 @@ import '../models/trail.dart';
 import '../models/review.dart';
 import '../services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../pages/navigation_page.dart';
+import '../pages/navigatetotrail.dart';
+import '../pages/download_page.dart';
 
 class TrailOverviewScreen extends StatefulWidget {
   final String trailId;
@@ -239,11 +242,12 @@ class _TrailOverviewScreenState extends State<TrailOverviewScreen> {
                                   size: 28,
                                 ),
                                 onPressed: () {
-                                  // TODO: Implement the functionality for the button
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Button pressed'),
-                                      backgroundColor: Color(0xFF4eae55),
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => NavigatetoTrailPage(
+                                        trailId: trail.id, // Pass the trail ID
+                                      ),
                                     ),
                                   );
                                 },
@@ -268,9 +272,16 @@ class _TrailOverviewScreenState extends State<TrailOverviewScreen> {
                                 children: [
                                   Expanded(
                                     child: ElevatedButton.icon(
-                                      onPressed: () => _downloadMap(
-                                          trail.mapUrl ??
-                                              'https://example.com/map.pdf'),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                DownloadMapPage(
+                                                    trailId: trail.id),
+                                          ),
+                                        );
+                                      },
                                       icon: const Icon(Icons.map,
                                           color: Colors.white),
                                       label: const Text('Download'),
@@ -294,13 +305,14 @@ class _TrailOverviewScreenState extends State<TrailOverviewScreen> {
                                   Expanded(
                                     child: ElevatedButton.icon(
                                       onPressed: () {
-                                        // TODO: Implement navigation functionality
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content:
-                                                Text('Navigate button pressed'),
-                                            backgroundColor: Color(0xFF4eae55),
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                NavigationPage(
+                                              trailId:
+                                                  trail.id, // Pass the trail ID
+                                            ),
                                           ),
                                         );
                                       },
