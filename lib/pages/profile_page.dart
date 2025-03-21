@@ -74,14 +74,7 @@ class _ProfilePageState extends State<ProfilePage>
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
                 SliverToBoxAdapter(
-                  child: Container(
-                    height: 300, // Placeholder for profile header
-                    color: Color(0xFF121212),
-                    child: Center(
-                      child: Text('Profile Header',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
+                  child: _buildProfileHeader(),
                 ),
                 SliverToBoxAdapter(
                   child: _buildTabBar(),
@@ -132,6 +125,133 @@ class _ProfilePageState extends State<ProfilePage>
           Tab(text: 'Reviews'),
         ],
       ),
+    );
+  }
+
+  Widget _buildProfileHeader() {
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Color(0xFF121212), // Dark theme background
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.green.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Column(
+        children: [
+          // Profile Picture and Info
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Profile Picture - Made bigger
+              CircleAvatar(
+                radius: 55, // Increased from 40
+                backgroundImage:
+                    AssetImage('assets/images/profile_default.jpg'),
+                // Use NetworkImage for remote images if user has set one
+                // backgroundImage: NetworkImage(user.profileUrl),
+                backgroundColor: Colors.green.withOpacity(0.2),
+              ),
+              SizedBox(width: 16),
+              // User Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Alex Hiker', // Replace with user.displayName
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, size: 16, color: Colors.green),
+                        SizedBox(width: 4),
+                        Text(
+                          'Boulder, Colorado', // Replace with user.location
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 24),
+          // Stats Card
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Color(0xFF1E1E1E), // Dark card background
+              borderRadius: BorderRadius.circular(12),
+              border:
+                  Border.all(color: Colors.green.withOpacity(0.5), width: 1),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'STATS',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem(Icons.terrain, '157 mi', 'Distance'),
+                    Container(
+                      height: 50,
+                      width: 1,
+                      color: Colors.green.withOpacity(0.3),
+                    ),
+                    _buildStatItem(Icons.timer, '42 hrs', 'Time'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(IconData icon, String value, String label) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.green, size: 28),
+        SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[400],
+          ),
+        ),
+      ],
     );
   }
 }
