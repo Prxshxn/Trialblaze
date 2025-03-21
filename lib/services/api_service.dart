@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/trail.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.1.2:5000/api/v1';
+  static const String baseUrl = 'http://13.53.173.93:5000/api/v1';
 
   // Fetch a trail by ID
   static Future<Trail> getTrailById(String id) async {
