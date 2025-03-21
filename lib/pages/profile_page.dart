@@ -128,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage>
     return Container(
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Color(0xFF121212), // Dark theme background
+        color: Colors.black, // Dark theme background
         border: Border(
           bottom: BorderSide(
             color: Colors.green.withOpacity(0.3),
