@@ -291,7 +291,7 @@ class _ProfilePageState extends State<ProfilePage>
             children: [
               CircleAvatar(
                 radius: 55,
-                backgroundImage: AssetImage('assets/images/kanye.jpg'),
+                backgroundImage: AssetImage('assets/images/profile.jpg'),
                 backgroundColor: Colors.green.withOpacity(0.2),
               ),
               SizedBox(width: 16),
