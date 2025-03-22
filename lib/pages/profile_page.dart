@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class ProfilePage extends StatefulWidget {
   static const String routeName = '/profile';
@@ -16,6 +16,8 @@ class _ProfilePageState extends State<ProfilePage>
   final ScrollController _scrollController = ScrollController();
   bool _showStickyTabs = false;
   Map<String, dynamic>? _userDetails;
+  List<Map<String, dynamic>> _userTrails = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -40,27 +42,48 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> _fetchUserDetails() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('user_id');
 
     if (userId != null) {
-      final response = await Supabase.instance.client
+      // Fetch user details
+      final userResponse = await Supabase.instance.client
           .from('users')
           .select()
           .eq('id', userId)
           .single();
 
+      // Fetch trails created by the user
+      final trailsResponse = await Supabase.instance.client
+          .from('trails')
+          .select('id, name, distance_meters, duration_seconds')
+          .eq('user_id', userId);
+
       setState(() {
-        _userDetails = response;
+        _userDetails = userResponse;
+        _userTrails = trailsResponse;
+        _isLoading = false;
       });
     }
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _scrollController.dispose();
-    super.dispose();
+  List<String> _getStaticImageUrls() {
+    return [
+      'https://example.com/image1.jpg',
+      'https://example.com/image2.jpg',
+      'https://example.com/image3.jpg',
+      'https://example.com/image4.jpg',
+      'https://example.com/image5.jpg',
+    ];
+  }
+
+  String _getImageUrlForTrail(int index) {
+    final imageUrls = _getStaticImageUrls();
+    return imageUrls[index % imageUrls.length];
   }
 
   @override
@@ -289,74 +312,34 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildActivityTab() {
-    return FutureBuilder(
-      future: Future.delayed(
-          Duration(milliseconds: 300), () => _getMockActivities()),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator(color: Colors.green));
-        }
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator(color: Colors.green));
+    }
 
-        if (snapshot.hasError) {
-          return Center(
-              child: Text('Error loading activities',
-                  style: TextStyle(color: Colors.white)));
-        }
+    if (_userTrails.isEmpty) {
+      return Center(
+        child: Text(
+          'No trails found',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
 
-        final activities = snapshot.data as List<Map<String, dynamic>>;
+    return ListView.builder(
+      padding: EdgeInsets.all(16),
+      itemCount: _userTrails.length,
+      itemBuilder: (context, index) {
+        final trail = _userTrails[index];
+        final imageUrl = _getImageUrlForTrail(index);
 
-        return ListView.builder(
-          padding: EdgeInsets.all(16),
-          itemCount: activities.length,
-          itemBuilder: (context, index) {
-            final activity = activities[index];
-            return Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: _buildActivityCard(
-                activity['trailName'],
-                activity['description'],
-                activity['time'],
-                activity['imageUrl'],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildReviewsTab() {
-    return FutureBuilder(
-      future:
-          Future.delayed(Duration(milliseconds: 300), () => _getMockReviews()),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator(color: Colors.green));
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-              child: Text('Error loading reviews',
-                  style: TextStyle(color: Colors.white)));
-        }
-
-        final reviews = snapshot.data as List<Map<String, dynamic>>;
-
-        return ListView.builder(
-          padding: EdgeInsets.all(16),
-          itemCount: reviews.length,
-          itemBuilder: (context, index) {
-            final review = reviews[index];
-            return Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: _buildReviewCard(
-                review['trailName'],
-                review['rating'],
-                review['review'],
-                review['time'],
-              ),
-            );
-          },
+        return Padding(
+          padding: EdgeInsets.only(bottom: 16),
+          child: _buildActivityCard(
+            trail['trail_name'],
+            'Completed a ${trail['trail_length']} mile hike',
+            '${DateTime.now().difference(DateTime.parse(trail['created_at'])).inDays} days ago',
+            imageUrl,
+          ),
         );
       },
     );
@@ -381,8 +364,8 @@ class _ProfilePageState extends State<ProfilePage>
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
               ),
-              child: Image.asset(
-                'assets/images/trails/$imageUrl',
+              child: Image.network(
+                imageUrl,
                 height: 180,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -391,8 +374,9 @@ class _ProfilePageState extends State<ProfilePage>
                     height: 180,
                     color: Colors.grey[800],
                     child: Center(
-                        child: Icon(Icons.landscape,
-                            size: 50, color: Colors.grey[600])),
+                      child: Icon(Icons.landscape,
+                          size: 50, color: Colors.grey[600]),
+                    ),
                   );
                 },
               ),
@@ -429,6 +413,44 @@ class _ProfilePageState extends State<ProfilePage>
           ],
         ),
       ),
+    );
+  }
+
+  // Reviews-related code remains unchanged
+  Widget _buildReviewsTab() {
+    return FutureBuilder(
+      future:
+          Future.delayed(Duration(milliseconds: 300), () => _getMockReviews()),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator(color: Colors.green));
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+              child: Text('Error loading reviews',
+                  style: TextStyle(color: Colors.white)));
+        }
+
+        final reviews = snapshot.data as List<Map<String, dynamic>>;
+
+        return ListView.builder(
+          padding: EdgeInsets.all(16),
+          itemCount: reviews.length,
+          itemBuilder: (context, index) {
+            final review = reviews[index];
+            return Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: _buildReviewCard(
+                review['trailName'],
+                review['rating'],
+                review['review'],
+                review['time'],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -507,29 +529,6 @@ class _ProfilePageState extends State<ProfilePage>
         ),
       ),
     );
-  }
-
-  List<Map<String, dynamic>> _getMockActivities() {
-    return [
-      {
-        'trailName': 'Mt. Sanitas Trail',
-        'description': 'Completed a 3.2 mile hike',
-        'time': '2 days ago',
-        'imageUrl': 'mt_sanitas.jpg',
-      },
-      {
-        'trailName': 'Flatirons Vista',
-        'description': 'Completed a 5.8 mile hike',
-        'time': '1 week ago',
-        'imageUrl': 'flatirons_vista.jpg',
-      },
-      {
-        'trailName': 'Royal Arch Trail',
-        'description': 'Completed a 3.5 mile hike',
-        'time': '2 weeks ago',
-        'imageUrl': 'royal_arch.jpg',
-      },
-    ];
   }
 
   List<Map<String, dynamic>> _getMockReviews() {
