@@ -343,18 +343,18 @@ class _ProfilePageState extends State<ProfilePage>
           padding: EdgeInsets.only(bottom: 16),
           child: _buildActivityCard(
             trail['name'],
-            'Completed a ${trail['distance_meters']} km hike',
+            trail['distance_meters'], // Pass distance directly
             '${DateTime.now().difference(DateTime.parse(trail['created_at'])).inDays} days ago',
             imageUrl,
-            trail['id'], // Pass the trail ID here
+            trail['id'],
           ),
         );
       },
     );
   }
 
-  Widget _buildActivityCard(String trailName, String activity, String time,
-      String imageUrl, String trailId) {
+  Widget _buildActivityCard(String trailName, double distanceMeters,
+      String time, String imageUrl, String trailId) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -410,7 +410,7 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                   SizedBox(height: 8),
                   Text(
-                    activity,
+                    'Distance: ${formatDistance(distanceMeters)}', // Use formatDistance here
                     style: TextStyle(fontSize: 16, color: Colors.grey[300]),
                   ),
                   SizedBox(height: 8),
@@ -568,5 +568,14 @@ class _ProfilePageState extends State<ProfilePage>
         'time': '2 weeks ago',
       },
     ];
+  }
+
+  String formatDistance(double distanceInMeters) {
+    if (distanceInMeters < 1000) {
+      return '${distanceInMeters.toStringAsFixed(0)} m'; // Display in meters
+    } else {
+      double distanceInKm = distanceInMeters / 1000;
+      return '${distanceInKm.toStringAsFixed(1)} km'; // Display in kilometers with one decimal place
+    }
   }
 }
