@@ -5,6 +5,8 @@ import 'package:createtrial/utils/validation_utils.dart';
 import 'package:createtrial/utils/toast_utils.dart';
 
 enum UserType { hiker, responder }
+enum HikingExperience { beginner, intermediate, expert }
+enum Gender { male, female }
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -19,15 +21,36 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _hikingExperienceController = TextEditingController();
   final _emergencyContactController = TextEditingController();
   final _addressController = TextEditingController();
-  final _genderController = TextEditingController();
   final _ageController = TextEditingController();
   final _responderTypeController = TextEditingController();
   final _locationController = TextEditingController();
+  
   UserType _userType = UserType.hiker;
+  HikingExperience _hikingExperience = HikingExperience.beginner;
+  Gender _gender = Gender.male;
   bool _isLoading = false;
+
+  String _getHikingExperienceString() {
+    switch (_hikingExperience) {
+      case HikingExperience.beginner:
+        return 'Beginner';
+      case HikingExperience.intermediate:
+        return 'Intermediate';
+      case HikingExperience.expert:
+        return 'Expert';
+    }
+  }
+
+  String _getGenderString() {
+    switch (_gender) {
+      case Gender.male:
+        return 'Male';
+      case Gender.female:
+        return 'Female';
+    }
+  }
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) {
@@ -54,10 +77,10 @@ class _RegisterPageState extends State<RegisterPage> {
               'email': _emailController.text,
               'username': _usernameController.text,
               'password': _passwordController.text,
-              'hikingExperience': _hikingExperienceController.text,
+              'hikingExperience': _getHikingExperienceString(),
               'emergencyContact': _emergencyContactController.text,
               'address': _addressController.text,
-              'gender': _genderController.text,
+              'gender': _getGenderString(),
               'age': int.parse(_ageController.text),
             }
           : {
@@ -179,15 +202,23 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 16),
                   if (_userType == UserType.hiker) ...[
-                    TextFormField(
-                      controller: _hikingExperienceController,
-                      decoration:
-                          const InputDecoration(labelText: 'Hiking Experience'),
-                      validator: ValidationUtils.validateHikingExperience,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      textInputAction: TextInputAction.next,
-                      onEditingComplete: () =>
-                          FocusScope.of(context).nextFocus(),
+                    DropdownButtonFormField<HikingExperience>(
+                      value: _hikingExperience,
+                      onChanged: (HikingExperience? newValue) {
+                        setState(() {
+                          _hikingExperience = newValue!;
+                        });
+                      },
+                      items: HikingExperience.values.map((HikingExperience experience) {
+                        String displayText = experience.toString().split('.').last;
+                        // Capitalize first letter
+                        displayText = displayText[0].toUpperCase() + displayText.substring(1);
+                        return DropdownMenuItem<HikingExperience>(
+                          value: experience,
+                          child: Text(displayText),
+                        );
+                      }).toList(),
+                      decoration: const InputDecoration(labelText: 'Hiking Experience'),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -212,14 +243,23 @@ class _RegisterPageState extends State<RegisterPage> {
                           FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _genderController,
+                    DropdownButtonFormField<Gender>(
+                      value: _gender,
+                      onChanged: (Gender? newValue) {
+                        setState(() {
+                          _gender = newValue!;
+                        });
+                      },
+                      items: Gender.values.map((Gender gender) {
+                        String displayText = gender.toString().split('.').last;
+                        // Capitalize first letter
+                        displayText = displayText[0].toUpperCase() + displayText.substring(1);
+                        return DropdownMenuItem<Gender>(
+                          value: gender,
+                          child: Text(displayText),
+                        );
+                      }).toList(),
                       decoration: const InputDecoration(labelText: 'Gender'),
-                      validator: ValidationUtils.validateGender,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      textInputAction: TextInputAction.next,
-                      onEditingComplete: () =>
-                          FocusScope.of(context).nextFocus(),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
