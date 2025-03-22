@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:createtrial/pages/search_page.dart';
 import 'blog_list_page.dart';
+import 'package:geolocator/geolocator.dart' as gl;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,11 +18,42 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> trails = [];
+  gl.Position? currentPosition; // Variable to store the user's current location
 
   @override
   void initState() {
     super.initState();
     _fetchTrails();
+    _getUserLocation(); // Fetch the user's location when the page loads
+  }
+
+  // Function to fetch the user's current location
+  Future<void> _getUserLocation() async {
+    bool serviceEnabled = await gl.Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      debugPrint('Location services are disabled.');
+      return;
+    }
+
+    gl.LocationPermission permission = await gl.Geolocator.checkPermission();
+    if (permission == gl.LocationPermission.denied) {
+      permission = await gl.Geolocator.requestPermission();
+      if (permission == gl.LocationPermission.denied) {
+        debugPrint('Location permission is denied');
+        return;
+      }
+    }
+
+    if (permission == gl.LocationPermission.deniedForever) {
+      debugPrint('Location permission is permanently denied');
+      return;
+    }
+
+    // Fetch the current position once
+    final position = await gl.Geolocator.getCurrentPosition();
+    setState(() {
+      currentPosition = position;
+    });
   }
 
   Future<void> _fetchTrails() async {
@@ -379,75 +411,6 @@ class TrailCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class BlogCard extends StatelessWidget {
-  final String image;
-  final String title;
-  final String author;
-
-  const BlogCard({
-    super.key,
-    required this.image,
-    required this.title,
-    required this.author,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 280,
-      margin: const EdgeInsets.only(right: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey[900],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.network(
-              image,
-              height: 140,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                debugPrint('Error loading image: $image');
-                return const Icon(Icons.error, color: Colors.red);
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'By $author',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 14,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
