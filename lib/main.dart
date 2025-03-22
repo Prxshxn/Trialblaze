@@ -5,12 +5,13 @@ import 'pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-// Import the screens from the first project
+
 import 'pages/landing_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/newhome_page.dart';
 import 'pages/responder_home_page.dart';
+
 
 void main() async {
   await setup();  

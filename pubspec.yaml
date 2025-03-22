@@ -74,7 +74,9 @@ flutter:
     - .env
     - assets/icons/
 
+
     - assets/icons/logo.png
+
 
 
     - assets/images/
