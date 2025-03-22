@@ -328,7 +328,9 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
             },
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0), // Added padding around the button
             child: ElevatedButton(
               onPressed: () async {
                 try {
@@ -358,15 +360,16 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 12), // Smaller button size
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
               child: const Text(
                 'Download Map',
-                style: TextStyle(fontSize: 18, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 16, color: Colors.white), // Smaller font size
               ),
             ),
           ),
