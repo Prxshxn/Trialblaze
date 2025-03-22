@@ -161,7 +161,7 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: const Icon(Icons.home),
+              icon: const Icon(Icons.home_outlined),
               color: Colors.grey,
               onPressed: () {
                 Navigator.pushReplacement(
@@ -186,7 +186,7 @@ class _SavedTrailsPageState extends State<SavedTrailsPage> {
             ),
             const SizedBox(width: 48),
             IconButton(
-              icon: const Icon(Icons.bookmark_border),
+              icon: const Icon(Icons.bookmark),
               color: Colors.white,
               onPressed: () {},
             ),

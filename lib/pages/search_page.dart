@@ -142,7 +142,7 @@ class _SearchPageState extends State<SearchPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: const Icon(Icons.home),
+              icon: const Icon(Icons.home_outlined),
               color: Colors.grey,
               onPressed: () {
                 Navigator.push(
@@ -154,7 +154,7 @@ class _SearchPageState extends State<SearchPage> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.search),
+              icon: const Icon(Icons.search_rounded),
               color: Colors.white,
               onPressed: () {},
             ),
