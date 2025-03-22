@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:http/http.dart' as http;
+import '../screens/trail_overview_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String routeName = '/profile';
@@ -60,7 +61,7 @@ class _ProfilePageState extends State<ProfilePage>
       // Fetch trails created by the user
       final trailsResponse = await Supabase.instance.client
           .from('trails')
-          .select('id, name, distance_meters, duration_seconds')
+          .select('id, name, distance_meters, duration_seconds, created_at')
           .eq('user_id', userId);
 
       setState(() {
@@ -238,9 +239,8 @@ class _ProfilePageState extends State<ProfilePage>
                               color: Colors.grey[400],
                               fontSize: 16,
                             ),
-                            overflow: TextOverflow
-                                .ellipsis, // Add ellipsis for overflow
-                            maxLines: 1, // Limit to one line
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                       ],
@@ -342,22 +342,29 @@ class _ProfilePageState extends State<ProfilePage>
         return Padding(
           padding: EdgeInsets.only(bottom: 16),
           child: _buildActivityCard(
-            trail['trail_name'],
-            'Completed a ${trail['trail_length']} mile hike',
+            trail['name'],
+            'Completed a ${trail['distance_meters']} km hike',
             '${DateTime.now().difference(DateTime.parse(trail['created_at'])).inDays} days ago',
             imageUrl,
+            trail['id'], // Pass the trail ID here
           ),
         );
       },
     );
   }
 
-  Widget _buildActivityCard(
-      String trailName, String activity, String time, String imageUrl) {
+  Widget _buildActivityCard(String trailName, String activity, String time,
+      String imageUrl, String trailId) {
     return GestureDetector(
       onTap: () {
-        // Navigate to trail details page
-        // Navigator.of(context).pushNamed('/trail-details', arguments: trailName);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TrailOverviewScreen(
+              trailId: trailId,
+            ),
+          ),
+        );
       },
       child: Card(
         elevation: 3,
@@ -423,7 +430,6 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  // Reviews-related code remains unchanged
   Widget _buildReviewsTab() {
     return FutureBuilder(
       future:
