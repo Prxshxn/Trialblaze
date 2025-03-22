@@ -41,24 +41,20 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
     _stylePackProgress.close();
     _tileRegionLoadProgress.close();
 
-    // Fix the pause on exception by not awaiting in dispose
+    // Fix the error by not calling removeRegion in dispose
+    // Instead just reconnect the mapbox stack
     try {
+      // Don't use await here to prevent blocking during navigation
       OfflineSwitch.shared.setMapboxStackConnected(true);
-      _removeTileRegionAndStylePack();
     } catch (e) {
-      if (mounted) {
-        Fluttertoast.showToast(
-          msg: 'Error cleaning up resources: ${e.toString()}',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
-      }
+      // Just log the error, don't show toast during navigation
+      print("Error reconnecting mapbox stack: $e");
     }
+
     super.dispose();
   }
 
+  // This method is modified to not rethrow exceptions
   Future<void> _removeTileRegionAndStylePack() async {
     try {
       await _tileStore?.removeRegion(_tileRegionId);
@@ -74,7 +70,8 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
           textColor: Colors.white,
         );
       }
-      rethrow;
+      // Don't rethrow the exception - this is the critical fix
+      print("Error in _removeTileRegionAndStylePack: $e");
     }
   }
 
