@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:http/http.dart' as http;
 import '../screens/trail_overview_screen.dart';
+import 'newhome_page.dart'; // Import the HomePage
+import 'annotate_page.dart'; // Import the AnnotatePage
+import 'search_page.dart'; // Import the SearchPage
 
 class ProfilePage extends StatefulWidget {
   static const String routeName = '/profile';
@@ -141,9 +144,79 @@ class _ProfilePageState extends State<ProfilePage>
             ),
         ],
       ),
+      // Add the FloatingActionButton and BottomAppBar here
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(top: 20.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AnnotatePage(),
+              ),
+            );
+          },
+          elevation: 0,
+          backgroundColor: Colors.green,
+          child: const Icon(Icons.add),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        height: 56,
+        padding: EdgeInsets.zero,
+        color: Colors.black,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.home),
+              color: Colors.grey,
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HomePage(),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.search),
+              color: Colors.grey,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SearchPage(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 48), // Space for the FAB
+            IconButton(
+              icon: const Icon(Icons.bookmark_border),
+              color: Colors.white,
+              onPressed: () {
+                // Navigate to SavedTrailsPage or other page
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.person_outline),
+              color: Colors.grey,
+              onPressed: () {
+                // Already on ProfilePage, no action needed
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
+  // Rest of your existing code...
   Future<void> logout() async {
     try {
       // Initialize SharedPreferences
