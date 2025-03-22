@@ -1,18 +1,26 @@
+import 'package:createtrial/pages/landing_page.dart';
+import 'package:createtrial/pages/newhome_page.dart';
 import 'package:createtrial/pages/location_marker.dart';
 import 'package:createtrial/pages/annotate_page.dart';
+import 'package:createtrial/pages/profile_page.dart';
 import 'package:flutter/material.dart';
-import 'navigation_page.dart';
+import 'navigatetotrail.dart';
+import 'package:createtrial/models/trail.dart';
+import 'downloadable_trails.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'saved_trails_page.dart';
+import 'package:createtrial/screens/trail_overview_screen.dart';
+import 'package:createtrial/pages/splash-screen.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class skHomePage extends StatefulWidget {
+  const skHomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<skHomePage> createState() => _skHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  List<Map<String, dynamic>> trails = [];
+class _skHomePageState extends State<skHomePage> {
+  List<Trail> trails = []; // Use Trail model instead of Map
 
   @override
   void initState() {
@@ -25,7 +33,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final response = await supabase.from('trails').select('*');
       setState(() {
-        trails = List<Map<String, dynamic>>.from(response);
+        trails = response.map((trail) => Trail.fromJson(trail)).toList();
       });
     } catch (e) {
       print('Error fetching trails: $e');
@@ -47,15 +55,15 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) {
                 final trail = trails[index];
                 return ListTile(
-                  title: Text(trail['name']),
-                  subtitle: Text(trail['description']),
+                  title: Text(trail.name),
+                  subtitle: Text(trail.description),
                   onTap: () {
-                    // Navigate to NavigationPage with the selected trail's ID
+                    // Navigate to TrailOverviewScreen with the selected trail
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NavigationPage(
-                          trailId: trail['id'], // Pass the trail ID
+                        builder: (context) => NavigatetoTrailPage(
+                          trailId: trail.id, // Pass the trail ID
                         ),
                       ),
                     );
@@ -75,24 +83,22 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NavigationPage(
-                          trailId: 'f015dc6b-6440-4ad4-b1a4-1b442b4f5d36',
-                        ),
+                        builder: (context) => const AnnotatePage(),
                       ),
                     );
                   },
-                  child: const Text("Go to Navigation"),
+                  child: const Text("Annotate Feature"),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AnnotatePage(),
+                        builder: (context) => const HomePage(),
                       ),
                     );
                   },
-                  child: const Text("Annotate Feature"),
+                  child: const Text("Home Page"),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -105,6 +111,64 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: const Text("Location Marker Feature"),
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DownloadsViewPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Download maps"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SavedTrailsPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("View Saved Trails"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TrailOverviewScreen(
+                          trailId:
+                              '79804eee-df92-42f8-9d57-634c860b4966', // Use dynamic trail ID
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text("Trail Overview"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SplashScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text("Splash screen"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfilePage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Profile"),
+                )
               ],
             ),
           ),

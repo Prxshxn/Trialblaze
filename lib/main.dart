@@ -1,13 +1,22 @@
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
+import 'pages/landing_page.dart';
+import 'pages/login_page.dart';
+import 'pages/register_page.dart';
+import 'pages/newhome_page.dart';
+import 'pages/responder_home_page.dart';
+
+
 void main() async {
-  await setup();
+  await setup();  
   WidgetsFlutterBinding.ensureInitialized();
+
   await Supabase.initialize(
     url: 'https://ajicktjizxgwtsoqiqbi.supabase.co',
     anonKey:
@@ -28,12 +37,24 @@ Future<void> setup() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.[]
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      home: HomePage(),
+      title: 'Trail Safety App',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        useMaterial3: true,
+      ),
+      debugShowCheckedModeBanner: false,
+      home: skHomePage(), // Start with the map home page
+      routes: {
+        '/landing': (context) => const LandingPage(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/home': (context) => const HomePage(),
+        '/responder-home': (context) => const ResponderHomePage(),
+        '/hiker-home': (context) => const HomePage(),
+      },
     );
   }
 }
