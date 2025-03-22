@@ -1,4 +1,3 @@
-import 'package:createtrial/pages/blog_page.dart';
 import 'package:createtrial/screens/trail_overview_screen.dart';
 import 'package:flutter/material.dart';
 import 'profile_page.dart';
@@ -7,6 +6,7 @@ import 'package:createtrial/pages/annotate_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:createtrial/pages/search_page.dart';
+import 'blog_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -133,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const BlogPage(),
+                                builder: (context) => const BlogsListPage(),
                               ),
                             );
                           },
