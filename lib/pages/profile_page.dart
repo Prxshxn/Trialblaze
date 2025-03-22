@@ -231,11 +231,16 @@ class _ProfilePageState extends State<ProfilePage>
                       children: [
                         Icon(Icons.location_on, size: 16, color: Colors.green),
                         SizedBox(width: 4),
-                        Text(
-                          _userDetails?['address'] ?? 'Loading...',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 16,
+                        Expanded(
+                          child: Text(
+                            _userDetails?['address'] ?? 'Loading...',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow
+                                .ellipsis, // Add ellipsis for overflow
+                            maxLines: 1, // Limit to one line
                           ),
                         ),
                       ],
@@ -251,8 +256,10 @@ class _ProfilePageState extends State<ProfilePage>
             decoration: BoxDecoration(
               color: Colors.black,
               borderRadius: BorderRadius.circular(12),
-              border:
-                  Border.all(color: Colors.green.withOpacity(0.5), width: 1),
+              border: Border.all(
+                color: Colors.green.withOpacity(0.5),
+                width: 1,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
