@@ -5,7 +5,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:fluttertoast/fluttertoast.dart'; // Import fluttertoast
+import 'package:fluttertoast/fluttertoast.dart';
 
 class DownloadMapPage extends StatefulWidget {
   final String trailId;
@@ -28,6 +28,7 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
   String trailName = '';
   String trailDescription = '';
   bool _isMapDownloaded = false;
+  bool _isDownloading = false;
 
   @override
   void initState() {
@@ -36,11 +37,14 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
   }
 
   @override
-  void dispose() async {
-    super.dispose();
+  void dispose() {
+    _stylePackProgress.close();
+    _tileRegionLoadProgress.close();
+
+    // Fix the pause on exception by not awaiting in dispose
     try {
-      await OfflineSwitch.shared.setMapboxStackConnected(true);
-      await _removeTileRegionAndStylePack();
+      OfflineSwitch.shared.setMapboxStackConnected(true);
+      _removeTileRegionAndStylePack();
     } catch (e) {
       if (mounted) {
         Fluttertoast.showToast(
@@ -52,6 +56,7 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
         );
       }
     }
+    super.dispose();
   }
 
   Future<void> _removeTileRegionAndStylePack() async {
@@ -255,121 +260,249 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
     }
   }
 
+  Future<void> _startDownload() async {
+    if (_isDownloading) return;
+
+    setState(() {
+      _isDownloading = true;
+    });
+
+    try {
+      await _downloadStylePack();
+      await _downloadTileRegion();
+      await _saveTrailDetailsToFile();
+      await OfflineSwitch.shared.setMapboxStackConnected(false);
+      setState(() {
+        _isMapDownloaded = true;
+        _isDownloading = false;
+      });
+      Fluttertoast.showToast(
+        msg: 'Map downloaded successfully!',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    } catch (e) {
+      setState(() {
+        _isDownloading = false;
+      });
+      Fluttertoast.showToast(
+        msg: 'Error downloading map: ${e.toString()}',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title:
-            const Text('Download Map', style: TextStyle(color: Colors.white)),
+        title: Text(
+          trailName.isNotEmpty ? trailName : 'Download Map',
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: MapWidget(
-              key: const ValueKey("mapWidget"),
-              styleUri: MapboxStyles.OUTDOORS,
-              cameraOptions: CameraOptions(
-                center: trailCoordinates.isNotEmpty
-                    ? Point(
-                        coordinates: Position(
-                            trailCoordinates.first['longitude'],
-                            trailCoordinates.first['latitude']))
-                    : Point(coordinates: Position(-122.45, 37.75)),
-                zoom: 12.0,
-              ),
-              onMapCreated: (MapboxMap mapboxMap) async {
-                setState(() {
-                  mapboxMapController = mapboxMap;
-                });
-
-                try {
-                  if (trailCoordinates.isNotEmpty) {
-                    final firstCoord = trailCoordinates.first;
-                    await mapboxMap.flyTo(
-                      CameraOptions(
-                        center: Point(
-                            coordinates: Position(firstCoord['longitude'],
-                                firstCoord['latitude'])),
-                        zoom: 12.0,
-                      ),
-                      MapAnimationOptions(duration: 1000),
-                    );
-                  }
-                } catch (e) {
-                  await OfflineSwitch.shared.setMapboxStackConnected(true);
-                  if (trailCoordinates.isNotEmpty) {
-                    final firstCoord = trailCoordinates.first;
-                    await mapboxMap.flyTo(
-                      CameraOptions(
-                        center: Point(
-                            coordinates: Position(firstCoord['longitude'],
-                                firstCoord['latitude'])),
-                        zoom: 12.0,
-                      ),
-                      MapAnimationOptions(duration: 1000),
-                    );
-                  }
-                }
-              },
+          // Map takes full screen
+          MapWidget(
+            key: const ValueKey("mapWidget"),
+            styleUri: MapboxStyles.OUTDOORS,
+            cameraOptions: CameraOptions(
+              center: trailCoordinates.isNotEmpty
+                  ? Point(
+                      coordinates: Position(trailCoordinates.first['longitude'],
+                          trailCoordinates.first['latitude']))
+                  : Point(coordinates: Position(-122.45, 37.75)),
+              zoom: 12.0,
             ),
-          ),
-          StreamBuilder(
-            stream: _stylePackProgress.stream,
-            initialData: 0.0,
-            builder: (context, snapshot) {
-              return LinearProgressIndicator(
-                value: snapshot.data ?? 0.0,
-                backgroundColor: Colors.grey[800],
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-              );
+            onMapCreated: (MapboxMap mapboxMap) async {
+              setState(() {
+                mapboxMapController = mapboxMap;
+              });
+
+              try {
+                if (trailCoordinates.isNotEmpty) {
+                  final firstCoord = trailCoordinates.first;
+                  await mapboxMap.flyTo(
+                    CameraOptions(
+                      center: Point(
+                          coordinates: Position(
+                              firstCoord['longitude'], firstCoord['latitude'])),
+                      zoom: 12.0,
+                    ),
+                    MapAnimationOptions(duration: 1000),
+                  );
+                }
+              } catch (e) {
+                await OfflineSwitch.shared.setMapboxStackConnected(true);
+                if (trailCoordinates.isNotEmpty) {
+                  final firstCoord = trailCoordinates.first;
+                  await mapboxMap.flyTo(
+                    CameraOptions(
+                      center: Point(
+                          coordinates: Position(
+                              firstCoord['longitude'], firstCoord['latitude'])),
+                      zoom: 12.0,
+                    ),
+                    MapAnimationOptions(duration: 1000),
+                  );
+                }
+              }
             },
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0), // Added padding around the button
-            child: ElevatedButton(
-              onPressed: () async {
-                try {
-                  await _downloadStylePack();
-                  await _downloadTileRegion();
-                  await _saveTrailDetailsToFile();
-                  await OfflineSwitch.shared.setMapboxStackConnected(false);
-                  setState(() {
-                    _isMapDownloaded = true;
-                  });
-                  Fluttertoast.showToast(
-                    msg: 'Map downloaded successfully!',
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.green,
-                    textColor: Colors.white,
-                  );
-                } catch (e) {
-                  Fluttertoast.showToast(
-                    msg: 'Error downloading map: ${e.toString()}',
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 12), // Smaller button size
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+
+          // Bottom sheet with progress and download button
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    blurRadius: 10,
+                    offset: const Offset(0, -3),
+                  ),
+                ],
               ),
-              child: const Text(
-                'Download Map',
-                style: TextStyle(
-                    fontSize: 16, color: Colors.white), // Smaller font size
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Progress indicator
+                      if (_isDownloading) ...[
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              const Text(
+                                'Downloading map',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Spacer(),
+                              StreamBuilder<double>(
+                                stream: _stylePackProgress.stream,
+                                initialData: 0.0,
+                                builder: (context, snapshot) {
+                                  final progress = snapshot.data ?? 0.0;
+                                  return Text(
+                                    '${(progress * 100).toInt()}%',
+                                    style: const TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: StreamBuilder<double>(
+                            stream: _stylePackProgress.stream,
+                            initialData: 0.0,
+                            builder: (context, snapshot) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(2),
+                                child: LinearProgressIndicator(
+                                  value: snapshot.data ?? 0.0,
+                                  backgroundColor: Colors.grey[850],
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                          Colors.green),
+                                  minHeight: 4,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+
+                      // Download button or status
+                      _isMapDownloaded
+                          ? Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.green,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                const Text(
+                                  'Map available offline',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : ElevatedButton.icon(
+                              onPressed: _isDownloading ? null : _startDownload,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                disabledBackgroundColor:
+                                    Colors.green.withOpacity(0.3),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                              icon: _isDownloading
+                                  ? Container(
+                                      width: 20,
+                                      height: 20,
+                                      padding: const EdgeInsets.all(4),
+                                      child: const CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.download,
+                                      color: Colors.white),
+                              label: Text(
+                                _isDownloading
+                                    ? 'DOWNLOADING...'
+                                    : 'DOWNLOAD MAP',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
