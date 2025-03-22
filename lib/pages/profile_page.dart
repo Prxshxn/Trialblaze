@@ -310,7 +310,7 @@ class _ProfilePageState extends State<ProfilePage>
                     SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.terrain, size: 16, color: Colors.green),
+                        Icon(Icons.hiking, size: 16, color: Colors.green),
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
