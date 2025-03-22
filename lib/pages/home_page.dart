@@ -156,7 +156,7 @@ class _skHomePageState extends State<skHomePage> {
                       ),
                     );
                   },
-                  child: const Text("landing page"),
+                  child: const Text("Splash screen"),
                 ),
                 ElevatedButton(
                   onPressed: () {
