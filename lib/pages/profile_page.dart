@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String routeName = '/profile';
@@ -12,19 +15,17 @@ class _ProfilePageState extends State<ProfilePage>
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
   bool _showStickyTabs = false;
+  Map<String, dynamic>? _userDetails;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-
-    // Listen to scroll position to handle sticky tabs
     _scrollController.addListener(_scrollListener);
+    _fetchUserDetails();
   }
 
   void _scrollListener() {
-    // Adjust this value based on when you want the tabs to become sticky
-    // This value should be approximately the height of content above the tabs
     const stickyThreshold = 300.0;
 
     if (_scrollController.offset > stickyThreshold && !_showStickyTabs) {
@@ -34,6 +35,23 @@ class _ProfilePageState extends State<ProfilePage>
     } else if (_scrollController.offset <= stickyThreshold && _showStickyTabs) {
       setState(() {
         _showStickyTabs = false;
+      });
+    }
+  }
+
+  Future<void> _fetchUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+
+    if (userId != null) {
+      final response = await Supabase.instance.client
+          .from('users')
+          .select()
+          .eq('id', userId)
+          .single();
+
+      setState(() {
+        _userDetails = response;
       });
     }
   }
@@ -58,18 +76,15 @@ class _ProfilePageState extends State<ProfilePage>
           TextButton.icon(
             icon: Icon(Icons.logout, color: Colors.green),
             label: Text('Logout', style: TextStyle(color: Colors.white)),
-            onPressed: () {
-              // Call your authentication service to log out
-              // authService.signOut();
-              // Navigator.of(context).pushReplacementNamed('/login');
+            onPressed: () async {
+              await logout();
             },
           ),
-          SizedBox(width: 8), // Add some padding on the right
+          SizedBox(width: 8),
         ],
       ),
       body: Stack(
         children: [
-          // Main scrollable content
           NestedScrollView(
             controller: _scrollController,
             headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -85,15 +100,11 @@ class _ProfilePageState extends State<ProfilePage>
             body: TabBarView(
               controller: _tabController,
               children: [
-                // Activity Tab
                 _buildActivityTab(),
-                // Reviews Tab
                 _buildReviewsTab(),
               ],
             ),
           ),
-
-          // Sticky tabs that appear when scrolling
           if (_showStickyTabs)
             Positioned(
               top: 0,
@@ -107,6 +118,38 @@ class _ProfilePageState extends State<ProfilePage>
         ],
       ),
     );
+  }
+
+  Future<void> logout() async {
+    try {
+      // Initialize SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+
+      // Call the backend logout endpoint
+      final response = await http.post(
+        Uri.parse('http://13.53.173.93:5000/api/v1/logout'),
+        headers: {
+          'Cookie': 'SessionID=${prefs.getString('accessToken')}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Clear the token from SharedPreferences
+        await prefs.remove('accessToken');
+
+        // Navigate to the landing page or login page
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/landing',
+          (Route<dynamic> route) => false, // Remove all routes
+        );
+      } else {
+        // Handle logout failure
+        print('Logout failed: ${response.body}');
+      }
+    } catch (e) {
+      // Handle any errors that occur during the logout process
+      print('Logout error: $e');
+    }
   }
 
   Widget _buildTabBar() {
@@ -129,7 +172,7 @@ class _ProfilePageState extends State<ProfilePage>
     return Container(
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.black, // Dark theme background
+        color: Colors.black,
         border: Border(
           bottom: BorderSide(
             color: Colors.green.withOpacity(0.3),
@@ -139,26 +182,21 @@ class _ProfilePageState extends State<ProfilePage>
       ),
       child: Column(
         children: [
-          // Profile Picture and Info
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile Picture - Made bigger
               CircleAvatar(
-                radius: 55, // Increased from 40
+                radius: 55,
                 backgroundImage: AssetImage('assets/images/kanye.jpg'),
-                // Use NetworkImage for remote images if user has set one
-                // backgroundImage: NetworkImage(user.profileUrl),
                 backgroundColor: Colors.green.withOpacity(0.2),
               ),
               SizedBox(width: 16),
-              // User Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Alex Hiker', // Replace with user.displayName
+                      _userDetails?['username'] ?? 'Loading...',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -171,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage>
                         Icon(Icons.location_on, size: 16, color: Colors.green),
                         SizedBox(width: 4),
                         Text(
-                          'Boulder, Colorado', // Replace with user.location
+                          _userDetails?['address'] ?? 'Loading...',
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 16,
@@ -185,11 +223,10 @@ class _ProfilePageState extends State<ProfilePage>
             ],
           ),
           SizedBox(height: 24),
-          // Stats Card
           Container(
             padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.black, // Dark card background
+              color: Colors.black,
               borderRadius: BorderRadius.circular(12),
               border:
                   Border.all(color: Colors.green.withOpacity(0.5), width: 1),
@@ -253,8 +290,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget _buildActivityTab() {
     return FutureBuilder(
-      // Replace with your actual data fetching function
-      // future: userActivityService.getUserActivities(userId),
       future: Future.delayed(
           Duration(milliseconds: 300), () => _getMockActivities()),
       builder: (context, snapshot) {
@@ -292,8 +327,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget _buildReviewsTab() {
     return FutureBuilder(
-      // Replace with your actual data fetching function
-      // future: reviewService.getUserReviews(userId),
       future:
           Future.delayed(Duration(milliseconds: 300), () => _getMockReviews()),
       builder: (context, snapshot) {
@@ -349,7 +382,7 @@ class _ProfilePageState extends State<ProfilePage>
                 topRight: Radius.circular(12),
               ),
               child: Image.asset(
-                'assets/images/trails/$imageUrl', // Use your asset path format
+                'assets/images/trails/$imageUrl',
                 height: 180,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -476,7 +509,6 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  // Mock data methods - replace with your actual data services
   List<Map<String, dynamic>> _getMockActivities() {
     return [
       {
