@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 24),
             const SectionTitle(title: 'Real-Time Trail Conditions'),
             const SizedBox(height: 10),
-            const WeatherConditionCard(),
+            WeatherConditionCard(userLocation: currentPosition),
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(16),
@@ -416,8 +416,136 @@ class TrailCard extends StatelessWidget {
   }
 }
 
-class WeatherConditionCard extends StatelessWidget {
-  const WeatherConditionCard({super.key});
+class WeatherConditionCard extends StatefulWidget {
+  final gl.Position? userLocation;
+
+  const WeatherConditionCard({
+    super.key,
+    required this.userLocation,
+  });
+
+  @override
+  State<WeatherConditionCard> createState() => _WeatherConditionCardState();
+}
+
+class _WeatherConditionCardState extends State<WeatherConditionCard> {
+  bool _isLoading = true;
+  Map<String, dynamic>? _weatherData;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWeatherData();
+  }
+
+  @override
+  void didUpdateWidget(WeatherConditionCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Fetch weather data again if location changes
+    if (widget.userLocation != oldWidget.userLocation) {
+      _fetchWeatherData();
+    }
+  }
+
+  Future<void> _fetchWeatherData() async {
+    if (widget.userLocation == null) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Location not available';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      final apiKey = '0081735a90a41deb521051214b0c37e2';
+      final lat = widget.userLocation!.latitude;
+      final lon = widget.userLocation!.longitude;
+
+      // Using metric units for Celsius
+      final url = Uri.parse(
+          'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&units=metric&appid=$apiKey');
+
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _weatherData = json.decode(response.body);
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Failed to load weather data: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Error fetching weather: $e';
+      });
+      debugPrint('Weather API error: $e');
+    }
+  }
+
+  // Helper method to get weather icon
+  IconData _getWeatherIcon(String? iconCode) {
+    if (iconCode == null) return Icons.cloud;
+
+    // Map OpenWeatherMap icon codes to Flutter icons
+    switch (iconCode.substring(0, 2)) {
+      case '01': // clear sky
+        return Icons.wb_sunny;
+      case '02': // few clouds
+        return Icons.wb_cloudy;
+      case '03': // scattered clouds
+      case '04': // broken clouds
+        return Icons.cloud;
+      case '09': // shower rain
+        return Icons.grain;
+      case '10': // rain
+        return Icons.beach_access;
+      case '11': // thunderstorm
+        return Icons.flash_on;
+      case '13': // snow
+        return Icons.ac_unit;
+      case '50': // mist
+        return Icons.blur_on;
+      default:
+        return Icons.cloud;
+    }
+  }
+
+  // Helper method to get weather color
+  Color _getWeatherColor(String? iconCode) {
+    if (iconCode == null) return Colors.grey;
+
+    switch (iconCode.substring(0, 2)) {
+      case '01': // clear sky
+        return Colors.amber;
+      case '02': // few clouds
+        return Colors.amber.shade300;
+      case '03': // scattered clouds
+      case '04': // broken clouds
+        return Colors.grey;
+      case '09': // shower rain
+      case '10': // rain
+        return Colors.blue;
+      case '11': // thunderstorm
+        return Colors.deepPurple;
+      case '13': // snow
+        return Colors.lightBlueAccent;
+      case '50': // mist
+        return Colors.blueGrey;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -431,46 +559,101 @@ class WeatherConditionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Current Weather',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-            overflow: TextOverflow.ellipsis,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Current Weather',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (_weatherData != null)
+                Text(
+                  '${_weatherData!['name']}',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(Icons.wb_sunny, color: Colors.yellow, size: 32),
-              const SizedBox(width: 12),
-              Expanded(
+          if (_isLoading)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: CircularProgressIndicator(
+                  color: Colors.green,
+                  strokeWidth: 3,
+                ),
+              ),
+            )
+          else if (_errorMessage.isNotEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '72°F',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    const Icon(Icons.cloud_off, color: Colors.grey, size: 32),
+                    const SizedBox(height: 8),
                     Text(
-                      'Sunny, Clear Skies',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 14,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                      'Weather data unavailable',
+                      style: TextStyle(color: Colors.grey[400]),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
+            )
+          else
+            Row(
+              children: [
+                Icon(
+                  _getWeatherIcon(_weatherData?['weather'][0]['icon']),
+                  color: _getWeatherColor(_weatherData?['weather'][0]['icon']),
+                  size: 42,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            '${_weatherData!['main']['temp'].round()}°C',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${_weatherData!['weather'][0]['main']}, ${_weatherData!['weather'][0]['description']}',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 14,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Wind: ${_weatherData!['wind']['speed']} m/s | Humidity: ${_weatherData!['main']['humidity']}%',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.6),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );
