@@ -6,6 +6,7 @@ import '../screens/trail_overview_screen.dart';
 import 'newhome_page.dart'; // Import the HomePage
 import 'annotate_page.dart'; // Import the AnnotatePage
 import 'search_page.dart'; // Import the SearchPage
+import 'saved_trails_page.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String routeName = '/profile';
@@ -200,7 +201,12 @@ class _ProfilePageState extends State<ProfilePage>
               icon: const Icon(Icons.bookmark_border),
               color: Colors.white,
               onPressed: () {
-                // Navigate to SavedTrailsPage or other page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SavedTrailsPage(),
+                  ),
+                );
               },
             ),
             IconButton(
@@ -303,7 +309,7 @@ class _ProfilePageState extends State<ProfilePage>
                     SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.location_on, size: 16, color: Colors.green),
+                        Icon(Icons.terrain, size: 16, color: Colors.green),
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(

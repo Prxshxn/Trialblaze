@@ -258,7 +258,13 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Download Map')),
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title:
+            const Text('Download Map', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -314,37 +320,55 @@ class _DownloadMapPageState extends State<DownloadMapPage> {
             stream: _stylePackProgress.stream,
             initialData: 0.0,
             builder: (context, snapshot) {
-              return LinearProgressIndicator(value: snapshot.data ?? 0.0);
+              return LinearProgressIndicator(
+                value: snapshot.data ?? 0.0,
+                backgroundColor: Colors.grey[800],
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+              );
             },
           ),
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                await _downloadStylePack();
-                await _downloadTileRegion();
-                await _saveTrailDetailsToFile();
-                await OfflineSwitch.shared.setMapboxStackConnected(false);
-                setState(() {
-                  _isMapDownloaded = true;
-                });
-                Fluttertoast.showToast(
-                  msg: 'Map downloaded successfully!',
-                  toastLength: Toast.LENGTH_LONG,
-                  gravity: ToastGravity.BOTTOM,
-                  backgroundColor: Colors.green,
-                  textColor: Colors.white,
-                );
-              } catch (e) {
-                Fluttertoast.showToast(
-                  msg: 'Error downloading map: ${e.toString()}',
-                  toastLength: Toast.LENGTH_LONG,
-                  gravity: ToastGravity.BOTTOM,
-                  backgroundColor: Colors.red,
-                  textColor: Colors.white,
-                );
-              }
-            },
-            child: const Text('Download Map'),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () async {
+                try {
+                  await _downloadStylePack();
+                  await _downloadTileRegion();
+                  await _saveTrailDetailsToFile();
+                  await OfflineSwitch.shared.setMapboxStackConnected(false);
+                  setState(() {
+                    _isMapDownloaded = true;
+                  });
+                  Fluttertoast.showToast(
+                    msg: 'Map downloaded successfully!',
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.green,
+                    textColor: Colors.white,
+                  );
+                } catch (e) {
+                  Fluttertoast.showToast(
+                    msg: 'Error downloading map: ${e.toString()}',
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Download Map',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
           ),
         ],
       ),
