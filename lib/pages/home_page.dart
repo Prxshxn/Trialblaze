@@ -1,12 +1,12 @@
 import 'package:createtrial/pages/landing_page.dart';
 import 'package:createtrial/pages/newhome_page.dart';
-import 'package:createtrial/pages/location_marker.dart';
+//import 'package:createtrial/pages/location_marker.dart';
 import 'package:createtrial/pages/annotate_page.dart';
 import 'package:createtrial/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'navigatetotrail.dart';
 import 'package:createtrial/models/trail.dart';
-import 'downloadable_trails.dart';
+//import 'downloadable_trails.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'saved_trails_page.dart';
 import 'package:createtrial/screens/trail_overview_screen.dart';
@@ -100,28 +100,28 @@ class _skHomePageState extends State<skHomePage> {
                   },
                   child: const Text("Home Page"),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LocationMarkerPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("Location Marker Feature"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DownloadsViewPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("Download maps"),
-                ),
+                // ElevatedButton(
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => const LocationMarkerPage(),
+                //       ),
+                //     );
+                //   },
+                //   child: const Text("Location Marker Feature"),
+                // ),
+                // ElevatedButton(
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => DownloadsViewPage(),
+                //       ),
+                //     );
+                //   },
+                //   child: const Text("Download maps"),
+                // ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
