@@ -233,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage>
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            _userDetails?['address'] ?? 'Loading...',
+                            _userDetails?['hiking_experience'] ?? 'Loading...',
                             style: TextStyle(
                               color: Colors.grey[400],
                               fontSize: 16,
