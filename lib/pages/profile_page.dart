@@ -174,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage>
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              icon: const Icon(Icons.home),
+              icon: const Icon(Icons.home_outlined),
               color: Colors.grey,
               onPressed: () {
                 Navigator.pushReplacement(
@@ -200,7 +200,7 @@ class _ProfilePageState extends State<ProfilePage>
             const SizedBox(width: 48), // Space for the FAB
             IconButton(
               icon: const Icon(Icons.bookmark_border),
-              color: Colors.white,
+              color: Colors.grey,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -211,8 +211,8 @@ class _ProfilePageState extends State<ProfilePage>
               },
             ),
             IconButton(
-              icon: const Icon(Icons.person_outline),
-              color: Colors.grey,
+              icon: const Icon(Icons.person),
+              color: Colors.white,
               onPressed: () {
                 // Already on ProfilePage, no action needed
               },
