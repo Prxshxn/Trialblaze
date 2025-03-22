@@ -63,6 +63,9 @@ class _TrailDetailsState extends State<TrailDetails> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _elevationController = TextEditingController();
 
+  // Boolean to track if the save operation is in progress
+  bool isSaving = false;
+
   @override
   void dispose() {
     // Dispose controllers to free up resources
@@ -207,95 +210,110 @@ class _TrailDetailsState extends State<TrailDetails> {
             ),
             const SizedBox(height: 24),
 
-            // Upload Pictures Button
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement picture upload
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                minimumSize:
-                    const Size(double.infinity, 48), // Full width button
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text('Upload Pictures'),
-            ),
-            const SizedBox(height: 16),
-
             // Save Trail Button
             ElevatedButton(
-              onPressed: () async {
-                // Validate inputs
-                if (_nameController.text.isEmpty ||
-                    _descriptionController.text.isEmpty) {
-                  Fluttertoast.showToast(
-                    msg: 'Please fill in all fields',
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                  );
-                  return;
-                }
+              onPressed: isSaving
+                  ? null
+                  : () async {
+                      // Disable the button and set isSaving to true
+                      setState(() {
+                        isSaving = true;
+                      });
 
-                // Get the user ID from SharedPreferences
-                final prefs = await SharedPreferences.getInstance();
-                final userId = prefs.getString('user_id');
+                      // Show a toast message indicating that the trail is being saved
+                      Fluttertoast.showToast(
+                        msg: 'Saving trail... This might take some time.',
+                        toastLength: Toast.LENGTH_LONG,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.blue,
+                        textColor: Colors.white,
+                      );
 
-                if (userId == null) {
-                  Fluttertoast.showToast(
-                    msg: 'User ID not found. Please log in again.',
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                  );
-                  return;
-                }
+                      // Validate inputs
+                      if (_nameController.text.isEmpty ||
+                          _descriptionController.text.isEmpty) {
+                        Fluttertoast.showToast(
+                          msg: 'Please fill in all fields',
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                        );
 
-                // Parse elevation gain (default to 0 if empty or invalid)
-                final elevationGain =
-                    double.tryParse(_elevationController.text) ?? 0.0;
+                        // Re-enable the button
+                        setState(() {
+                          isSaving = false;
+                        });
+                        return;
+                      }
 
-                // Prepare the data to send to the backend
-                final response = await saveTrail(
-                  _nameController.text, // Trail name
-                  _descriptionController.text, // Trail description
-                  widget.totalDistanceInMeters, // Total distance
-                  widget.totalDuration.inSeconds, // Total duration
-                  userId, // User ID
-                  widget.trackedPositions, // Tracked coordinates
-                  selectedDistrict, // Selected district
-                  difficultyLevel, // Difficulty level
-                  elevationGain, // Elevation gain
-                );
+                      // Get the user ID from SharedPreferences
+                      final prefs = await SharedPreferences.getInstance();
+                      final userId = prefs.getString('user_id');
 
-                if (response != null && response['trailId'] != null) {
-                  Fluttertoast.showToast(
-                    msg: 'Trail saved successfully!',
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.green,
-                    textColor: Colors.white,
-                  );
+                      if (userId == null) {
+                        Fluttertoast.showToast(
+                          msg: 'User ID not found. Please log in again.',
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                        );
 
-                  // Call the callback if it exists
-                  if (widget.onTrailSaved != null) {
-                    widget.onTrailSaved!();
-                  }
+                        // Re-enable the button
+                        setState(() {
+                          isSaving = false;
+                        });
+                        return;
+                      }
 
-                  Navigator.pop(context); // Go back to the previous page
-                } else {
-                  Fluttertoast.showToast(
-                    msg: 'Failed to save trail. Please try again.',
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                  );
-                }
-              },
+                      // Parse elevation gain (default to 0 if empty or invalid)
+                      final elevationGain =
+                          double.tryParse(_elevationController.text) ?? 0.0;
+
+                      // Prepare the data to send to the backend
+                      final response = await saveTrail(
+                        _nameController.text, // Trail name
+                        _descriptionController.text, // Trail description
+                        widget.totalDistanceInMeters, // Total distance
+                        widget.totalDuration.inSeconds, // Total duration
+                        userId, // User ID
+                        widget.trackedPositions, // Tracked coordinates
+                        selectedDistrict, // Selected district
+                        difficultyLevel, // Difficulty level
+                        elevationGain, // Elevation gain
+                      );
+
+                      if (response != null && response['trailId'] != null) {
+                        Fluttertoast.showToast(
+                          msg: 'Trail saved successfully!',
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                        );
+
+                        // Call the callback if it exists
+                        if (widget.onTrailSaved != null) {
+                          widget.onTrailSaved!();
+                        }
+
+                        Navigator.pop(context); // Go back to the previous page
+                      } else {
+                        Fluttertoast.showToast(
+                          msg: 'Failed to save trail. Please try again.',
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                        );
+
+                        // Re-enable the button
+                        setState(() {
+                          isSaving = false;
+                        });
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
@@ -303,7 +321,11 @@ class _TrailDetailsState extends State<TrailDetails> {
                     const Size(double.infinity, 55), // Full width button
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text('Save'),
+              child: isSaving
+                  ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : const Text('Save'),
             ),
           ],
         ),
