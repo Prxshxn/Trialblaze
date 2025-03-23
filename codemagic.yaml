@@ -1,0 +1,57 @@
+workflows:
+  flutter-workflow:
+    name: Trialblaze Flutter Build
+    instance_type: mac_mini_m2 # Use macOS for iOS builds
+    environment:
+      flutter: stable
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.pub-cache
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: 'dev'
+          include: true
+    scripts:
+      - name: Check for pubspec.yaml
+        script: |
+          if [ -f "pubspec.yaml" ]; then
+            echo "pubspec.yaml found in: $(pwd)"
+          else
+            echo "pubspec.yaml not found in: $(pwd)"
+            exit 1
+          fi
+
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+
+      - name: Flutter test
+        script: |
+          flutter test
+
+      - name: Build APK
+        script: |
+          flutter build apk --release
+
+      - name: Build iOS
+        script: |
+          flutter build ios --release --no-codesign
+
+    artifacts:
+      - build/**/outputs/apk/**/*.apk
+      - build/**/outputs/bundle/**/*.aab
+      - build/**/outputs/**/mapping.txt
+      - build/ios/ipa/*.ipa
+
+    publishing:
+      email:
+        recipients:
+          - developers@trialblaze.com
