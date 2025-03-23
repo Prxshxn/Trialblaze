@@ -1,5 +1,14 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class _PictureUploadPageState extends State<PictureUploadPage> {
+  // Retrieve user ID from SharedPreferences
+  Future<String?> getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_id');
+  }
+}
 
 class _PictureUploadPageState extends State<PictureUploadPage> {
   File? _imageFile;
