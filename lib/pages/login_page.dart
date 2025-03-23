@@ -206,17 +206,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           validator: ValidationUtils.validatePassword,
                         ),
-                        const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              'Forgot Password?',
-                              style: TextStyle(color: Colors.green),
-                            ),
-                          ),
-                        ),
                         const SizedBox(height: 30),
                         SizedBox(
                           width: double.infinity,
