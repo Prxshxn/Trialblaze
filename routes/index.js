@@ -5,15 +5,9 @@ import { Login } from '../controllers/login.js';
 import { check } from 'express-validator';
 import { verifyToken } from "../middleware/verify.js";
 import { Logout } from '../controllers/logout.js';
-
+import { getTrailDetails } from '../controllers/trails.js';
 import { saveTrail } from '../controllers/saveTrail.js';
 import { getAllTrails, getTrailById } from '../controllers/overview.js';
-
-
-import { getTrailDetails } from '../controllers/trails.js';
-
-
-
 
 const router = express.Router();
 
@@ -23,14 +17,10 @@ router.get('/', (req, res) => {
 
 router.post("/register/hiker", Validate, registerHiker);
 router.post("/register/responder", Validate, registerResponder);
-router.post("/login", check("email").isEmail().normalizeEmail(), check("password").not().isEmpty(), Validate, Login)
+router.post("/login", check("email").isEmail().normalizeEmail(), check("password").not().isEmpty(), Validate, Login);
 router.get("/verify", verifyToken, (req, res) => { });
 router.post("/logout", Logout);
+router.get('/trails/:id', getTrailById);
 router.get("/trails", getTrailDetails);
 router.post("/trail/save", saveTrail);
-router.get('/trails', getAllTrails);
-router.get('/trails/:id', getTrailById);
-
-
 export default (server) => server.use('/api/v1', router);
-

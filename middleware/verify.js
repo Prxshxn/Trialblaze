@@ -4,7 +4,6 @@ import { SECRET_ACCESS_TOKEN } from "../config/index.js";
 export const verifyToken = async (req, res, next) => {
     try {
         const token = req.cookies.SessionID;
-
         if (!token) {
             return res.status(401).json({ status: "error", message: "Unauthorized! No token provided." });
         }
@@ -24,4 +23,3 @@ export const verifyToken = async (req, res, next) => {
         res.status(401).json({ status: "error", message: "Invalid token or session expired" });
     }
 };
-

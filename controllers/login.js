@@ -38,7 +38,7 @@ export async function Login(req, res) {
 
         // Securely set HTTP-only cookie
         res.cookie("SessionID", token, { 
-            maxAge: 20 * 60 * 1000, 
+            maxAge: 30 * 24 * 60 * 60 * 1000, 
             httpOnly: true, 
             secure: true, 
             sameSite: "None" 
@@ -47,7 +47,6 @@ export async function Login(req, res) {
         return res.status(200).json({
             status: "success",
             message: "You have successfully logged in.",
-
             data: { id: user.id,role: user.role, username: user.username , token:token }
            
         });
