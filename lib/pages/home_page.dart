@@ -157,17 +157,17 @@ class _skHomePageState extends State<skHomePage> {
                   },
                   child: const Text("Splash screen"),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PictureUploadPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("Picture upload"),
-                )
+                // ElevatedButton(
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => PictureUploadPage(),
+                //       ),
+                //     );
+                //   },
+                //   child: const Text("Picture upload"),
+                // )
               ],
             ),
           ),

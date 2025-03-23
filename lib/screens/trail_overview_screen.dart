@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/trail.dart';
 import '../models/review.dart';
 import '../services/api_service.dart';
@@ -6,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../pages/navigation_page.dart';
 import '../pages/navigatetotrail.dart';
 import '../pages/download_page.dart';
+import '../pages/upload_image.dart';
 
 class TrailOverviewScreen extends StatefulWidget {
   final String trailId;
@@ -23,11 +26,46 @@ class _TrailOverviewScreenState extends State<TrailOverviewScreen> {
   final _commentController = TextEditingController();
   double _userRating = 0;
   late Future<Trail> _futureTrail;
+  List<String> imagePaths = [];
+  bool isLoadingImages = true;
 
   @override
   void initState() {
     super.initState();
     _futureTrail = ApiService.getTrailById(widget.trailId);
+    fetchImages();
+  }
+
+  Future<void> fetchImages() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('user_images') // Query the correct table
+          .select('image_path')
+          .eq('trail_id', widget.trailId); // Filter by trail_id
+
+      setState(() {
+        imagePaths = response
+            .map<String>((record) => record['image_path'] as String)
+            .toList();
+        isLoadingImages = false;
+      });
+
+      // Print success message to console
+      print('Successfully fetched ${imagePaths.length} images.');
+    } catch (e) {
+      setState(() => isLoadingImages = false);
+
+      // Print error message to console
+      print('Failed to fetch images: $e');
+      debugPrint('Error details: $e');
+
+      // Show a SnackBar to the user (optional)
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to fetch images: $e")),
+        );
+      }
+    }
   }
 
   void _submitReview() {
@@ -270,6 +308,7 @@ class _TrailOverviewScreenState extends State<TrailOverviewScreen> {
                               const SizedBox(height: 20),
                               Row(
                                 children: [
+                                  // Upload Picture Button (previously was the standalone button below)
                                   Expanded(
                                     child: ElevatedButton.icon(
                                       onPressed: () {
@@ -277,14 +316,14 @@ class _TrailOverviewScreenState extends State<TrailOverviewScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                DownloadMapPage(
+                                                PictureUploadPage(
                                                     trailId: trail.id),
                                           ),
                                         );
                                       },
-                                      icon: const Icon(Icons.map,
+                                      icon: const Icon(Icons.add_a_photo,
                                           color: Colors.white),
-                                      label: const Text('Download'),
+                                      label: const Text('Upload Picture'),
                                       style: ElevatedButton.styleFrom(
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 12),
@@ -335,6 +374,145 @@ class _TrailOverviewScreenState extends State<TrailOverviewScreen> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 10), // Reduced spacing
+                              // Download Button (moved from the row to its own full-width button)
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DownloadMapPage(trailId: trail.id),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.map,
+                                      color: Colors.white),
+                                  label: const Text('Download'),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
+                                    backgroundColor: const Color(0xFF4eae55),
+                                    foregroundColor: Colors.white,
+                                    elevation: 3,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Photos',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              isLoadingImages
+                                  ? const Center(
+                                      child: CircularProgressIndicator(
+                                        color: Color(0xFF4eae55),
+                                      ),
+                                    )
+                                  : imagePaths.isEmpty
+                                      ? Center(
+                                          child: Column(
+                                            children: [
+                                              Icon(
+                                                Icons
+                                                    .image_not_supported_outlined,
+                                                size: 64,
+                                                color: Colors.grey[600],
+                                              ),
+                                              const SizedBox(height: 16),
+                                              const Text(
+                                                "No photos found",
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                "Photos uploaded by users will appear here",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey[400],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : SizedBox(
+                                          height:
+                                              200, // Set a fixed height for the horizontal list
+                                          child: ListView.builder(
+                                            scrollDirection: Axis
+                                                .horizontal, // Make it scroll horizontally
+                                            itemCount: imagePaths.length,
+                                            itemBuilder: (context, index) {
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right:
+                                                        12), // Add spacing between images
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          12), // Rounded corners
+                                                  child: Image.network(
+                                                    Supabase
+                                                        .instance.client.storage
+                                                        .from('images')
+                                                        .getPublicUrl(
+                                                            imagePaths[index]),
+                                                    fit: BoxFit.cover,
+                                                    width:
+                                                        150, // Set a fixed width for each image
+                                                    loadingBuilder: (context,
+                                                        child,
+                                                        loadingProgress) {
+                                                      if (loadingProgress ==
+                                                          null) return child;
+                                                      return Center(
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          value: loadingProgress
+                                                                      .expectedTotalBytes !=
+                                                                  null
+                                                              ? loadingProgress
+                                                                      .cumulativeBytesLoaded /
+                                                                  loadingProgress
+                                                                      .expectedTotalBytes!
+                                                              : null,
+                                                        ),
+                                                      );
+                                                    },
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Container(
+                                                        width:
+                                                            150, // Match the width of other images
+                                                        color: Colors.grey[900],
+                                                        child: const Center(
+                                                          child: Icon(
+                                                            Icons.broken_image,
+                                                            color: Colors.red,
+                                                            size: 42,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
                               const SizedBox(height: 20),
                               const Text(
                                 'Reviews',
