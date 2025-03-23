@@ -22,14 +22,22 @@ class _ProfilePageState extends State<ProfilePage>
   bool _showStickyTabs = false;
   Map<String, dynamic>? _userDetails;
   List<Map<String, dynamic>> _userTrails = [];
+  List<String> _userImages = []; // To store user images
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this); // Updated to 3 tabs
     _scrollController.addListener(_scrollListener);
     _fetchUserDetails();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _scrollListener() {
@@ -68,12 +76,39 @@ class _ProfilePageState extends State<ProfilePage>
           .select('id, name, distance_meters, duration_seconds, created_at')
           .eq('user_id', userId);
 
+      // Fetch user images
+      await fetchUserImages(userId);
+
       setState(() {
         _userDetails = userResponse;
         _userTrails = trailsResponse;
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> fetchUserImages(String userId) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('user_images')
+          .select('image_path')
+          .eq('user_id', userId);
+
+      // Extract image paths from the response
+      setState(() {
+        _userImages = response
+            .map<String>((record) => record['image_path'] as String)
+            .toList();
+      });
+    } catch (e) {
+      print('Error fetching user images: $e');
+    }
+  }
+
+  String getImageUrl(String imagePath) {
+    return Supabase.instance.client.storage
+        .from('images')
+        .getPublicUrl(imagePath);
   }
 
   List<String> _getStaticImageUrls() {
@@ -130,6 +165,7 @@ class _ProfilePageState extends State<ProfilePage>
               controller: _tabController,
               children: [
                 _buildActivityTab(),
+                _buildPhotosTab(), // New Photos tab
                 _buildReviewsTab(),
               ],
             ),
@@ -223,7 +259,6 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  // Rest of your existing code...
   Future<void> logout() async {
     try {
       // Initialize SharedPreferences
@@ -266,6 +301,7 @@ class _ProfilePageState extends State<ProfilePage>
         unselectedLabelColor: Colors.white,
         tabs: [
           Tab(text: 'Activity'),
+          Tab(text: 'Photos'), // New Photos tab
           Tab(text: 'Reviews'),
         ],
       ),
@@ -430,6 +466,124 @@ class _ProfilePageState extends State<ProfilePage>
           ),
         );
       },
+    );
+  }
+
+  // New Photos Tab
+  Widget _buildPhotosTab() {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator(color: Colors.green));
+    }
+
+    if (_userImages.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.photo_library_outlined,
+              size: 64,
+              color: Colors.grey[600],
+            ),
+            SizedBox(height: 16),
+            Text(
+              'No photos found',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Photos you upload will appear here',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[400],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(12),
+      child: GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: 0.8,
+        ),
+        itemCount: _userImages.length,
+        itemBuilder: (context, index) {
+          return _buildPhotoCard(_userImages[index]);
+        },
+      ),
+    );
+  }
+
+  Widget _buildPhotoCard(String imagePath) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      color: Color(0xFF1E1E1E),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            getImageUrl(imagePath),
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(
+                child: CircularProgressIndicator(
+                  color: Colors.green,
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
+              );
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: Colors.grey[800],
+                child: Center(
+                  child: Icon(
+                    Icons.broken_image,
+                    size: 50,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              );
+            },
+          ),
+          // Gradient overlay at the bottom
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.7),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
