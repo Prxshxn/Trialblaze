@@ -11,6 +11,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'saved_trails_page.dart';
 import 'package:createtrial/screens/trail_overview_screen.dart';
 import 'package:createtrial/pages/splash-screen.dart';
+import 'upload_image.dart';
+import 'image_display.dart';
 
 class skHomePage extends StatefulWidget {
   const skHomePage({super.key});
@@ -138,14 +140,11 @@ class _skHomePageState extends State<skHomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TrailOverviewScreen(
-                          trailId:
-                              '79804eee-df92-42f8-9d57-634c860b4966', // Use dynamic trail ID
-                        ),
+                        builder: (context) => UserImagesPage(),
                       ),
                     );
                   },
-                  child: const Text("Trail Overview"),
+                  child: const Text("View images"),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -163,11 +162,11 @@ class _skHomePageState extends State<skHomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ProfilePage(),
+                        builder: (context) => PictureUploadPage(),
                       ),
                     );
                   },
-                  child: const Text("Profile"),
+                  child: const Text("Picture upload"),
                 )
               ],
             ),

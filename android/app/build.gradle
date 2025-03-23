@@ -21,7 +21,7 @@ plugins {
 android {
 
     namespace = "com.example.createtrial"
-    compileSdk = 34
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
