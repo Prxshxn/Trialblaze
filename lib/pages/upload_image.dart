@@ -12,11 +12,9 @@ class _PictureUploadPageState extends State<PictureUploadPage> {
 }
 
 class _PictureUploadPageState extends State<PictureUploadPage> {
-  // Upload image to Supabase
   Future uploadImage() async {
     if (_imageFile == null) return;
 
-    // Retrieve user ID
     String? userId = await getUserId();
     if (userId == null) {
       ScaffoldMessenger.of(context)
@@ -24,16 +22,13 @@ class _PictureUploadPageState extends State<PictureUploadPage> {
       return;
     }
 
-    // Generate a unique file path
     final fileName = DateTime.now().millisecondsSinceEpoch.toString();
     final path = 'uploads/$fileName';
 
-    // Upload image to Supabase storage
     await Supabase.instance.client.storage
         .from('images')
         .upload(path, _imageFile!)
         .then((value) async {
-      // Store user ID and image path in a separate table
       await Supabase.instance.client.from('user_images').insert([
         {
           'user_id': userId,
