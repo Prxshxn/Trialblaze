@@ -41,6 +41,7 @@ class _PictureUploadPageState extends State<PictureUploadPage> {
   }
 }
 
+
 class _PictureUploadPageState extends State<PictureUploadPage> {
   File? _imageFile;
 
@@ -55,7 +56,7 @@ class _PictureUploadPageState extends State<PictureUploadPage> {
       });
     }
   }
-
+class _PictureUploadPageState extends State<PictureUploadPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,3 +76,5 @@ class _PictureUploadPageState extends State<PictureUploadPage> {
     );
   }
 }
+}
+
