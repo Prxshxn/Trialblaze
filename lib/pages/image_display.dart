@@ -46,6 +46,16 @@ Future<String?> getUserId() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   return prefs.getString('user_id');
 }
+Future<List<String>> fetchUserImages(String userId) async {
+  final response = await Supabase.instance.client
+      .from('user_images')
+      .select('image_path')
+      .eq('user_id', userId);
+
+  return response
+      .map<String>((record) => record['image_path'] as String)
+      .toList();
+}
 
 
 
