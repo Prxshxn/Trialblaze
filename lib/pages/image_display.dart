@@ -18,6 +18,31 @@ class _UserImagesPageState extends State<UserImagesPage> {
     super.initState();
     fetchImages();
   }
+  Future<void> fetchImages() async {
+  try {
+    String? userId = await getUserId();
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User ID not found!")),
+      );
+      return;
+    }
+
+    List<String> paths = await fetchUserImages(userId);
+    setState(() {
+      imagePaths = paths;
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Failed to fetch images: $e")),
+    );
+  }
+}
+
 
 class _UserImagesPageState extends State<UserImagesPage> {
   
