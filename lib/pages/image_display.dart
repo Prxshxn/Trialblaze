@@ -14,6 +14,14 @@ class _UserImagesPageState extends State<UserImagesPage> {
   bool isLoading = true; // Track loading state
 
   @override
+  void initState() {
+    super.initState();
+    fetchImages();
+  }
+
+class _UserImagesPageState extends State<UserImagesPage> {
+  
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("My Images")),
