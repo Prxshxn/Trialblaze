@@ -65,6 +65,12 @@ class _UserImagesPageState extends State<UserImagesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("My Images")),
+      body: isLoading
+    ? const Center(child: CircularProgressIndicator())
+    : imagePaths.isEmpty
+        ? const Center(child: Text("No images found."))
+        : ...
+
       body: const Center(child: Text("User images will be displayed here")),
     );
   }
