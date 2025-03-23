@@ -10,6 +10,9 @@ class UserImagesPage extends StatefulWidget {
 }
 
 class _UserImagesPageState extends State<UserImagesPage> {
+  List<String> imagePaths = [];
+  bool isLoading = true; // Track loading state
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
