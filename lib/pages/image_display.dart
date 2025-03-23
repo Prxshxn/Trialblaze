@@ -69,7 +69,16 @@ class _UserImagesPageState extends State<UserImagesPage> {
     ? const Center(child: CircularProgressIndicator())
     : imagePaths.isEmpty
         ? const Center(child: Text("No images found."))
-        : ...
+        ListView.builder(
+  itemCount: imagePaths.length,
+  itemBuilder: (context, index) {
+    return Image.network(
+      Supabase.instance.client.storage.from('images').getPublicUrl(imagePaths[index]),
+      fit: BoxFit.cover,
+    );
+  },
+)
+
 
       body: const Center(child: Text("User images will be displayed here")),
     );
