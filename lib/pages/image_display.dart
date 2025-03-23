@@ -42,6 +42,11 @@ class _UserImagesPageState extends State<UserImagesPage> {
     );
   }
 }
+Future<String?> getUserId() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('user_id');
+}
+
 
 
 class _UserImagesPageState extends State<UserImagesPage> {
