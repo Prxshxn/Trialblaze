@@ -55,7 +55,17 @@ Future<List<String>> fetchUserImages(String userId) async {
   return response
       .map<String>((record) => record['image_path'] as String)
       .toList();
+      
 }
+catch (e) {
+  setState(() {
+    isLoading = false;
+  });
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Error fetching images: ${e.toString()}")),
+  );
+}
+
 
 
 
