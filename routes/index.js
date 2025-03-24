@@ -8,6 +8,7 @@ import { Logout } from '../controllers/logout.js';
 import { getTrailDetails } from '../controllers/trails.js';
 import { saveTrail } from '../controllers/saveTrail.js';
 import { getAllTrails, getTrailById } from '../controllers/overview.js';
+import { addReview, getReviews } from '../controllers/reviewController.js';
 
 const router = express.Router();
 
@@ -23,4 +24,8 @@ router.post("/logout", Logout);
 router.get('/trails/:id', getTrailById);
 router.get("/trails", getTrailDetails);
 router.post("/trail/save", saveTrail);
+router.post('/reviews', addReview); 
+router.get('/reviews/:trail_id', getReviews); 
+
 export default (server) => server.use('/api/v1', router);
+
