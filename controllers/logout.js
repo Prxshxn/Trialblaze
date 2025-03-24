@@ -15,12 +15,18 @@ export async function Logout(req, res) {
             sameSite: "None",    // Allows the cookie to be sent with cross-site requests
         });
 
+        // Return a success response with a 200 status code
         return res.status(200).json({
             status: "success",
             message: "You have been logged out.",
         });
     } catch (err) {
+        // Log the error to the console for debugging purposes
         console.error("Logout error:", err.message);
-        return res.status(500).json({ status: "error", message: "Internal Server Error" });
+
+        // Return a 500 Internal Server Error response if an exception occurs
+        return res.status(500).json({ 
+            status: "error", 
+            message: "Internal Server Error" });
     }
 }
