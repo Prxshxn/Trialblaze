@@ -100,6 +100,16 @@ class _NavigationPageState extends State<NavigationPage> {
               child: const Icon(Icons.emergency),
             ),
           ),
+          Positioned(
+            bottom: 320,
+            right: 20,
+            child: FloatingActionButton(
+              heroTag: 'finishButton', // Unique tag
+              backgroundColor: Colors.green, // Red color for SOS
+              onPressed: _sendSOS, // Call the _sendSOS method
+              child: const Icon(Icons.check_circle_rounded),
+            ),
+          ),
         ],
       ),
     );
