@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: HomePage(), // Start with the map home page
+      home: SplashScreen(), // Start with the map home page
       routes: {
         '/landing': (context) => const LandingPage(),
         '/login': (context) => const LoginPage(),
