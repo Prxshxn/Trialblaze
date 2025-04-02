@@ -17,7 +17,6 @@ class NavigationPage extends StatefulWidget {
 class _NavigationPageState extends State<NavigationPage> {
   mp.MapboxMap? mapboxMapController;
   StreamSubscription? userPositionStream;
-  StreamSubscription? trackingStream;
   gl.Position? currentPosition;
   double currentZoom = 15.0;
 
@@ -25,22 +24,18 @@ class _NavigationPageState extends State<NavigationPage> {
   bool isTracking = true; // Automatically start tracking when navigation begins
   List<gl.Position> trackedPositions = [];
   double totalDistanceInMeters = 0.0;
-  Duration totalDuration = Duration.zero;
-  DateTime? trackingStartTime;
   DateTime? hikeStartTime;
 
   @override
   void initState() {
     super.initState();
     _setupPositionTracking();
-    _startTracking(); // Start tracking immediately
     hikeStartTime = DateTime.now();
   }
 
   @override
   void dispose() {
     userPositionStream?.cancel();
-    trackingStream?.cancel();
     super.dispose();
   }
 
@@ -112,16 +107,16 @@ class _NavigationPageState extends State<NavigationPage> {
               child: const Icon(Icons.emergency),
             ),
           ),
-          Positioned(
-            bottom: 320,
-            right: 20,
-            child: FloatingActionButton(
-              heroTag: 'finishButton',
-              backgroundColor: Colors.green,
-              onPressed: _finishHike,
-              child: const Icon(Icons.check_circle_rounded),
-            ),
-          ),
+          // Positioned(
+          //   bottom: 320,
+          //   right: 20,
+          //   child: FloatingActionButton(
+          //     heroTag: 'finishButton',
+          //     backgroundColor: Colors.green,
+          //     onPressed: _sendSOS,
+          //     child: const Icon(Icons.check_circle_rounded),
+          //   ),
+          // ),
           Positioned(
             bottom: 80,
             left: 20,
@@ -240,84 +235,84 @@ class _NavigationPageState extends State<NavigationPage> {
     }
   }
 
-  Future<void> _finishHike() async {
-    // Stop tracking
-    trackingStream?.cancel();
-    isTracking = false;
+  // Future<void> _finishHike() async {
+  //   // Stop tracking
+  //   trackingStream?.cancel();
+  //   isTracking = false;
 
-    // Calculate final duration
-    final hikeDuration = DateTime.now().difference(hikeStartTime!);
+  //   // Calculate final duration
+  //   final hikeDuration = DateTime.now().difference(hikeStartTime!);
 
-    // Get user ID
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('user_id');
+  //   // Get user ID
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final userId = prefs.getString('user_id');
 
-    if (userId == null) {
-      Fluttertoast.showToast(
-        msg: 'User ID not found. Please log in again.',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-      return;
-    }
+  //   if (userId == null) {
+  //     Fluttertoast.showToast(
+  //       msg: 'User ID not found. Please log in again.',
+  //       toastLength: Toast.LENGTH_LONG,
+  //       gravity: ToastGravity.BOTTOM,
+  //       backgroundColor: Colors.red,
+  //       textColor: Colors.white,
+  //     );
+  //     return;
+  //   }
 
-    final supabase = Supabase.instance.client;
+  //   final supabase = Supabase.instance.client;
 
-    try {
-      // Get user's existing stats
-      final userResponse = await supabase
-          .from('users')
-          .select('total_distance, total_hiking_time')
-          .eq('id', userId)
-          .single();
+  //   try {
+  //     // Get user's existing stats
+  //     final userResponse = await supabase
+  //         .from('users')
+  //         .select('total_distance, total_hiking_time')
+  //         .eq('id', userId)
+  //         .single();
 
-      // Calculate new totals
-      double existingDistance =
-          (userResponse['total_distance'] ?? 0).toDouble();
-      int existingTimeInSeconds =
-          (userResponse['total_hiking_time'] ?? 0).toInt();
+  //     // Calculate new totals
+  //     double existingDistance =
+  //         (userResponse['total_distance'] ?? 0).toDouble();
+  //     int existingTimeInSeconds =
+  //         (userResponse['total_hiking_time'] ?? 0).toInt();
 
-      double newDistance =
-          existingDistance + (totalDistanceInMeters / 1000); // Convert to km
-      int newTimeInSeconds = existingTimeInSeconds + hikeDuration.inSeconds;
+  //     double newDistance =
+  //         existingDistance + (totalDistanceInMeters / 1000); // Convert to km
+  //     int newTimeInSeconds = existingTimeInSeconds + hikeDuration.inSeconds;
 
-      // Update user stats
-      await supabase.from('users').update({
-        'total_distance': newDistance,
-        'total_hiking_time': newTimeInSeconds,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', userId);
+  //     // Update user stats
+  //     await supabase.from('users').update({
+  //       'total_distance': newDistance,
+  //       'total_hiking_time': newTimeInSeconds,
+  //       'updated_at': DateTime.now().toIso8601String(),
+  //     }).eq('id', userId);
 
-      // Record this hike
-      await supabase.from('user_hikes').insert({
-        'user_id': userId,
-        'trail_id': widget.trailId,
-        'distance_km': totalDistanceInMeters / 1000,
-        'duration_seconds': hikeDuration.inSeconds,
-        'completed_at': DateTime.now().toIso8601String(),
-      });
+  //     // Record this hike
+  //     await supabase.from('user_hikes').insert({
+  //       'user_id': userId,
+  //       'trail_id': widget.trailId,
+  //       'distance_km': totalDistanceInMeters / 1000,
+  //       'duration_seconds': hikeDuration.inSeconds,
+  //       'completed_at': DateTime.now().toIso8601String(),
+  //     });
 
-      Fluttertoast.showToast(
-        msg: 'Hike completed! Stats updated.',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
-      );
+  //     Fluttertoast.showToast(
+  //       msg: 'Hike completed! Stats updated.',
+  //       toastLength: Toast.LENGTH_LONG,
+  //       gravity: ToastGravity.BOTTOM,
+  //       backgroundColor: Colors.green,
+  //       textColor: Colors.white,
+  //     );
 
-      Navigator.pop(context);
-    } catch (e) {
-      Fluttertoast.showToast(
-        msg: 'Error updating stats: $e',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-    }
-  }
+  //     Navigator.pop(context);
+  //   } catch (e) {
+  //     Fluttertoast.showToast(
+  //       msg: 'Error updating stats: $e',
+  //       toastLength: Toast.LENGTH_LONG,
+  //       gravity: ToastGravity.BOTTOM,
+  //       backgroundColor: Colors.red,
+  //       textColor: Colors.white,
+  //     );
+  //   }
+  // }
 
   Future<List<Map<String, dynamic>>> fetchCoordinates(String trailId) async {
     final supabase = Supabase.instance.client;
@@ -383,7 +378,7 @@ class _NavigationPageState extends State<NavigationPage> {
     polylineAnnotationManager?.create(polylineAnnotationOptions);
   }
 
-  Future<void> _setupPositionTracking() async {
+  void _setupPositionTracking() async {
     bool serviceEnabled = await gl.Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
@@ -402,54 +397,42 @@ class _NavigationPageState extends State<NavigationPage> {
           'Location permission is permanently denied, we cannot request permission.');
     }
 
-    gl.LocationSettings locationSettings = const gl.LocationSettings(
-      accuracy: gl.LocationAccuracy.high,
-      distanceFilter: 100,
+    // Start tracking distance travelled
+    // Configure settings for geolocator
+    const locationSettings = gl.LocationSettings(
+      accuracy: gl.LocationAccuracy.bestForNavigation,
+      distanceFilter: 5,
     );
 
+    // Start listening users's position
     userPositionStream?.cancel();
-    userPositionStream =
-        gl.Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((gl.Position? position) {
-      if (position != null) {
-        setState(() {
-          currentPosition = position;
-        });
-      }
+    userPositionStream = gl.Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen((position) {
+      _handleNewPosition(position);
     });
   }
 
-  void _startTracking() {
-    if (!isTracking) {
-      setState(() {
-        isTracking = true;
-        trackingStartTime = DateTime.now();
-      });
+  void _handleNewPosition(gl.Position position) {
+    if (!isTracking) return;
 
-      // Create location settings with distance filter
-      final locationSettings = gl.LocationSettings(
-        accuracy: gl.LocationAccuracy.high,
-        distanceFilter: 10, // Distance in meters
-      );
+    setState(() {
+      currentPosition = position;
 
-      trackingStream = gl.Geolocator.getPositionStream(
-        locationSettings: locationSettings,
-      ).listen((position) {
-        setState(() {
-          if (trackedPositions.isNotEmpty) {
-            final lastPosition = trackedPositions.last;
-            final distance = gl.Geolocator.distanceBetween(
-              lastPosition.latitude,
-              lastPosition.longitude,
-              position.latitude,
-              position.longitude,
-            );
-            totalDistanceInMeters += distance;
-          }
-          trackedPositions.add(position);
-        });
-      });
-    }
+      if (trackedPositions.isNotEmpty) {
+        final lastPosition = trackedPositions.last;
+        final distance = gl.Geolocator.distanceBetween(
+          lastPosition.latitude,
+          lastPosition.longitude,
+          position.latitude,
+          position.longitude,
+        );
+        totalDistanceInMeters += distance;
+      }
+      trackedPositions.add(position);
+
+      _recenterCamera();
+    });
   }
 
   void _recenterCamera() {
@@ -500,8 +483,10 @@ class _NavigationPageState extends State<NavigationPage> {
   }
 
   String get formattedDuration {
-    if (!isTracking && trackingStartTime == null) return '0:00';
+    if (hikeStartTime == null) return '0:00';
     final duration = DateTime.now().difference(hikeStartTime!);
-    return '${duration.inHours}:${(duration.inMinutes % 60).toString().padLeft(2, '0')}';
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 }
