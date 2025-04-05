@@ -107,16 +107,16 @@ class _NavigationPageState extends State<NavigationPage> {
               child: const Icon(Icons.emergency),
             ),
           ),
-          // Positioned(
-          //   bottom: 320,
-          //   right: 20,
-          //   child: FloatingActionButton(
-          //     heroTag: 'finishButton',
-          //     backgroundColor: Colors.green,
-          //     onPressed: _sendSOS,
-          //     child: const Icon(Icons.check_circle_rounded),
-          //   ),
-          // ),
+          Positioned(
+            bottom: 320,
+            right: 20,
+            child: FloatingActionButton(
+              heroTag: 'finishButton',
+              backgroundColor: Colors.green,
+              onPressed: _completeHike,
+              child: const Icon(Icons.check_circle_rounded),
+            ),
+          ),
           Positioned(
             bottom: 80,
             left: 20,
@@ -235,84 +235,78 @@ class _NavigationPageState extends State<NavigationPage> {
     }
   }
 
-  // Future<void> _finishHike() async {
-  //   // Stop tracking
-  //   trackingStream?.cancel();
-  //   isTracking = false;
+  Future<void> _completeHike() async {
+    // Get user ID from shared preferences
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
 
-  //   // Calculate final duration
-  //   final hikeDuration = DateTime.now().difference(hikeStartTime!);
+    if (userId == null) {
+      Fluttertoast.showToast(
+        msg: 'User not logged in',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+      return;
+    }
 
-  //   // Get user ID
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final userId = prefs.getString('user_id');
+    // Calculate current hike duration
+    final hikeDuration = DateTime.now().difference(hikeStartTime!);
+    final hikeDistanceKm = totalDistanceInMeters / 1000;
 
-  //   if (userId == null) {
-  //     Fluttertoast.showToast(
-  //       msg: 'User ID not found. Please log in again.',
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.BOTTOM,
-  //       backgroundColor: Colors.red,
-  //       textColor: Colors.white,
-  //     );
-  //     return;
-  //   }
+    try {
+      final supabase = Supabase.instance.client;
 
-  //   final supabase = Supabase.instance.client;
+      // 1. Get user's current stats
+      final response = await supabase
+          .from('users')
+          .select('total_distance, total_hiking_time')
+          .eq('id', userId)
+          .single();
 
-  //   try {
-  //     // Get user's existing stats
-  //     final userResponse = await supabase
-  //         .from('users')
-  //         .select('total_distance, total_hiking_time')
-  //         .eq('id', userId)
-  //         .single();
+      // 2. Calculate new totals
+      final currentDistance = (response['total_distance'] ?? 0).toDouble();
+      final currentTime = (response['total_hiking_time'] ?? 0).toInt();
 
-  //     // Calculate new totals
-  //     double existingDistance =
-  //         (userResponse['total_distance'] ?? 0).toDouble();
-  //     int existingTimeInSeconds =
-  //         (userResponse['total_hiking_time'] ?? 0).toInt();
+      final newDistance = currentDistance + hikeDistanceKm;
+      final newTime = currentTime + hikeDuration.inSeconds;
 
-  //     double newDistance =
-  //         existingDistance + (totalDistanceInMeters / 1000); // Convert to km
-  //     int newTimeInSeconds = existingTimeInSeconds + hikeDuration.inSeconds;
+      // 3. Update user record
+      await supabase.from('users').update({
+        'total_distance': newDistance,
+        'total_hiking_time': newTime,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', userId);
 
-  //     // Update user stats
-  //     await supabase.from('users').update({
-  //       'total_distance': newDistance,
-  //       'total_hiking_time': newTimeInSeconds,
-  //       'updated_at': DateTime.now().toIso8601String(),
-  //     }).eq('id', userId);
+      // 4. Record this hike in user_hikes table
+      await supabase.from('user_hikes').insert({
+        'user_id': userId,
+        'trail_id': widget.trailId,
+        'distance_km': hikeDistanceKm,
+        'duration_seconds': hikeDuration.inSeconds,
+        'completed_at': DateTime.now().toIso8601String(),
+      });
 
-  //     // Record this hike
-  //     await supabase.from('user_hikes').insert({
-  //       'user_id': userId,
-  //       'trail_id': widget.trailId,
-  //       'distance_km': totalDistanceInMeters / 1000,
-  //       'duration_seconds': hikeDuration.inSeconds,
-  //       'completed_at': DateTime.now().toIso8601String(),
-  //     });
+      // Show success message
+      Fluttertoast.showToast(
+        msg: 'Hike completed! Stats updated.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
 
-  //     Fluttertoast.showToast(
-  //       msg: 'Hike completed! Stats updated.',
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.BOTTOM,
-  //       backgroundColor: Colors.green,
-  //       textColor: Colors.white,
-  //     );
-
-  //     Navigator.pop(context);
-  //   } catch (e) {
-  //     Fluttertoast.showToast(
-  //       msg: 'Error updating stats: $e',
-  //       toastLength: Toast.LENGTH_LONG,
-  //       gravity: ToastGravity.BOTTOM,
-  //       backgroundColor: Colors.red,
-  //       textColor: Colors.white,
-  //     );
-  //   }
-  // }
+      // Navigate back
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: 'Error saving hike: ${e.toString()}',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
 
   Future<List<Map<String, dynamic>>> fetchCoordinates(String trailId) async {
     final supabase = Supabase.instance.client;
