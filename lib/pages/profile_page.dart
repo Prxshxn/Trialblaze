@@ -76,11 +76,18 @@ class _ProfilePageState extends State<ProfilePage>
           .select('id, name, distance_meters, duration_seconds, created_at')
           .eq('user_id', userId);
 
+      final formattedUserDetails = {
+        ...userResponse,
+        'formatted_distance':
+            formatDistance(userResponse['total_distance'] ?? 0),
+        'formatted_time': formatDuration(userResponse['total_hiking_time'] ?? 0)
+      };
+
       // Fetch user images
       await fetchUserImages(userId);
 
       setState(() {
-        _userDetails = userResponse;
+        _userDetails = formattedUserDetails;
         _userTrails = trailsResponse;
         _isLoading = false;
       });
@@ -392,13 +399,20 @@ class _ProfilePageState extends State<ProfilePage>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatItem(Icons.terrain, '157 mi', 'Distance'),
+                    _buildStatItem(
+                      Icons.terrain,
+                      _userDetails?['formatted_distance'] ?? 'Loading...',
+                      'Distance',
+                    ),
                     Container(
                       height: 50,
                       width: 1,
                       color: Colors.green.withOpacity(0.3),
                     ),
-                    _buildStatItem(Icons.timer, '42 hrs', 'Time'),
+                    _buildStatItem(
+                        Icons.timer,
+                        _userDetails?['formatted_time'] ?? 'Loading...',
+                        'Time'),
                   ],
                 ),
               ],
@@ -811,5 +825,16 @@ class _ProfilePageState extends State<ProfilePage>
       double distanceInKm = distanceInMeters / 1000;
       return '${distanceInKm.toStringAsFixed(1)} km'; // Display in kilometers with one decimal place
     }
+  }
+}
+
+String formatDuration(int totalSeconds) {
+  final hours = totalSeconds ~/ 3600;
+  final minutes = (totalSeconds % 3600) ~/ 60;
+
+  if (hours > 0) {
+    return '$hours h ${minutes.toString().padLeft(2, '0')} min';
+  } else {
+    return '$minutes min';
   }
 }
