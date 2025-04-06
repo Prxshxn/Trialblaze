@@ -817,24 +817,41 @@ class _ProfilePageState extends State<ProfilePage>
       },
     ];
   }
+}
 
-  String formatDistance(double distanceInMeters) {
-    if (distanceInMeters < 1000) {
-      return '${distanceInMeters.toStringAsFixed(0)} m'; // Display in meters
-    } else {
-      double distanceInKm = distanceInMeters / 1000;
-      return '${distanceInKm.toStringAsFixed(1)} km'; // Display in kilometers with one decimal place
-    }
+String formatDuration(int seconds) {
+  final duration = Duration(seconds: seconds);
+
+  String twoDigits(int n) => n.toString().padLeft(2, '0');
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes.remainder(60);
+  final secs = duration.inSeconds.remainder(60);
+
+  // Format based on available time units
+  if (hours > 0) {
+    return "$hours hr ${twoDigits(minutes)} min ${twoDigits(secs)} s";
+  } else if (minutes > 0) {
+    return "$minutes min ${twoDigits(secs)} s";
+  } else {
+    return "$secs s";
   }
 }
 
-String formatDuration(int totalSeconds) {
-  final hours = totalSeconds ~/ 3600;
-  final minutes = (totalSeconds % 3600) ~/ 60;
+String formatDistance(double meters) {
+  if (meters >= 1000) {
+    // Convert to kilometers
+    int km = (meters ~/ 1000); // Integer division to get whole kilometers
+    int remainingMeters = (meters % 1000).toInt(); // Get remaining meters
 
-  if (hours > 0) {
-    return '$hours h ${minutes.toString().padLeft(2, '0')} min';
+    if (remainingMeters == 0) {
+      // If it's exactly X kilometers
+      return "$km km";
+    } else {
+      // If there are remaining meters
+      return "$km km $remainingMeters m";
+    }
   } else {
-    return '$minutes min';
+    // Less than 1 km, just show meters
+    return "${meters.toInt()} m";
   }
 }
