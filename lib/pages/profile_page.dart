@@ -434,17 +434,35 @@ class _ProfilePageState extends State<ProfilePage>
       itemCount: _userTrails.length,
       itemBuilder: (context, index) {
         final trail = _userTrails[index];
+        final imageUrl = _getImageUrlForTrail(index);
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: _buildActivityCard(
             trail['name'],
             trail['distance_meters'],
             '${DateTime.now().difference(DateTime.parse(trail['created_at'])).inDays} days ago',
+            imageUrl,
             trail['id'],
           ),
         );
       },
     );
+  }
+
+  List<String> _getStaticImageUrls() {
+    return [
+      'https://overatours.com/wp-content/uploads/2022/04/istockphoto-658384428-612x612-1.jpg',
+      'https://overatours.com/wp-content/uploads/2021/11/Horton-Plain-National-Park-Trek-Things-to-do-in-Nuwara-Eliya.jpg',
+      'https://media-hosting.imagekit.io//c6be2f189c554a88/tim-stief-YFFGkE3y4F8-unsplash.jpg?Expires=1837166660&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=oHytkUjYQys4RRDj2yxEmSqv1UcMGGDhzzLR24wA2Mwab~EXAVCEl0P6n2gvG1UsUaZKH3hPgeg76nDMMA3zjqTbxIz-4H-BvSJBp3VTn6Nm1ANolxSo61SC6JU~JUnxFetwF43X0T2D~h30YgZ435sbWL2cLg1X0z3X0wPSGLLUMAafXwCEIwFOYX1zS45YT6I98Xt4dFaHOrUSoLE4EeqlfsJjHdcg3VupodvujxpIBI53FONNdo-zHHAiP8AfwFassMYbyMlwPqVwRKCmkvKoPjz~UmcQAlo0h3t4xMEmMRd7F9FZmYQi4nkwFz97LfIBQ833j-zESBFAwrQhMw__',
+      'https://media-hosting.imagekit.io//f511187b4077490b/hintersee-3601004_1280.jpg?Expires=1837164860&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=Aull5F7JSOm6ogZbsk-AcSSlD796vAvLzEbHy~k7CJaIAg7f7x79x9CZj68hZNVCMVdp3HqUiiv7sl8lrr16w-OQr4wkbbHVud1Reh9J48F75OEBvoMuTDlJcELvfouxOIeMKvQn7xrdYkhLwrs9PjhtvCWIpESqjeQS0UV~fmyYxTd6k-I64qly1A-EhbGFATZuBKSubA56TKyow8EkF9PQ6iB5Fhrobqtqtx-y4wjSX-t2M0fb1ldipO9~yMWgKKgJBzphv5YyVWBXwmILBDsLOaHdZlZbX7K-G0NsmeDGUDUQDdKrRqVmp8B2ZryVEhJZ1qJhBUn822V4swURnA__',
+      'https://media-hosting.imagekit.io//6528056a5e9f4d50/tree-1715298_1280.jpg?Expires=1837165845&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=E3eYUEAOLodCYLBDZXcAs~rpZs4E5vfXEVxPWXtjAhXI0hQsE2l55hPCULC4ZSnqiFDWMqxPExER3FqBrgKr7m7Ahr-jqOWCZDtPKibNDwH-68HGhithAFEeMAJgfEq2qvGo3Mcb5gcGJVCrFCfoXDAgJsVFMc-YQ~cU~uRjxOtInMfiFPrV2iQdZfyHhY7G7p7qriXuTCGQ7btItx-9Rs30vv~NW7qMTGv3qYo0GGKGFeE1sAOEdohPPvm-BramBtDNn1LqE9dz7fAymETSMPFe1quuUIE2YIHKhWqyMwekLxJRbDEZ0cgRF-vcG7N9p89uo0xK4Y~qttg5KXT9qw__',
+      'https://media-hosting.imagekit.io//f5ad663817324e74/jeremy-bishop-dvACrXUExLs-unsplash.jpg?Expires=1837166615&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=oqxgG3-JxqPGBxFNsHoE5dK0OQ2CCLG9pRk3VxvPCVuF7ikW4sLpFJjt2DlD63nEhEhre0ivu5FAMAFRoKTLlOCVj84OFLR2R9PhEanJlNY0kIMIxtLu~bN88cocIMfOoeZfrvq2PNkEebtDm~e~itGs7BdhfAov0LTLUGOw-H7-w0KaWJ6dvoFrLPyLNq0q~vWlXgtbfeedkStNsCyUxuxYxXqEeXTiaRa2Y5xtV0mQA6cfzuJNVI4-zPGKC42ZWfDiRTCX6xApsldePTnb2IR~7gUggLqnCk90VN6MBhGywkdmmrO4GEDV0UGcpu44SDiYcOXp85XTJjve8GQx7Q__',
+    ];
+  }
+
+  String _getImageUrlForTrail(int index) {
+    final imageUrls = _getStaticImageUrls();
+    return imageUrls[index % imageUrls.length];
   }
 
   Widget _buildPhotosTab() {
@@ -532,49 +550,74 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _buildActivityCard(
-      String trailName, double distanceMeters, String time, String trailId) {
+  Widget _buildActivityCard(String trailName, double distanceMeters,
+      String time, String imageUrl, String trailId) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TrailOverviewScreen(trailId: trailId),
-        ),
-      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TrailOverviewScreen(
+              trailId: trailId,
+            ),
+          ),
+        );
+      },
       child: Card(
         elevation: 3,
-        color: const Color(0xFF1E1E1E),
+        color: Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 180,
-              decoration: BoxDecoration(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(12)),
-                color: Colors.grey[800],
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
               ),
-              child: Center(
-                child: Icon(Icons.landscape, size: 50, color: Colors.grey[600]),
+              child: Image.network(
+                imageUrl,
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 180,
+                    color: Colors.grey[800],
+                    child: Center(
+                      child: Icon(Icons.landscape,
+                          size: 50, color: Colors.grey[600]),
+                    ),
+                  );
+                },
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(trailName,
-                      style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white)),
-                  const SizedBox(height: 8),
-                  Text('Distance: ${formatDistance(distanceMeters)}',
-                      style: const TextStyle(fontSize: 16, color: Colors.grey)),
-                  const SizedBox(height: 8),
-                  Text(time,
-                      style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+                  Text(
+                    trailName,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Distance: ${formatDistance(distanceMeters)}', // Use formatDistance here
+                    style: TextStyle(fontSize: 16, color: Colors.grey[300]),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    time,
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontSize: 14,
+                    ),
+                  ),
                 ],
               ),
             ),
