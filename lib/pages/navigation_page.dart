@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class NavigationPage extends StatefulWidget {
-  final String trailId; // Add trailId as a parameter
+  final String trailId;
   const NavigationPage({super.key, required this.trailId});
 
   @override
@@ -20,10 +20,17 @@ class _NavigationPageState extends State<NavigationPage> {
   gl.Position? currentPosition;
   double currentZoom = 15.0;
 
+  // Tracking variables
+  bool isTracking = true; // Automatically start tracking when navigation begins
+  List<gl.Position> trackedPositions = [];
+  double totalDistanceInMeters = 0.0;
+  DateTime? hikeStartTime;
+
   @override
   void initState() {
     super.initState();
     _setupPositionTracking();
+    hikeStartTime = DateTime.now();
   }
 
   @override
@@ -45,7 +52,7 @@ class _NavigationPageState extends State<NavigationPage> {
             top: 40,
             left: 20,
             child: Hero(
-              tag: 'backButton', // Unique tag
+              tag: 'backButton',
               child: FloatingActionButton(
                 heroTag: null,
                 mini: true,
@@ -58,7 +65,7 @@ class _NavigationPageState extends State<NavigationPage> {
             bottom: 80,
             right: 20,
             child: Hero(
-              tag: 'recenterButton', // Unique tag
+              tag: 'recenterButton',
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: _recenterCamera,
@@ -70,7 +77,7 @@ class _NavigationPageState extends State<NavigationPage> {
             bottom: 140,
             right: 20,
             child: Hero(
-              tag: 'zoomInButton', // Unique tag
+              tag: 'zoomInButton',
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: _zoomIn,
@@ -82,7 +89,7 @@ class _NavigationPageState extends State<NavigationPage> {
             bottom: 200,
             right: 20,
             child: Hero(
-              tag: 'zoomOutButton', // Unique tag
+              tag: 'zoomOutButton',
               child: FloatingActionButton(
                 heroTag: null,
                 onPressed: _zoomOut,
@@ -91,13 +98,48 @@ class _NavigationPageState extends State<NavigationPage> {
             ),
           ),
           Positioned(
-            bottom: 260, // Adjust the position as needed
+            bottom: 260,
             right: 20,
             child: FloatingActionButton(
-              heroTag: 'sosButton', // Unique tag
-              backgroundColor: Colors.red, // Red color for SOS
-              onPressed: _sendSOS, // Call the _sendSOS method
+              heroTag: 'sosButton',
+              backgroundColor: Colors.red,
+              onPressed: _sendSOS,
               child: const Icon(Icons.emergency),
+            ),
+          ),
+          Positioned(
+            bottom: 320,
+            right: 20,
+            child: FloatingActionButton(
+              heroTag: 'finishButton',
+              backgroundColor: Colors.green,
+              onPressed: _completeHike,
+              child: const Icon(Icons.check_circle_rounded),
+            ),
+          ),
+          Positioned(
+            bottom: 80,
+            left: 20,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Distance: $formattedDistance',
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Duration: $formattedDuration',
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -106,15 +148,11 @@ class _NavigationPageState extends State<NavigationPage> {
   }
 
   Future<void> _sendSOS() async {
-    // Get the user's current position
     final position = await gl.Geolocator.getCurrentPosition();
-
-    // Get the user ID from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('user_id');
 
     if (userId == null) {
-      print('User ID not found. Please log in again.');
       Fluttertoast.showToast(
         msg: 'User ID not found. Please log in again.',
         toastLength: Toast.LENGTH_LONG,
@@ -128,16 +166,13 @@ class _NavigationPageState extends State<NavigationPage> {
     final supabase = Supabase.instance.client;
 
     try {
-      // Fetch hiker's name and phone number from Supabase
       final userResponse = await supabase
-          .from(
-              'users') // Replace with the actual table name where user data is stored
+          .from('users')
           .select('username, emergency_contact')
           .eq('id', userId)
           .single();
 
       if (userResponse == null) {
-        print('User details not found.');
         Fluttertoast.showToast(
           msg: 'User details not found.',
           toastLength: Toast.LENGTH_LONG,
@@ -148,15 +183,13 @@ class _NavigationPageState extends State<NavigationPage> {
         return;
       }
 
-      // Fetch trail name using trailId
       final trailResponse = await supabase
-          .from('trails') // Replace with the actual trails table name
+          .from('trails')
           .select('name')
           .eq('id', widget.trailId)
           .single();
 
       if (trailResponse == null) {
-        print('Trail details not found.');
         Fluttertoast.showToast(
           msg: 'Trail details not found.',
           toastLength: Toast.LENGTH_LONG,
@@ -171,7 +204,6 @@ class _NavigationPageState extends State<NavigationPage> {
       final hikerName = userResponse['username'] ?? 'Unknown';
       final phone = userResponse['emergency_contact'] ?? 'N/A';
 
-      // Prepare the SOS data
       final sosData = {
         'hikername': hikerName,
         'trail': trailName,
@@ -183,11 +215,8 @@ class _NavigationPageState extends State<NavigationPage> {
         'user_id': userId,
       };
 
-      // Send the data to Supabase
-      final response = await supabase.from('sos_requests').insert([sosData]);
+      await supabase.from('sos_requests').insert([sosData]);
 
-      // If no exception is thrown, the operation is successful
-      print('SOS data sent successfully');
       Fluttertoast.showToast(
         msg: 'SOS sent successfully!',
         toastLength: Toast.LENGTH_LONG,
@@ -196,8 +225,6 @@ class _NavigationPageState extends State<NavigationPage> {
         textColor: Colors.white,
       );
     } catch (e) {
-      // Handle any exceptions
-      print('Error sending SOS: $e');
       Fluttertoast.showToast(
         msg: 'Failed to send SOS. Please try again.',
         toastLength: Toast.LENGTH_LONG,
@@ -208,7 +235,79 @@ class _NavigationPageState extends State<NavigationPage> {
     }
   }
 
-  // Define the fetchCoordinates method
+  Future<void> _completeHike() async {
+    // Get user ID from shared preferences
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+
+    if (userId == null) {
+      Fluttertoast.showToast(
+        msg: 'User not logged in',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+      return;
+    }
+
+    // Calculate current hike duration
+    final hikeDuration = DateTime.now().difference(hikeStartTime!);
+    final hikeDistanceKm = totalDistanceInMeters / 1000;
+
+    try {
+      final supabase = Supabase.instance.client;
+
+      // 1. Get user's current stats
+      final response = await supabase
+          .from('users')
+          .select('total_distance, total_hiking_time')
+          .eq('id', userId)
+          .single();
+
+      // 2. Calculate new totals
+      final currentDistance = (response['total_distance'] ?? 0).toDouble();
+      final currentTime = (response['total_hiking_time'] ?? 0).toInt();
+
+      final newDistance = currentDistance + hikeDistanceKm;
+      final newTime = currentTime + hikeDuration.inSeconds;
+
+      // 3. Update user record
+      await supabase.from('users').update({
+        'total_distance': newDistance,
+        'total_hiking_time': newTime,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', userId);
+
+      // 4. Record this hike in user_hikes table
+      await supabase.from('user_hikes').insert({
+        'user_id': userId,
+        'trail_id': widget.trailId,
+        'distance_km': hikeDistanceKm,
+        'duration_seconds': hikeDuration.inSeconds,
+        'completed_at': DateTime.now().toIso8601String(),
+      });
+
+      // Show success message
+      Fluttertoast.showToast(
+        msg: 'Hike completed! Stats updated.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+
+      // Navigate back
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: 'Error saving hike: ${e.toString()}',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchCoordinates(String trailId) async {
     final supabase = Supabase.instance.client;
     try {
@@ -234,39 +333,33 @@ class _NavigationPageState extends State<NavigationPage> {
       ),
     );
 
-    // Fetch coordinates for the specific trail
     final coordinates = await fetchCoordinates(widget.trailId);
 
     if (coordinates.isNotEmpty) {
-      // Get the first coordinate
       final firstCoord = coordinates.first;
       final firstLatitude = firstCoord['latitude'] as double;
       final firstLongitude = firstCoord['longitude'] as double;
 
-      // Set the camera position to the first coordinate
       mapboxMapController?.flyTo(
         mp.CameraOptions(
           center: mp.Point(
             coordinates: mp.Position(firstLongitude, firstLatitude),
           ),
-          zoom: currentZoom, // Use the current zoom level
+          zoom: currentZoom,
         ),
         mp.MapAnimationOptions(duration: 1000),
       );
     }
 
-    // Convert coordinates to a list of `mp.Position`
     List<mp.Position> polylineCoordinates = coordinates.map((coord) {
       final latitude = coord['latitude'] as double;
       final longitude = coord['longitude'] as double;
       return mp.Position(longitude, latitude);
     }).toList();
 
-    // Create a polyline annotation manager
     final polylineAnnotationManager = await mapboxMapController?.annotations
         .createPolylineAnnotationManager();
 
-    // Create polyline annotation options
     mp.PolylineAnnotationOptions polylineAnnotationOptions =
         mp.PolylineAnnotationOptions(
       geometry: mp.LineString(
@@ -276,11 +369,10 @@ class _NavigationPageState extends State<NavigationPage> {
       lineWidth: 5.0,
     );
 
-    // Add the polyline annotation to the map
     polylineAnnotationManager?.create(polylineAnnotationOptions);
   }
 
-  Future<void> _setupPositionTracking() async {
+  void _setupPositionTracking() async {
     bool serviceEnabled = await gl.Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
@@ -299,20 +391,41 @@ class _NavigationPageState extends State<NavigationPage> {
           'Location permission is permanently denied, we cannot request permission.');
     }
 
-    gl.LocationSettings locationSettings = const gl.LocationSettings(
-      accuracy: gl.LocationAccuracy.high,
-      distanceFilter: 100,
+    // Start tracking distance travelled
+    // Configure settings for geolocator
+    const locationSettings = gl.LocationSettings(
+      accuracy: gl.LocationAccuracy.bestForNavigation,
+      distanceFilter: 5,
     );
 
+    // Start listening users's position
     userPositionStream?.cancel();
-    userPositionStream =
-        gl.Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((gl.Position? position) {
-      if (position != null) {
-        setState(() {
-          currentPosition = position;
-        });
+    userPositionStream = gl.Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen((position) {
+      _handleNewPosition(position);
+    });
+  }
+
+  void _handleNewPosition(gl.Position position) {
+    if (!isTracking) return;
+
+    setState(() {
+      currentPosition = position;
+
+      if (trackedPositions.isNotEmpty) {
+        final lastPosition = trackedPositions.last;
+        final distance = gl.Geolocator.distanceBetween(
+          lastPosition.latitude,
+          lastPosition.longitude,
+          position.latitude,
+          position.longitude,
+        );
+        totalDistanceInMeters += distance;
       }
+      trackedPositions.add(position);
+
+      _recenterCamera();
     });
   }
 
@@ -353,5 +466,21 @@ class _NavigationPageState extends State<NavigationPage> {
       ),
       mp.MapAnimationOptions(duration: 1000),
     );
+  }
+
+  String get formattedDistance {
+    if (totalDistanceInMeters < 1000) {
+      return '${totalDistanceInMeters.toStringAsFixed(0)} m';
+    } else {
+      return '${(totalDistanceInMeters / 1000).toStringAsFixed(2)} km';
+    }
+  }
+
+  String get formattedDuration {
+    if (hikeStartTime == null) return '0:00';
+    final duration = DateTime.now().difference(hikeStartTime!);
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 }
