@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
     try {
       // 1. Get user ID from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
+      final userId = prefs.getString('user_id');
 
       if (userId == null) {
         setState(() {
