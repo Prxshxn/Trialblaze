@@ -699,7 +699,7 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
                 GestureDetector(
                   onTap: () {
-                    // Navigate to trail details page
+                    // Navigate to the trail details page
                   },
                   child: const Icon(Icons.arrow_forward, color: Colors.green),
                 ),
