@@ -1,5 +1,6 @@
 import 'package:createtrial/screens/trail_overview_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_page.dart';
 import 'saved_trails_page.dart';
 import 'package:createtrial/pages/annotate_page.dart';
@@ -8,6 +9,7 @@ import 'dart:convert';
 import 'package:createtrial/pages/search_page.dart';
 import 'blog_list_page.dart';
 import 'package:geolocator/geolocator.dart' as gl;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,13 +20,58 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> trails = [];
+  List<Map<String, dynamic>> recommendedTrails = [];
   gl.Position? currentPosition; // Variable to store the user's current location
+  String userExperienceLevel = 'Beginner';
+  bool _isLoadingUserExperience = true;
+
+  final Map<String, String> experienceToDifficulty = {
+    'Beginner': 'Easy',
+    'Intermediate': 'Moderate',
+    'Expert': 'Hard'
+  };
 
   @override
   void initState() {
     super.initState();
+    _fetchUserExperience();
     _fetchTrails();
     _getUserLocation(); // Fetch the user's location when the page loads
+  }
+
+  //Function to fetch the user's experience
+  Future<void> _fetchUserExperience() async {
+    try {
+      // 1. Get user ID from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userId');
+
+      if (userId == null) {
+        setState(() {
+          userExperienceLevel = 'Beginner';
+          _isLoadingUserExperience = false;
+        });
+        return;
+      }
+
+      // 2. Fetch experience level from Supabase users table
+      final response = await Supabase.instance.client
+          .from('users')
+          .select('hiking_experience')
+          .eq('id', userId)
+          .single();
+
+      setState(() {
+        userExperienceLevel = response['hiking_experience'] ?? 'Beginner';
+        _isLoadingUserExperience = false;
+      });
+    } catch (e) {
+      debugPrint('Error fetching user experience: $e');
+      setState(() {
+        userExperienceLevel = 'Beginner';
+        _isLoadingUserExperience = false;
+      });
+    }
   }
 
   // Function to fetch the user's current location
@@ -62,15 +109,19 @@ class _HomePageState extends State<HomePage> {
           await http.get(Uri.parse('http://13.53.173.93:5000/api/v1/trails'));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body)['data'];
+        final allTrails = data
+            .map((trail) => {
+                  'id': trail['id'],
+                  'name': trail['name'],
+                  'description': trail['description'],
+                  'image_url': trail['imageUrl'],
+                  'difficulty': trail['difficulty_level']?.toString() ?? 'Easy'
+                })
+            .toList();
+
         setState(() {
-          trails = data
-              .map((trail) => {
-                    'id': trail['id'],
-                    'name': trail['name'],
-                    'description': trail['description'],
-                    'image_url': trail['imageUrl'],
-                  })
-              .toList();
+          trails = allTrails;
+          _filterRecommendedTrails();
         });
       } else {
         debugPrint('Failed to load trails: ${response.statusCode}');
@@ -78,6 +129,17 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       debugPrint('Error fetching trails: $e');
     }
+  }
+
+  void _filterRecommendedTrails() {
+    final targetDifficulty =
+        experienceToDifficulty[userExperienceLevel] ?? 'Easy';
+    setState(() {
+      recommendedTrails = trails.where((trail) {
+        return (trail['difficulty'] as String).toLowerCase() ==
+            targetDifficulty.toLowerCase();
+      }).toList();
+    });
   }
 
   @override
@@ -123,21 +185,32 @@ class _HomePageState extends State<HomePage> {
                   .toList(),
             ),
             const SizedBox(height: 24),
-            const SectionTitle(title: 'Trails Nearby'),
+            SectionTitle(
+              title: 'Recommended For $userExperienceLevel',
+            ),
             const SizedBox(height: 10),
             SectionScroll(
-              items: [
-                TrailCard(
-                    image:
-                        'https://images.unsplash.com/photo-1501555088652-021faa106b9b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80',
-                    title: 'Local Forest',
-                    subtitle: '2.5 miles away'),
-                TrailCard(
-                    image:
-                        'https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-                    title: 'City Trail',
-                    subtitle: '1.8 miles away'),
-              ],
+              items: recommendedTrails
+                  .map((trail) => GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TrailOverviewScreen(
+                                trailId: trail['id'], // Pass the trail ID
+                              ),
+                            ),
+                          );
+                        },
+                        child: TrailCard(
+                          image:
+                              trail['image_url'] ?? 'assets/images/trail1.jpg',
+                          title: trail['name'] ?? 'Unnamed Trail',
+                          subtitle: trail['description'] ??
+                              'No description available',
+                        ),
+                      ))
+                  .toList(),
             ),
             const SizedBox(height: 24),
             const SectionTitle(title: 'Real-Time Trail Conditions'),
